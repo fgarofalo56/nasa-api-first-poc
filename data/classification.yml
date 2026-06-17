@@ -1,0 +1,67 @@
+# Sensitivity classification for the synthetic Artemis procurement dataset.
+#
+# This is the "classify BEFORE exposure" discipline (the Microsoft Purview pattern,
+# applied locally): the seeder applies these labels to Postgres columns (COMMENT ON
+# COLUMN) and emits them into the catalog entry, so confidential records are governed
+# differently from routine ones from the first gateway call.
+#
+# Labels: Routine | Sensitive | Confidential
+# (All data here is SYNTHETIC — these labels demonstrate the workflow, not real policy.)
+
+dataset: artemis_procurement
+default_label: Routine
+
+tables:
+  vendors:
+    label: Sensitive            # supplier identity + performance
+    columns:
+      LIFNR: Routine
+      NAME1: Routine
+      CAGE_CODE: Sensitive
+      REGIO: Routine
+      LAND1: Routine
+      SOLE_SOURCE: Sensitive    # single-supplier exposure is sensitive
+      PAST_PERF_SCORE: Sensitive
+      SMALL_BUSINESS: Routine
+
+  materials:
+    label: Routine
+    columns:
+      MATNR: Routine
+      MAKTX: Routine
+      MATKL: Routine
+      PROGRAM: Routine
+      CRITICALITY: Sensitive     # mission-criticality of a part
+      STD_LEAD_TIME_DAYS: Routine
+      STD_UNIT_COST_USD: Confidential   # unit cost is confidential
+      UOM: Routine
+
+  purchase_orders:
+    label: Confidential          # procurement records as a whole
+    columns:
+      EBELN: Routine
+      EBELP: Routine
+      MATNR: Routine
+      MAKTX: Routine
+      LIFNR: Routine
+      PROGRAM: Routine
+      CRITICALITY: Sensitive
+      MENGE: Sensitive
+      NETPR: Confidential        # net price / unit
+      NETWR: Confidential        # net value
+      EINDT: Sensitive
+      ACTUAL_DELIVERY: Sensitive
+      DELAY_DAYS: Sensitive
+      PAD_ANOMALY: Sensitive
+      STATUS: Routine
+
+  supply_risk:
+    label: Sensitive             # derived risk view — sensitive but the demo's payload
+    columns:
+      MATNR: Routine
+      MAKTX: Routine
+      PROGRAM: Routine
+      CRITICALITY: Sensitive
+      SOLE_SOURCE: Sensitive
+      RISK_SCORE: Sensitive
+      RISK_TIER: Sensitive
