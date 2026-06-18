@@ -67,6 +67,9 @@ def _load_sources() -> list[dict]:
 
 
 def _save_sources(sources: list[dict]) -> None:
+    # Ensure the parent dir exists — in Azure there's no mounted /shared volume, so the
+    # registry persists to its own (ephemeral) filesystem; the catalog reads via /sources.
+    SOURCES_FILE.parent.mkdir(parents=True, exist_ok=True)
     SOURCES_FILE.write_text(json.dumps(sources, indent=2), encoding="utf-8")
 
 
