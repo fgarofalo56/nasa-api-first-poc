@@ -1,0 +1,11 @@
+/// Row-level security: members of this role see only Artemis-3 rows. Demonstrates
+/// governance carried all the way to the report layer. In the Service: model -> Security,
+/// assign members; or Modeling -> View as -> this role to test. Add more roles (one per
+/// program) or make it dynamic with USERPRINCIPALNAME() against a user->program table.
+role 'Artemis-3 Analyst'
+	modelPermission: read
+
+	tablePermission artemis_supply_risk = 'artemis_supply_risk'[program] = "Artemis-3"
+
+	annotation PBI_Id = 4b8d9ebdd80b421a91b2709c17c167b1
+

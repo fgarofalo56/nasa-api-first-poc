@@ -25,7 +25,8 @@
                   "Property": "program"
                 }
               },
-              "queryRef": "artemis_supply_risk.program"
+              "queryRef": "artemis_supply_risk.program",
+              "active": true
             }
           ]
         },

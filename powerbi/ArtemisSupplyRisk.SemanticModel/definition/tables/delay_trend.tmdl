@@ -1,6 +1,11 @@
 table delay_trend
 	lineageTag: 6a2aea20-4f44-50da-b2e7-4008cf4db01c
 
+	measure 'Avg Delay Trend' = AVERAGE(delay_trend[avg_delay_days])
+		lineageTag: 231e40d7-a955-4a40-b744-22cfc784eae6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column program
 		dataType: string
 		lineageTag: 1439f988-440d-5fe9-bfef-8b1fbda9cc17
