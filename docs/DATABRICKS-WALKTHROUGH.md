@@ -93,6 +93,20 @@ databricks secrets put-secret artemis gateway_token
 
 ## 4. Import + run the notebook
 
+**One command (in this repo)** — imports the notebook, sets the secret, runs it on a
+single-node UC cluster, and prints a validation query (auth via `az`, no PAT):
+
+```bash
+az login
+export PG_ADMIN_PASSWORD='<deployed Postgres password>'   # postgres mode
+python databricks/run_notebook.py \
+  --host adb-7405607213468698.18.azuredatabricks.net \
+  --catalog adb_eastus2_sandbox --source-mode postgres \
+  --pg-host artemis-pg-n1.postgres.database.azure.com
+```
+
+Or do it by hand:
+
 ```bash
 ME=$(databricks current-user me --output json | jq -r .userName)
 databricks workspace import-dir databricks/notebooks "/Workspace/Users/$ME/artemis" --overwrite
