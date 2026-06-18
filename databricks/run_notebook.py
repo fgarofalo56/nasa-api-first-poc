@@ -9,9 +9,9 @@ Usage:
   az login
   export PG_ADMIN_PASSWORD='<the deployed Postgres password>'   # for source_mode=postgres
   python databricks/run_notebook.py \
-      --host adb-7405607213468698.18.azuredatabricks.net \
+      --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
       --catalog dbw_btfabric_dev --source-mode postgres \
-      --pg-host artemis-pg-n1.postgres.database.azure.com
+      --pg-host artemis-pg.postgres.database.azure.com
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ def main() -> int:
     ap.add_argument("--host", required=True, help="workspace host, e.g. adb-xxxx.azuredatabricks.net")
     ap.add_argument("--catalog", default="dbw_btfabric_dev")  # a UC catalog you can WRITE to
     ap.add_argument("--source-mode", default="postgres", choices=["postgres", "gateway"])
-    ap.add_argument("--pg-host", default="artemis-pg-n1.postgres.database.azure.com")
+    ap.add_argument("--pg-host", default="artemis-pg.postgres.database.azure.com")
     ap.add_argument("--gateway-url", default="", help="gateway base URL, e.g. https://kong.<aca-domain>")
     ap.add_argument("--identity-url", default="", help="issuer URL for gateway mode, e.g. https://identity.<aca-domain>")
     ap.add_argument("--consumer", default="artemis-agent", help="consumer id minted by the issuer")

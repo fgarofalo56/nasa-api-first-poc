@@ -14,7 +14,7 @@ set -euo pipefail
 SUB="${AZ_SUB:-FedCiv ATU FFL - Main}"
 RG="${RG:-artemis-poc-rg}"
 LOC="${LOC:-centralus}"            # eastus/eastus2 were policy-restricted in this sub
-PG="${PG:-artemis-pg-n1}"
+PG="${PG:-artemis-pg}"
 ACR="${ACR:-artemispocacrn1}"
 CAE="${CAE:-artemis-cae}"
 DABAPP="${DABAPP:-artemis-dab}"

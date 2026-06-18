@@ -277,7 +277,7 @@ flowchart TD
 
 ### 🤖 `agent` — where the chat widget points
 
-`config.agent` is the base URL of the grounded mission agent. The chat widget ([`AgentChat.jsx`](src/components/AgentChat.jsx)) calls `askAgent(question)` → `POST {agent}/ask`. Locally that's `http://localhost:8110`; in Azure it's the agent's Container Apps URL (live demo: <https://agent.icyocean-479340e8.centralus.azurecontainerapps.io>). If the agent is unreachable the widget shows a friendly "couldn't reach the agent — is the stack up?" message rather than crashing.
+`config.agent` is the base URL of the grounded mission agent. The chat widget ([`AgentChat.jsx`](src/components/AgentChat.jsx)) calls `askAgent(question)` → `POST {agent}/ask`. Locally that's `http://localhost:8110`; in Azure it's the agent's Container Apps URL (live demo: <https://agent.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io>). If the agent is unreachable the widget shows a friendly "couldn't reach the agent — is the stack up?" message rather than crashing.
 
 This is the project's **graceful degradation** rule made visible three times over: a missing identity provider, a missing control-plane volume, or an unreachable agent each *softens a feature* rather than breaking the page — exactly "services degrade gracefully, never crash on a missing dependency."
 

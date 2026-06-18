@@ -196,7 +196,7 @@ reference **Serverless Starter Warehouse**.
 
 | Setting | Value | What it is |
 |---|---|---|
-| **Server hostname** | `adb-7405607213468698.18.azuredatabricks.net` | The workspace's address |
+| **Server hostname** | `adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` | The workspace's address |
 | **HTTP path** | `/sql/1.0/warehouses/973dba4787484119` | Which SQL warehouse to use |
 | **Authentication** | **Microsoft Entra ID** (tenant account — same tenant lock as the rest of the demo) | How you prove who you are |
 | **Data Connectivity mode** | **DirectQuery** (recommended) or Import | Live query vs. cached copy — see the zero-move note above |

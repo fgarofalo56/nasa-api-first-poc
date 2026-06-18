@@ -430,7 +430,7 @@ configuration is automated in
 az login --tenant <tenant>
 
 # 1) provision APIM (async, ~30-45 min) — Developer tier includes the Developer Portal
-az apim create -g artemis-poc-rg -n artemis-apim-n1 -l centralus \
+az apim create -g artemis-poc-rg -n artemis-apim -l centralus \
   --publisher-email you@org.gov --publisher-name "NASA OCIO Data Platform (synthetic POC)" \
   --sku-name Developer
 

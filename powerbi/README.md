@@ -118,7 +118,7 @@ Set these in **Transform data → Edit parameters**. They feed the DirectQuery M
 
 | Parameter | What it is | Example |
 |---|---|---|
-| `DatabricksServerHostname` | The warehouse **Server hostname** (SQL warehouse → *Connection details*) | `adb-7405607213468698.18.azuredatabricks.net` |
+| `DatabricksServerHostname` | The warehouse **Server hostname** (SQL warehouse → *Connection details*) | `adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` |
 | `DatabricksHttpPath` | The warehouse **HTTP path** | `/sql/1.0/warehouses/<warehouse-id>` |
 | `CatalogName` | The Unity Catalog the notebook wrote to | `dbw_btfabric_dev` |
 
@@ -175,11 +175,11 @@ no Desktop required:
 ```bash
 pip install fabric-cicd
 az login --use-device-code          # into the workspace tenant (limitlessdata.ai)
-WORKSPACE_ID=46c42501-e97a-4295-8cdb-b1c7000cce1f python tools/publish_powerbi.py
+WORKSPACE_ID=00000000-0000-0000-0000-000000000000 python tools/publish_powerbi.py
 ```
 
 Deployed to the **`csa-loom`** workspace (Limitless Data tenant):
-[**ArtemisSupplyRisk report**](https://app.powerbi.com/groups/46c42501-e97a-4295-8cdb-b1c7000cce1f/reports/553df6af-bfba-45a7-9c77-56aae5128d33).
+[**ArtemisSupplyRisk report**](https://app.powerbi.com/groups/00000000-0000-0000-0000-000000000000/reports/00000000-0000-0000-0000-000000000000).
 
 > [!IMPORTANT]
 > **One-time connection setup in the Service** (the publish carries the *definition*, not

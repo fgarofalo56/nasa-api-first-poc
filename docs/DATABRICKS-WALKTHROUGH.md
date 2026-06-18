@@ -182,7 +182,7 @@ directly. The reference workspace this POC was validated against is:
 | Property | Value |
 |---|---|
 | Workspace | `dbw-btfabric-dev` (premium / Unity Catalog enabled) |
-| URL | `https://adb-7405607213468698.18.azuredatabricks.net` |
+| URL | `https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` |
 | Resource group | `rg-btfabric-tut57-dev` |
 | Subscription | `363ef5d1-0e77-4594-a530-f51af23dbf8c` |
 
@@ -212,7 +212,7 @@ lists the catalogs your identity can reach.
 **Expected output (shape, not exact values):**
 
 ```text
-https://adb-7405607213468698.18.azuredatabricks.net
+https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net
 ...
 Name                  Comment
 --------------------  -------
@@ -262,7 +262,7 @@ flowchart TD
 ```
 
 - **`postgres` (default — runs TODAY):** reads the **deployed cloud system of record** (the
-  Azure Postgres `artemis-pg-n1`, already seeded and reachable from your workspace) over
+  Azure Postgres `artemis-pg`, already seeded and reachable from your workspace) over
   [JDBC](GLOSSARY.md). This is the *privileged ETL* path: zero new infrastructure, guaranteed
   to produce the medallion + Power BI mart right now, with full-fidelity dollar values.
 - **`gateway` (governed / zero-move-via-API):** reads each data product *through the gateway*
@@ -329,9 +329,9 @@ finish, and prints the notebook's JSON result.
 az login
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'   # postgres mode only
 python databricks/run_notebook.py \
-  --host adb-7405607213468698.18.azuredatabricks.net \
+  --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
   --catalog dbw_btfabric_dev --source-mode postgres \
-  --pg-host artemis-pg-n1.postgres.database.azure.com
+  --pg-host artemis-pg.postgres.database.azure.com
 ```
 
 **Expected output (shape):**
@@ -343,7 +343,7 @@ imported notebook -> /Users/you@tenant.onmicrosoft.com/artemis/01_zero_move_meda
 submitting run (spark=15.4.x-scala2.12, node=Standard_DS3_v2)...
 
 run 12345678: RunResultState.SUCCESS —
-run page: https://adb-7405607213468698.18.azuredatabricks.net/#job/12345678
+run page: https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net/#job/12345678
 
 notebook summary: {"catalog": "dbw_btfabric_dev", "gold_table": "dbw_btfabric_dev.gold.artemis_supply_risk", "gold_rows": 600, "headline_rows": 6, "headline_material": "Turbopump impeller"}
   -> dbw_btfabric_dev.gold.artemis_supply_risk: 600 rows; headline=6 (Turbopump impeller)
@@ -368,7 +368,7 @@ For **gateway mode**, the runner mints a bearer token from the issuer for you (n
 
 ```bash
 python databricks/run_notebook.py \
-  --host adb-7405607213468698.18.azuredatabricks.net \
+  --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
   --catalog dbw_btfabric_dev --source-mode gateway \
   --gateway-url https://kong.<aca-domain> \
   --identity-url https://identity.<aca-domain>
@@ -395,7 +395,7 @@ Open `/Workspace/Users/<you>/artemis/01_zero_move_medallion`, attach a UC-enable
 and click **Run all**:
 
 - **postgres mode:** `source_mode=postgres`,
-  `pg_host=artemis-pg-n1.postgres.database.azure.com`, `pg_secret_scope=artemis`,
+  `pg_host=artemis-pg.postgres.database.azure.com`, `pg_secret_scope=artemis`,
   `pg_secret_key=pg_password`, `catalog=<your UC catalog>`.
 - **gateway mode:** `source_mode=gateway`, `gateway_url=https://<your-apim-or-app>`. Then
   either point the notebook at a pre-stored token (`token_secret_scope=artemis`,
@@ -426,7 +426,7 @@ the notebook. Here is every widget, what it does, its default, and which mode ne
 | `consumer` | text | `artemis-agent` | gateway (mint) | The consumer identity to mint a token for. Determines the rate-limit bucket and which fields are redacted. |
 | `token_secret_scope` | text | *(empty)* | gateway (pre-stored) | Secret scope holding a bearer token. If both this and `token_secret_key` are set, the notebook reads the token instead of minting one. |
 | `token_secret_key` | text | *(empty)* | gateway (pre-stored) | Secret key for the bearer token inside the scope above. |
-| `pg_host` | text | `artemis-pg-n1.postgres.database.azure.com` | postgres | Hostname of the deployed Azure Postgres. Connected as `jdbc:postgresql://<host>:5432/procurement?sslmode=require`. |
+| `pg_host` | text | `artemis-pg.postgres.database.azure.com` | postgres | Hostname of the deployed Azure Postgres. Connected as `jdbc:postgresql://<host>:5432/procurement?sslmode=require`. |
 | `pg_secret_scope` | text | `artemis` | postgres | Secret scope holding the Postgres password. |
 | `pg_secret_key` | text | `pg_password` | postgres | Secret key for the Postgres password inside that scope. |
 

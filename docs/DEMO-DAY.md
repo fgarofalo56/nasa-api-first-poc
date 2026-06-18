@@ -327,7 +327,7 @@ https://frontend.<env>.azurecontainerapps.io
 ```
 
 (The reference deployment lives in the `limitlessdata` tenant, **Central US**, at
-`https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`.) An anonymous
+`https://frontend.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io`.) An anonymous
 visitor is redirected to **Microsoft Entra** sign-in; only a **tenant** account can use
 it. Sign in, then run the headline supply-risk query — it returns **HTTP 200 + a gateway
 correlation id + the ranked high-risk table**, the federated DOT bridge inventory loads,
@@ -342,7 +342,7 @@ flowchart TD
     Kong --> DAB["DAB auto-API<br/>(REST + GraphQL + OpenAPI)"]
     Kong --> DOT["DOT transportation source"]
     DAB --> KV["🔐 Key Vault<br/>(dab-conn, via managed identity)"]
-    DAB --> PG[("Azure PostgreSQL<br/>Flexible Server (artemis-pg-n1)")]
+    DAB --> PG[("Azure PostgreSQL<br/>Flexible Server (artemis-pg)")]
     Kong -. logs/metrics .-> LA["Log Analytics + Sentinel"]
     style UI fill:#0b3d91,color:#fff
     style Kong fill:#1168bd,color:#fff

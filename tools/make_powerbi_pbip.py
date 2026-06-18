@@ -42,7 +42,7 @@ def write_json(path: Path, obj: dict) -> None:
 
 # ───────────────────────── semantic model (TMDL) ─────────────────────────
 
-HOST_DEFAULT = "adb-7405607213468698.18.azuredatabricks.net"
+HOST_DEFAULT = "adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net"
 HTTP_PATH_DEFAULT = "/sql/1.0/warehouses/REPLACE_WITH_WAREHOUSE_ID"
 CATALOG_DEFAULT = "dbw_btfabric_dev"
 

@@ -6,15 +6,15 @@
 #
 # Prereq: the APIM instance is already provisioning/provisioned (Developer tier has the
 # Developer Portal). Start it with:
-#   az apim create -g artemis-poc-rg -n artemis-apim-n1 -l centralus \
+#   az apim create -g artemis-poc-rg -n artemis-apim -l centralus \
 #     --publisher-email you@org --publisher-name "..." --sku-name Developer
 set -euo pipefail
 # MSYS_NO_PATHCONV: keep '/...' args from being mangled to Windows paths on Git Bash.
 # PYTHONIOENCODING/UTF8: az on Windows otherwise crashes printing the policy PUT's BOM.
 export MSYS_NO_PATHCONV=1 PYTHONIOENCODING=utf-8 PYTHONUTF8=1
 
-RG="${RG:-artemis-poc-rg}"; APIM="${APIM:-artemis-apim-n1}"
-DOMAIN="${ACA_DOMAIN:-icyocean-479340e8.centralus.azurecontainerapps.io}"
+RG="${RG:-artemis-poc-rg}"; APIM="${APIM:-artemis-apim}"
+DOMAIN="${ACA_DOMAIN:-xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io}"
 DAB="https://artemis-dab.$DOMAIN"
 SUBID="$(az account show --query id -o tsv)"
 TENANT="$(az account show --query tenantId -o tsv)"
