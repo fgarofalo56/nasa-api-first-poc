@@ -30,6 +30,9 @@ param apimPublisherEmail string = 'ocio-data-platform@example.gov'
 @description('Container image for Data API Builder.')
 param dabImage string = 'mcr.microsoft.com/azure-databases/data-api-builder:latest'
 
+@description('Production hardening: VNet-inject + private-endpoint the SoR (true zero-move). Reference-only.')
+param enablePrivateNetworking bool = false
+
 module monitor 'modules/monitor.bicep' = {
   name: 'monitor'
   params: {
@@ -58,6 +61,18 @@ module dab 'modules/containerapp-dab.bicep' = {
     logAnalyticsSharedKey: monitor.outputs.workspacePrimaryKey
     // The SoR connection string is supplied as a secret in a real deployment.
     dabConnectionString: 'Host=${postgres.outputs.fqdn};Database=procurement;Username=${pgAdminUser};Password=${pgAdminPassword};SslMode=Require'
+  }
+}
+
+// Production-hardening reference: a spoke VNet + a private endpoint on the SoR so the
+// data has no public path (true zero-move in Azure). Off by default; the functional
+// demo uses public ingress with the gateway governing every call.
+module network 'modules/network.bicep' = if (enablePrivateNetworking) {
+  name: 'network'
+  params: {
+    namePrefix: namePrefix
+    location: location
+    postgresResourceId: postgres.outputs.id
   }
 }
 

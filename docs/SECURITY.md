@@ -74,3 +74,19 @@ it. `tests/test_redaction.py` proves the confidential fields are absent through 
   pre-commit hook enforces this).
 - Azure deployment supplies the PostgreSQL password via an env-sourced `.bicepparam`
   (`readEnvironmentVariable`), not source.
+- **In Azure the DB connection string lives in Key Vault.** The DAB Container App reads it
+  at runtime via a **system-assigned managed identity** + a Key Vault reference — the secret
+  value is never inlined into the app's revision template. See
+  [`AZURE-LIVE-DEPLOYMENT.md`](AZURE-LIVE-DEPLOYMENT.md).
+
+## Monitoring & SIEM (Azure)
+
+- **Log Analytics** (`artemis-logs`) ingests Container Apps env logs and APIM
+  `GatewayLogs` + metrics — the managed analogue of the local Prometheus/Grafana path.
+- **Microsoft Sentinel** is enabled on that workspace (the deploy script onboards
+  `Microsoft.SecurityInsights/onboardingStates/default`), giving the demo a SIEM surface:
+  analytics rules, hunting, and incident workflows over the same gateway/app telemetry.
+- **Network isolation (production hardening).** True zero-move in Azure puts the SoR behind
+  a private endpoint with no public path — reference Bicep in
+  [`infra/azure/modules/network.bicep`](../infra/azure/modules/network.bicep); see
+  [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md).

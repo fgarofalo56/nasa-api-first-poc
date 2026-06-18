@@ -66,6 +66,12 @@ LA_KEY="$(az monitor log-analytics workspace get-shared-keys -g "$RG" -n artemis
 az containerapp env update -g "$RG" -n "$CAE" --logs-destination log-analytics \
   --logs-workspace-id "$LA_CID" --logs-workspace-key "$LA_KEY" -o none 2>/dev/null || true
 
+echo "==> 1c. enable Microsoft Sentinel (SIEM) on the workspace — idempotent"
+SUBID="${SUBID:-$(az account show --query id -o tsv)}"
+az rest --method put \
+  --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.OperationalInsights/workspaces/artemis-logs/providers/Microsoft.SecurityInsights/onboardingStates/default?api-version=2024-03-01" \
+  --body '{"properties":{}}' -o none 2>/dev/null || true
+
 echo "==> 2. DAB: rebuild image (carries dab-config.json incl. column permissions) + drop EasyAuth"
 # Use a content-derived tag so a dab-config.json change (e.g. field-level redaction)
 # always produces a NEW revision — ACA will not re-pull an unchanged :latest tag.

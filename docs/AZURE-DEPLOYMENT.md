@@ -96,6 +96,7 @@ subscription.
 | `modules/postgres.bicep` | PostgreSQL Flexible Server (v16, public access disabled) + `procurement` db | local Postgres |
 | `modules/containerapp-dab.bicep` | DAB on Container Apps with **internal ingress** (only APIM can reach it) + Log Analytics wiring | local DAB container |
 | `modules/monitor.bicep` | Log Analytics workspace | Prometheus + Grafana |
+| `modules/network.bicep` | **Production hardening:** spoke VNet (delegated Container Apps subnet + private-endpoint subnet) + a **private endpoint** and private DNS zone on the SoR — so Postgres has **no public path** (true zero-move). Enable with `enablePrivateNetworking=true`. | the compose `internal` network |
 | `main.bicepparam` | parameters; the PG password comes from `PG_ADMIN_PASSWORD` via `readEnvironmentVariable` (never committed) | `.env` |
 
 The APIM policy is the direct analogue of the Kong plugins: validate the Entra JWT,

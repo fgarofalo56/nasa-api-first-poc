@@ -83,10 +83,11 @@ until tenant sign-in.
   the headline query through Kong (200) with the secret resolved from the vault.
 - **Tenant lock.** The front end uses Entra **EasyAuth** (single-tenant) — anonymous
   callers are redirected to sign-in; only `limitlessdata` accounts can use the UI.
-- **Observability.** A **Log Analytics** workspace (`artemis-logs`) collects Container Apps
-  env logs (and, in the APIM edition, APIM `GatewayLogs` + metrics). This is the foundation
-  for **Microsoft Sentinel** (SIEM) — enable the SecurityInsights solution on the same
-  workspace; see [`SECURITY.md`](SECURITY.md).
+- **Observability + SIEM.** A **Log Analytics** workspace (`artemis-logs`) collects
+  Container Apps env logs (and, in the APIM edition, APIM `GatewayLogs` + metrics).
+  **Microsoft Sentinel** is enabled on that same workspace (the deploy script onboards
+  `SecurityInsights/onboardingStates/default`), so gateway/app telemetry is available to
+  SIEM analytics rules and hunting. See [`SECURITY.md`](SECURITY.md).
 
 ## ⚠️ Honest deltas vs. the local stack
 
@@ -96,7 +97,9 @@ until tenant sign-in.
   run them locally, or use **Azure Monitor** (managed) / **APIM Developer Portal**.
 - **Network isolation:** in this functional deploy the apps use public ingress (the gateway
   governs every data call). True zero-move in Azure = VNet + private endpoints so the SoR has
-  no public path — the production-hardening step (reference Bicep in `infra/azure/`).
+  no public path — the production-hardening step (reference Bicep
+  [`infra/azure/modules/network.bicep`](../infra/azure/modules/network.bicep), enabled with
+  `enablePrivateNetworking=true`).
 
 ## 🔧 Teardown (stop billing)
 

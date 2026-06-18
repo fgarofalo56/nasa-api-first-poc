@@ -40,3 +40,4 @@ resource db 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
 
 output fqdn string = pg.properties.fullyQualifiedDomainName
 output name string = pg.name
+output id string = pg.id
