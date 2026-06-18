@@ -15,7 +15,8 @@ marketplace** — and the runnable proof in this repo.
 |---|---|
 | [`../README.md`](../README.md) | Quickstart, what it demonstrates, repo layout |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Components, zero-move flow, Azure↔OSS mapping, federation + control-plane |
-| [`DEMO-SCRIPT.md`](DEMO-SCRIPT.md) | ~10-minute live presenter walkthrough |
+| [`DEMO-DAY.md`](DEMO-DAY.md) | **Full end-to-end runbook** (local → Azure → APIM → Databricks → Power BI) |
+| [`DEMO-SCRIPT.md`](DEMO-SCRIPT.md) | ~10-minute local presenter walkthrough |
 | [`DISCLAIMER.md`](DISCLAIMER.md) | Legal notice + synthetic-data statement |
 
 ## 🔧 Build & run the pattern
@@ -25,6 +26,7 @@ marketplace** — and the runnable proof in this repo.
 | [`ZERO-MOVE.md`](ZERO-MOVE.md) | How zero-move is *proven* (network isolation + tests) |
 | [`SECURITY.md`](SECURITY.md) | Token flow + OWASP API Top 10 controls at the gateway |
 | [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md) | Publish a new source through the gateway (UI wizard + API) |
+| [`GRAPHQL.md`](GRAPHQL.md) | Query the same auto-API as GraphQL through the gateway (multi-model) |
 
 ## 🌐 Extend to Azure & analytics
 

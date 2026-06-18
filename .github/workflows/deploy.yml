@@ -1,0 +1,46 @@
+# Reference CI/CD deploy pipeline — build the service images to ACR and deploy the full
+# stack to Azure Container Apps. Manual dispatch (does not run on push) so it never
+# deploys unexpectedly. Wire the secrets below before using it.
+#
+# Required (OIDC federated credential on an Entra app with Contributor on the RG):
+#   secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, PG_ADMIN_PASSWORD
+#   vars:    RG (default artemis-poc-rg), ACR (default artemispocacrn1)
+name: deploy-azure
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "what to deploy"
+        type: choice
+        default: fullstack
+        options: [fullstack, apim]
+
+permissions:
+  id-token: write   # OIDC login to Azure
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: azure   # gate with required reviewers for a prod-like guardrail
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Install Container Apps extension
+        run: az extension add -n containerapp --upgrade -y
+      - name: Deploy full stack (UI + gateway + services)
+        if: ${{ inputs.what == 'fullstack' }}
+        env:
+          PG_ADMIN_PASSWORD: ${{ secrets.PG_ADMIN_PASSWORD }}
+          RG: ${{ vars.RG }}
+          ACR: ${{ vars.ACR }}
+        run: bash scripts/azure-deploy-fullstack.sh
+      - name: Configure APIM edition
+        if: ${{ inputs.what == 'apim' }}
+        env:
+          RG: ${{ vars.RG }}
+        run: bash scripts/azure-deploy-apim.sh
