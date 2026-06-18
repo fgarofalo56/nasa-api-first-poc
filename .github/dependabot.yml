@@ -1,0 +1,29 @@
+version: 2
+# Keep dependencies fresh. Dependabot opens PRs; CI runs; the auto-merge workflow lands
+# the green ones (unless labeled hold/do-not-merge) — so routine bumps need no clicks.
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    commit-message: { prefix: "chore(deps)" }
+
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    commit-message: { prefix: "chore(deps)" }
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: weekly }
+    labels: ["ci"]
+    commit-message: { prefix: "chore(ci)" }
+
+  - package-ecosystem: docker
+    directory: "/services/dab"
+    schedule: { interval: weekly }
+    labels: ["dependencies"]
+    commit-message: { prefix: "chore(deps)" }
