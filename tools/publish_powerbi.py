@@ -40,7 +40,10 @@ def main() -> None:
         token_credential=AzureCliCredential(),
     )
     publish_all_items(ws)
-    print(f"Published ArtemisSupplyRisk (SemanticModel + Report) to workspace {WORKSPACE_ID}", file=sys.stderr)
+    print(
+        f"Published ArtemisSupplyRisk (SemanticModel + Report) to workspace {WORKSPACE_ID}",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":
