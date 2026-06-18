@@ -113,6 +113,42 @@ def _kong_route_for(src: dict) -> dict:
             },
         }
     )
+    # Parity with the built-in Artemis route (services/gateway/kong.yml): every governed
+    # source gets the SAME safety controls, so a wizard-added source is not weaker.
+    #   pre-function       — OWASP API4 guard: reject over-broad extraction ($first > 200)
+    #   request-transformer — strip client-supplied identity headers so the upstream can't
+    #                         be tricked into a privileged role (keeps any field redaction real)
+    plugins.append(
+        {
+            "name": "pre-function",
+            "config": {
+                "access": [
+                    "local args = kong.request.get_query()\n"
+                    'local first = args["$first"]\n'
+                    "if first and tonumber(first) and tonumber(first) > 200 then\n"
+                    "  return kong.response.exit(400, { message = "
+                    '"Over-broad query blocked (OWASP API4): $first exceeds 200", max_first = 200 })\n'
+                    "end"
+                ]
+            },
+        }
+    )
+    plugins.append(
+        {
+            "name": "request-transformer",
+            "config": {
+                "remove": {
+                    "headers": [
+                        "X-MS-CLIENT-PRINCIPAL",
+                        "X-MS-CLIENT-PRINCIPAL-ID",
+                        "X-MS-CLIENT-PRINCIPAL-NAME",
+                        "X-MS-CLIENT-PRINCIPAL-IDP",
+                        "X-MS-API-ROLE",
+                    ]
+                }
+            },
+        }
+    )
     return {
         "name": f"src-{src['id']}",
         "url": src["upstream_url"],

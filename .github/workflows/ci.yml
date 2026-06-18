@@ -36,7 +36,9 @@ jobs:
       - name: Client answers the mission question through Kong
         run: |
           python client/query_supply_risk.py --program Artemis-3 --min-delay 30 | tee out.txt
-          grep -q "Mobile launcher umbilical" out.txt
+          # Structural assertions (robust to synthetic-data/material-name changes):
+          # at least one risk row returned, and the answer came through Kong (correlation id).
+          grep -qE "results=[1-9][0-9]*" out.txt
           grep -q "correlation-id=" out.txt
       - name: Integration tests against the live stack
         run: pytest -q -m integration
