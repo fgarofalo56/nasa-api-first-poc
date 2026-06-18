@@ -51,9 +51,18 @@ flowchart LR
 | Public IP | **None** (`--public-ip-address ""`) |
 | Inbound ports | **None** (`--nsg-rule NONE`) — no SSH, no RDP |
 | Management | `az vm run-command` over the Azure control plane (no inbound needed) |
-| Registration token | Minted just-in-time by `gh`, **never** baked into cloud-init |
+| Registration token | Minted just-in-time by `gh`, **never** stored in the image |
 | Runner identity | Non-root `runner` user; Docker via group membership |
 | Repo exposure | Private repo → no fork-PR code execution |
+
+> [!IMPORTANT]
+> **Egress allowlist (Limitless Data "FedCiv ATU FFL" landing zones).** These subscriptions
+> have a firewall that **blocks the Ubuntu apt mirror** (`azure.archive.ubuntu.com`) while
+> allowing GitHub, `packages.microsoft.com`, MCR, Docker Hub, and PyPI. So the deploy does
+> **not** use apt: Docker is installed from **download.docker.com static binaries**, and the
+> runner's `installdependencies.sh` is skipped (its libs — libicu/libssl/zlib/libkrb5 — are
+> already on the image; `git`/`python3` are preinstalled). CI then works because pip (PyPI),
+> Docker image pulls (Hub/MCR), and checkout (GitHub) are all reachable.
 
 ---
 
@@ -62,8 +71,8 @@ flowchart LR
 These two are **interactive and yours to run** (the agent can't log you in):
 
 ```bash
-# 1) Azure: log into the tenant/subscription that should bear the cost
-az login --tenant <limitlessdata-tenant>
+# 1) Azure: log into the Limitless Data tenant/subscription that should bear the cost
+az login --use-device-code          # sign in as your limitlessdata.ai account
 
 # 2) GitHub: must have repo admin (to mint a runner registration token)
 gh auth status
@@ -74,21 +83,24 @@ gh auth status
 ## 🚀 Deploy
 
 ```bash
-SUBSCRIPTION="<limitlessdata-sub-id-or-name>" \
+SUBSCRIPTION="FedCiv ATU FFL - Main" \
   ./infra/azure/runner/deploy-runner.sh
 ```
 
-Optional overrides (env vars): `RG`, `LOCATION` (default `eastus2`), `VM_NAME`, `VM_SIZE`
-(default `Standard_B2s`), `LABELS`, `REPO`.
+Optional overrides (env vars): `RG`, `LOCATION` (default `centralus`), `VM_NAME`, `VM_SIZE`
+(default `Standard_B2s`), `LABELS`, `REPO`. Any of the Limitless Data subscriptions
+(ALZ/DLZ/DMLZ/Main) works.
 
 What it does:
 
-1. Creates resource group `rg-ghrunner-nasa-poc`.
-2. Creates an Ubuntu 22.04 **B2s** VM (no public IP / no inbound) with
-   [`cloud-init.yaml`](cloud-init.yaml) → installs Docker + downloads the latest runner.
+1. Creates resource group `rg-ghrunner-nasa-poc` (tagged `project`/`owner` — required by the
+   subscription's tag policy).
+2. Creates an Ubuntu 22.04 **B2s** VM (no public IP / no inbound), then provisions it via
+   `az vm run-command`: **static Docker** + the latest runner (no apt — see the egress note
+   above).
 3. Mints a registration token via `gh` and registers the runner as a **systemd service**
    (labels `self-hosted, linux, x64, azure, nasa-poc`).
-4. Prints the runner's online status from the GitHub API.
+4. Verifies the runner's **online** status from the GitHub API.
 
 ---
 
