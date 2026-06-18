@@ -1,0 +1,33 @@
+[project]
+name = "nasa-api-first-poc"
+version = "0.1.0"
+description = "Local docker-compose demo of the API-first, zero-move data-marketplace pattern (synthetic Artemis SAP procurement)."
+requires-python = ">=3.11"
+# Runtime deps for the local client, tools, and tests. Each service pins its own
+# in services/*/requirements.txt; these are what `make test`, the client, and the
+# pricing/diagram tools need on the host.
+dependencies = [
+    "httpx>=0.27",
+    "pyjwt[crypto]>=2.8",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6", "pytest>=8.0"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["frontend", "infra"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, isort, pyupgrade, bugbear, comprehensions.
+select = ["E", "F", "I", "UP", "B", "C4"]
+ignore = ["E501"]  # long lines tolerated in docs-y dicts; format handles real wrapping
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "integration: requires the docker-compose stack to be running",
+]

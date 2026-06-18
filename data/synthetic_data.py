@@ -15,11 +15,10 @@ fictitious and flagged ``SYNTHETIC``.
 from __future__ import annotations
 
 import csv
+import logging
 import random
 from datetime import date, timedelta
 from pathlib import Path
-
-import logging
 
 logger = logging.getLogger("synthetic_data")
 
@@ -110,7 +109,7 @@ def generate_artemis_procurement(
 
     # ── materials (MARA-ish) ──
     materials = []
-    for i in range(n_materials):
+    for _ in range(n_materials):
         fam, parts = rng.choice(_FAMILIES)
         matnr = f"NSN-{rng.randint(1000, 9999)}-{rng.randint(100000, 999999)}"
         crit = rng.choices(["Critical", "Essential", "Routine"], weights=[0.25, 0.4, 0.35])[0]
@@ -136,7 +135,6 @@ def generate_artemis_procurement(
             }
         )
 
-    mat_index = {m["MATNR"]: m for m in materials}
     vend_ids = [v["LIFNR"] for v in vendors]
     sole_by_mat = {m["MATNR"]: rng.choice(vend_ids) for m in materials if rng.random() < 0.3}
 
