@@ -5,4 +5,5 @@ window.APP_CONFIG = {
   kong: "http://localhost:8000",
   identity: "http://localhost:8081",
   catalog: "http://localhost:8080",
+  registry: "http://localhost:8095",
 };
