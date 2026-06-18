@@ -42,3 +42,22 @@ def test_routine_fields_still_present():
     row = gateway_get("/api/Material?$first=1", token=token).json()["value"][0]
     for field in ("matnr", "maktx", "program", "criticality", "std_lead_time_days"):
         assert field in row, f"routine field '{field}' unexpectedly missing"
+
+
+@requires_stack
+def test_redaction_holds_against_role_header_injection():
+    """A client cannot un-redact by spoofing the DAB role header.
+
+    DAB's StaticWebApps provider would honor X-MS-CLIENT-PRINCIPAL / X-MS-API-ROLE; the
+    gateway strips those inbound headers, so a confidential column stays redacted even
+    when a caller tries to assert the privileged `authenticated` role.
+    """
+    token = get_token("analyst")
+    spoof = {
+        "X-MS-API-ROLE": "authenticated",
+        "X-MS-CLIENT-PRINCIPAL": "eyJ1c2VyUm9sZXMiOlsiYXV0aGVudGljYXRlZCJdfQ==",  # {"userRoles":["authenticated"]}
+    }
+    resp = gateway_get("/api/Material?$first=1", token=token, headers=spoof)
+    assert resp.status_code == 200, f"-> {resp.status_code}"
+    row = resp.json()["value"][0]
+    assert "std_unit_cost_usd" not in row, "confidential column leaked via role-header injection"

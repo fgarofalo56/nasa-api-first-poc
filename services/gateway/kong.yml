@@ -66,6 +66,20 @@ services:
                       max_first = 200
                     })
                   end
+          # Enforce the redaction boundary: DAB (StaticWebApps provider) would honor an
+          # inbound X-MS-CLIENT-PRINCIPAL / X-MS-API-ROLE header and serve the privileged
+          # `authenticated` role (un-redacted columns). Strip any client-supplied identity
+          # headers here so EVERY gateway call reaches DAB as `anonymous` — field-level
+          # redaction (std_unit_cost_usd, netpr, netwr) is then guaranteed, not accidental.
+          - name: request-transformer
+            config:
+              remove:
+                headers:
+                  - X-MS-CLIENT-PRINCIPAL
+                  - X-MS-CLIENT-PRINCIPAL-ID
+                  - X-MS-CLIENT-PRINCIPAL-NAME
+                  - X-MS-CLIENT-PRINCIPAL-IDP
+                  - X-MS-API-ROLE
     # Service-level: correlation id is stamped + echoed on every route; CORS lets the
     # browser SPA call the gateway (preflight is answered before the jwt plugin runs,
     # and X-Correlation-ID is exposed to JS).

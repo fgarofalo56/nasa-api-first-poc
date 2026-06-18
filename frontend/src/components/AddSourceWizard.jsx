@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addSource, gatewayGet } from "../api";
 
 // Guided 4-step "add a data source" flow. Pre-filled with the DOT transportation
@@ -30,6 +30,14 @@ export default function AddSourceWizard({ onDone, onClose }) {
 
   const set = (k) => (e) => setSpec({ ...spec, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value });
 
+  // Close on Escape. A keydown on the (non-focusable) backdrop div never fires, so listen
+  // at the document level while the dialog is open.
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose?.();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   async function publish() {
     setBusy(true);
     setError(null);
@@ -51,7 +59,7 @@ export default function AddSourceWizard({ onDone, onClose }) {
   }
 
   return (
-    <div className="wizard-backdrop" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+    <div className="wizard-backdrop" onClick={onClose}>
       <div
         className="wizard"
         role="dialog"
