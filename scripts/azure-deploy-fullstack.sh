@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# Deploy the FULL stack to Azure Container Apps: NASA UI + Kong gateway + identity +
+# catalog + registry + transportation + DAB, with both sources pre-registered and the
+# front end tenant-locked with Entra EasyAuth.
+#
+# Pragmatic ACA port of the compose topology:
+#   * all apps use external ingress + public FQDNs (no internal-DNS chicken-and-egg);
+#   * the gateway config is baked with a fixed demo RSA keypair (issuer gets the private
+#     key as a secret) so there is no shared volume;
+#   * both sources (Artemis + DOT transportation) are pre-registered in kong.yml
+#     (the live "add a source" wizard needs Kong's admin port and stays a local feature);
+#   * Prometheus/Grafana are not deployed here (Kong's metrics port isn't exposed in ACA;
+#     use Azure Monitor or local `make obs`).
+#
+# Prereqs: az login (tenant), PG_ADMIN_PASSWORD set, the per-service images built in ACR
+# (see the loop near the top). Run from the repo root.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+RG="${RG:-artemis-poc-rg}"; LOC="${LOC:-centralus}"
+ACR="${ACR:-artemispocacrn1}"; CAE="${CAE:-artemis-cae}"
+PG_FQDN="${PG_FQDN:-artemis-pg-n1.postgres.database.azure.com}"
+: "${PG_ADMIN_PASSWORD:?set PG_ADMIN_PASSWORD}"
+export PYTHONIOENCODING=utf-8 PYTHONUTF8=1
+TENANT="$(az account show --query tenantId -o tsv)"
+ACRSRV="$ACR.azurecr.io"
+AU="$(az acr credential show -n "$ACR" --query username -o tsv)"
+AP="$(az acr credential show -n "$ACR" --query 'passwords[0].value' -o tsv)"
+TAGS=(owner=fgarofalo@limitlessdata.ai project=nasa-api-first-poc)
+mkdir -p temp/deploy
+
+echo "==> 0. demo RSA keypair (baked into the gateway config; private key -> issuer secret)"
+python - <<'PY'
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+k = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+open("temp/deploy/jwt-private.pem","wb").write(k.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
+open("temp/deploy/jwt-public.pem","wb").write(k.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo))
+print("keypair written")
+PY
+PRIV_B64="$(base64 -w0 temp/deploy/jwt-private.pem 2>/dev/null || base64 temp/deploy/jwt-private.pem | tr -d '\n')"
+
+echo "==> 1. (re)build images that changed (identity: key env; catalog: SOURCES_JSON env)"
+for svc in identity catalog transportation registry; do
+  az acr build -r "$ACR" -t "$svc:latest" -f "services/$svc/Dockerfile" . --no-logs >/dev/null
+done
+
+deploy() {  # name image port [extra args...]
+  local name="$1" img="$2" port="$3"; shift 3
+  if az containerapp show -g "$RG" -n "$name" >/dev/null 2>&1; then
+    az containerapp update -g "$RG" -n "$name" --image "$ACRSRV/$img" "$@" -o none
+  else
+    az containerapp create -g "$RG" -n "$name" --environment "$CAE" --image "$ACRSRV/$img" \
+      --registry-server "$ACRSRV" --registry-username "$AU" --registry-password "$AP" \
+      --target-port "$port" --ingress external --min-replicas 1 --max-replicas 2 \
+      --cpu 0.5 --memory 1.0Gi --tags "${TAGS[@]}" "$@" -o none
+  fi
+  az containerapp show -g "$RG" -n "$name" --query properties.configuration.ingress.fqdn -o tsv
+}
+
+echo "==> 2. DAB: drop EasyAuth so the gateway can front it"
+az containerapp auth update -g "$RG" -n artemis-dab --action AllowAnonymous -o none 2>/dev/null || true
+DAB_FQDN="$(az containerapp show -g "$RG" -n artemis-dab --query properties.configuration.ingress.fqdn -o tsv)"
+
+echo "==> 3. backends: transportation, identity, catalog, registry"
+TRANSPORT_FQDN="$(deploy transportation transportation:latest 8200 \
+  --env-vars TRANSPORT_PORT=8200)"
+IDENT_FQDN="$(deploy identity identity:latest 8081 \
+  --secrets "jwtkey=$PRIV_B64" \
+  --env-vars ISSUER_PORT=8081 JWT_ISSUER=https://issuer.local JWT_AUDIENCE=artemis-api \
+             KONG_TEMPLATE=/nonexistent JWT_PRIVATE_KEY_PEM=secretref:jwtkey)"
+
+DOT_SOURCES_JSON="[{\"id\":\"dot-bridges\",\"title\":\"DOT Transportation - Bridge Inventory\",\"base_path\":\"/dot\",\"owner\":\"US DOT (synthetic)\",\"domain\":\"Transportation / Infrastructure\",\"classification_label\":\"Routine\",\"sample_path\":\"/dot/api/Bridge?\$orderby=condition_rating asc&\$first=8\",\"require_jwt\":true}]"
+
+echo "==> 4. render + build the gateway image (both sources, ACA FQDNs, demo pubkey)"
+PUB_PEM="$(cat temp/deploy/jwt-public.pem)" DABF="$DAB_FQDN" TRF="$TRANSPORT_FQDN" \
+python - <<'PY'
+import os, yaml
+pub = os.environ["PUB_PEM"]
+dab = f"https://{os.environ['DABF']}"
+tr  = f"https://{os.environ['TRF']}"
+jwt = {"name":"jwt","config":{"key_claim_name":"client_id","run_on_preflight":False,"claims_to_verify":["exp"]}}
+rl  = {"name":"rate-limiting","config":{"minute":60,"policy":"local","limit_by":"consumer","fault_tolerant":True}}
+cors= {"name":"cors","config":{"origins":["*"],"methods":["GET","OPTIONS"],"headers":["Authorization","Content-Type"],"exposed_headers":["X-Correlation-ID"],"credentials":False,"preflight_continue":False}}
+corr= {"name":"correlation-id","config":{"header_name":"X-Correlation-ID","generator":"uuid#counter","echo_downstream":True}}
+cfg = {"_format_version":"3.0","_transform":True,
+  "services":[
+    {"name":"artemis-dab","url":dab,"routes":[
+        {"name":"artemis-openapi","paths":["/api/openapi"],"strip_path":False},
+        {"name":"artemis-api","paths":["/api/Material","/api/Vendor","/api/PurchaseOrder","/api/SupplyRisk","/graphql"],"strip_path":False,"plugins":[jwt,rl,cors]}],
+     "plugins":[corr]},
+    {"name":"src-dot","url":tr,"routes":[
+        {"name":"route-dot","paths":["/dot"],"strip_path":True,"plugins":[jwt,rl,cors]}],
+     "plugins":[corr]},
+  ],
+  "consumers":[
+    {"username":"analyst","jwt_secrets":[{"key":"analyst","algorithm":"RS256","rsa_public_key":pub}]},
+    {"username":"artemis-agent","jwt_secrets":[{"key":"artemis-agent","algorithm":"RS256","rsa_public_key":pub}]},
+  ]}
+import pathlib; d=pathlib.Path("temp/deploy/kong-build"); d.mkdir(parents=True,exist_ok=True)
+(d/"kong.yml").write_text(yaml.safe_dump(cfg,sort_keys=False),encoding="utf-8")
+(d/"Dockerfile").write_text("FROM kong:3.8\nCOPY kong.yml /kong.yml\n",encoding="utf-8")
+print("kong build context ready")
+PY
+az acr build -r "$ACR" -t kong:latest -f temp/deploy/kong-build/Dockerfile temp/deploy/kong-build --no-logs >/dev/null
+KONG_FQDN="$(deploy kong kong:latest 8000 \
+  --env-vars KONG_DATABASE=off KONG_DECLARATIVE_CONFIG=/kong.yml KONG_PROXY_LISTEN=0.0.0.0:8000 \
+             KONG_ADMIN_LISTEN=0.0.0.0:8001 KONG_PLUGINS=bundled)"
+
+echo "==> 5. catalog + registry (now that the gateway URL is known)"
+CAT_FQDN="$(deploy catalog catalog:latest 8080 \
+  --env-vars "KONG_PUBLIC_URL=https://$KONG_FQDN" "SOURCES_JSON=$DOT_SOURCES_JSON")"
+REG_FQDN="$(deploy registry registry:latest 8095 \
+  --env-vars REGISTRY_PORT=8095 "KONG_ADMIN_INTERNAL_URL=https://$KONG_FQDN")"
+
+echo "==> 6. render UI config + build the frontend image (points at the Azure URLs)"
+cat > frontend/public/config.js <<EOF
+window.APP_CONFIG = {
+  kong: "https://$KONG_FQDN",
+  identity: "https://$IDENT_FQDN",
+  catalog: "https://$CAT_FQDN",
+  registry: "https://$REG_FQDN",
+};
+EOF
+az acr build -r "$ACR" -t frontend:latest -f frontend/Dockerfile . --no-logs >/dev/null
+git checkout -- frontend/public/config.js   # restore the local default
+FE_FQDN="$(deploy frontend frontend:latest 80)"
+
+echo "==> 7. tenant-lock the front end with Entra EasyAuth (single-tenant)"
+APPID="$(az ad app create --display-name artemis-ui-easyauth --sign-in-audience AzureADMyOrg \
+  --web-redirect-uris "https://$FE_FQDN/.auth/login/aad/callback" --query appId -o tsv)"
+SECRET="$(az ad app credential reset --id "$APPID" --append --display-name easyauth --query password -o tsv)"
+az containerapp auth microsoft update -g "$RG" -n frontend --client-id "$APPID" --client-secret "$SECRET" --tenant-id "$TENANT" --yes -o none
+az containerapp auth update -g "$RG" -n frontend --action RedirectToLoginPage --redirect-provider azureactivedirectory --enabled true -o none
+
+echo
+echo "================ FULL STACK DEPLOYED ================"
+echo "  NASA UI (tenant-locked):  https://$FE_FQDN"
+echo "  Gateway:   https://$KONG_FQDN     Identity: https://$IDENT_FQDN"
+echo "  Catalog:   https://$CAT_FQDN     Registry: https://$REG_FQDN"
+echo "  DAB:       https://$DAB_FQDN     Transport: https://$TRANSPORT_FQDN"
+echo "Teardown: az group delete -n $RG --yes --no-wait  (+ az ad app delete --id $APPID)"

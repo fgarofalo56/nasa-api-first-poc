@@ -78,11 +78,18 @@ def healthz():
 
 
 def _load_dynamic_sources() -> list[dict]:
-    """Sources registered at runtime via the onboarding wizard (the registry service)."""
-    if not SOURCES_FILE.exists():
+    """Sources registered at runtime via the wizard (registry → /shared/sources.json),
+    or pre-registered via the SOURCES_JSON env (used in Azure, where there is no shared
+    volume and sources are baked in rather than added live)."""
+    raw = None
+    if SOURCES_FILE.exists():
+        raw = SOURCES_FILE.read_text(encoding="utf-8")
+    elif os.environ.get("SOURCES_JSON"):
+        raw = os.environ["SOURCES_JSON"]
+    if not raw:
         return []
     try:
-        sources = json.loads(SOURCES_FILE.read_text(encoding="utf-8"))
+        sources = json.loads(raw)
     except json.JSONDecodeError:
         return []
     return [

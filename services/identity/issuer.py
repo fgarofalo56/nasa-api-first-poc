@@ -49,6 +49,21 @@ _state: dict = {}
 
 
 def _load_or_create_keys() -> tuple[rsa.RSAPrivateKey, str]:
+    # A provided key (env) takes precedence — used in Azure so the baked gateway config's
+    # public key matches the issuer without a shared volume.
+    env_pem = os.environ.get("JWT_PRIVATE_KEY_PEM")
+    if env_pem:
+        # accept raw PEM or base64-encoded PEM (ACA secrets dislike multi-line values)
+        if "BEGIN" not in env_pem:
+            env_pem = base64.b64decode(env_pem).decode()
+        private_key = serialization.load_pem_private_key(env_pem.encode(), password=None)
+        log.info("loaded RSA key from JWT_PRIVATE_KEY_PEM env")
+        public_pem = (
+            private_key.public_key()
+            .public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+            .decode()
+        )
+        return private_key, public_pem
     KEY_DIR.mkdir(parents=True, exist_ok=True)
     priv_path = KEY_DIR / "jwt-private.pem"
     if priv_path.exists():
