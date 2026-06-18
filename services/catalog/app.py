@@ -102,11 +102,14 @@ def _load_dynamic_sources() -> list[dict]:
     when REGISTRY_INTERNAL_URL is set (Azure, no shared volume); otherwise read the shared
     /shared/sources.json (local), falling back to a baked SOURCES_JSON env."""
     if REGISTRY_INTERNAL_URL:
+        # The registry is the source of truth here — always return its list (or empty on
+        # failure); never fall back to a baked SOURCES_JSON, which would resurrect removed
+        # sources.
         try:
             r = httpx.get(f"{REGISTRY_INTERNAL_URL}/sources", timeout=5)
-            if r.status_code == 200:
-                return [_map_source(s) for s in r.json().get("sources", [])]
-        except httpx.HTTPError:
+            r.raise_for_status()
+            return [_map_source(s) for s in r.json().get("sources", [])]
+        except Exception:  # noqa: BLE001 — degrade to "no dynamic sources"
             return []
     raw = None
     if SOURCES_FILE.exists():
