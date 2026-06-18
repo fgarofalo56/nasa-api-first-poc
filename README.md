@@ -17,6 +17,14 @@ Azure-Government managed equivalents. All data is synthetic (see `docs/DISCLAIME
 
 ![Architecture](docs/architecture.png)
 
+### NASA-themed marketplace UI
+
+The browser UI (`make ui`) lists each data product and runs the mission query **through
+the gateway** — showing the HTTP status, the gateway correlation id, and the ranked
+high-risk parts (synthetic data):
+
+![Marketplace UI — query through the gateway](docs/img/ui-query.png)
+
 ---
 
 ## 📑 Table of Contents
