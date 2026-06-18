@@ -19,7 +19,7 @@ jobs:
     if: >
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - name: Merge the PR for this run's branch (unless held)
         env:
