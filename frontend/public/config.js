@@ -9,4 +9,7 @@ window.APP_CONFIG = {
   // Local dev has the registry's shared base config + Kong's admin port, so the live
   // "add/remove a source" wizard works. The Azure deploy sets this false (pre-registered).
   liveOnboarding: true,
+  // No Entra EasyAuth locally; the Azure deploy sets this true so the landing page shows
+  // the "Sign in with Microsoft" button.
+  authEnabled: false,
 };

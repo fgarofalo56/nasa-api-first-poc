@@ -75,25 +75,36 @@ export async function gatewayGet(path, consumer = "analyst") {
   return { status: r.status, rows, correlationId, raw };
 }
 
-// Is EasyAuth in front of us (Azure), and is the visitor signed in?
-// /.auth/me exists only behind Azure App Service / Container Apps auth; locally it 404s.
+// Whether this deploy sits behind Entra EasyAuth (Azure). The deploy config sets it;
+// we don't infer it from /.auth/me because Container Apps serves the SPA HTML for that
+// path when anonymous (so a JSON probe is unreliable for the "gated?" question).
+export const AUTH_ENABLED = CFG.authEnabled === true;
+
+// Best-effort: are we signed in, and as whom? /.auth/me returns JSON only when there is
+// an authenticated session (and only on hosts that expose it); otherwise we just report
+// "gated, not signed in" so the Sign-in button stays available.
 export async function authStatus() {
+  let signedIn = false;
+  let name = null;
   try {
     const r = await fetch("/.auth/me", { headers: { Accept: "application/json" } });
-    // Gated but signed out (EasyAuth session absent/expired) -> still offer Sign in.
-    if (r.status === 401 || r.status === 403) return { gated: true, signedIn: false, name: null };
-    if (!r.ok) return { gated: false, signedIn: false, name: null }; // 404 / no EasyAuth = local dev
-    const data = await r.json();
-    const principal = Array.isArray(data) ? data[0] : data?.clientPrincipal;
-    const name =
-      principal?.user_id ||
-      principal?.userDetails ||
-      principal?.claims?.find?.((c) => /name|email|upn/i.test(c.typ))?.val ||
-      null;
-    return { gated: true, signedIn: !!principal, name };
+    const ct = r.headers.get("content-type") || "";
+    if (r.ok && ct.includes("json")) {
+      const data = await r.json();
+      const p = Array.isArray(data) ? data[0] : data?.clientPrincipal;
+      if (p) {
+        signedIn = true;
+        name =
+          p.userDetails ||
+          p.user_id ||
+          p.claims?.find?.((c) => /name|email|upn/i.test(c.typ || c.type))?.val ||
+          null;
+      }
+    }
   } catch {
-    return { gated: false, signedIn: false, name: null }; // local dev: no EasyAuth
+    /* ignore — best effort */
   }
+  return { gated: AUTH_ENABLED, signedIn, name };
 }
 
 // Drill-down: compose SEVERAL governed gateway calls to build a full product detail —
