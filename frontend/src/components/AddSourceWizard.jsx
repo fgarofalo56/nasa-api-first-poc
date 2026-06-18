@@ -51,11 +51,17 @@ export default function AddSourceWizard({ onDone, onClose }) {
   }
 
   return (
-    <div className="wizard-backdrop" onClick={onClose}>
-      <div className="wizard" onClick={(e) => e.stopPropagation()}>
+    <div className="wizard-backdrop" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <div
+        className="wizard"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="wizard-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="wizard-head">
-          <h2>Add a data source</h2>
-          <button className="ghost" onClick={onClose}>
+          <h2 id="wizard-title">Add a data source</h2>
+          <button className="ghost" onClick={onClose} aria-label="Close dialog">
             ✕
           </button>
         </div>

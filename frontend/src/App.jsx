@@ -54,16 +54,34 @@ export default function App() {
         authenticated, rate-limited, and metered by the gateway; data never leaves its source.
       </div>
 
-      {err && <div className="err wide">Error loading catalog: {err}</div>}
+      {err && (
+        <div className="err wide" role="alert" aria-live="assertive">
+          Error loading catalog: {err}
+        </div>
+      )}
 
-      <section>
+      <main id="main">
+      <section aria-labelledby="mkt-heading">
         <div className="section-head">
-          <h2>Marketplace · {data.products.length} data product{data.products.length === 1 ? "" : "s"}</h2>
+          <h2 id="mkt-heading">Marketplace · {data.products.length} data product{data.products.length === 1 ? "" : "s"}</h2>
           <span className="hint">Click a card to query it through the gateway.</span>
         </div>
         <div className="grid">
           {data.products.map((p) => (
-            <article key={p.id} className={`card${active?.id === p.id ? " sel" : ""}`} onClick={() => setActive(p)}>
+            <article
+              key={p.id}
+              className={`card${active?.id === p.id ? " sel" : ""}`}
+              role="button"
+              tabIndex={0}
+              aria-label={`Query ${p.title} through the gateway`}
+              onClick={() => setActive(p)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActive(p);
+                }
+              }}
+            >
               <div className="card-top">
                 <span className={`origin ${p.origin?.includes("wizard") ? "added" : "builtin"}`}>
                   {p.origin?.includes("wizard") ? "added via wizard" : "built-in"}
@@ -72,6 +90,7 @@ export default function App() {
                   <button
                     className="trash"
                     title="remove source"
+                    aria-label={`Remove source ${p.title}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       removeSource(p.id);
@@ -129,6 +148,7 @@ export default function App() {
           </p>
         </div>
       </section>
+      </main>
 
       <footer>
         <span>Gateway {ENDPOINTS.kong}</span> · <span>Identity {ENDPOINTS.identity}</span> ·{" "}

@@ -81,13 +81,15 @@ export default function QueryConsole({ product, onClose }) {
         {state.loading ? "Querying…" : "Run through gateway"}
       </button>
 
-      {state.error && <div className="err">Error: {state.error}</div>}
-      {state.status != null && (
-        <div className="corr">
-          HTTP {state.status} · gateway correlation-id: <code>{state.correlationId || "(none)"}</code>
-        </div>
-      )}
-      {state.rows && <ResultTable rows={state.rows} />}
+      <div aria-live="polite">
+        {state.error && <div className="err" role="alert">Error: {state.error}</div>}
+        {state.status != null && (
+          <div className="corr">
+            HTTP {state.status} · gateway correlation-id: <code>{state.correlationId || "(none)"}</code>
+          </div>
+        )}
+        {state.rows && <ResultTable rows={state.rows} />}
+      </div>
     </div>
   );
 }
