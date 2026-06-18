@@ -260,6 +260,14 @@ CALCULATE(
 )
 ```
 
+One more measure lives on the **`delay_trend`** table — it powers the line chart in
+[section 5](#5--the-delay-trend-line-chart):
+
+```dax
+Avg Delay Trend =
+AVERAGE('delay_trend'[avg_delay_days])
+```
+
 > **In plain terms, measure by measure:**
 > - **High Risk Materials** counts the rows whose `risk_tier` is `High`. `CALCULATE`
 >   re-runs the count *with an extra filter applied* — that's its whole job.
@@ -270,6 +278,25 @@ CALCULATE(
 > - **Critical Slips >30d** is the headline risk: parts that are *Critical*, *sole-source*,
 >   **and** averaging more than 30 days late — the exact condition the CLI/MCP/UI flag,
 >   and the same `WHERE` clause as query #1 in `dbsql_samples.sql`.
+> - **Avg Delay Trend** re-states `delay_trend[avg_delay_days]` *as a measure* so it can
+>   sit on a chart's value axis (see the gotcha below).
+
+> [!WARNING]
+> **Dollars are redacted in the zero-move (gateway) path — by design.** When the
+> medallion notebook sources **through the gateway** (`SOURCE_MODE=gateway`), the
+> `netwr`/`netpr` columns are **redacted** at the edge, so `gold.artemis_supply_risk.total_committed_usd`
+> lands as **0**. That means **`Sole-Source Exposure ($)` evaluates to `$0`/blank** and
+> any visual bound to it (KPI card or treemap) renders empty. This is the field-level
+> redaction story working — not a bug. For a populated visual, group by a **non-redacted**
+> dimension instead (the shipped report uses **Material Count by `criticality`**), or run
+> the notebook in **`postgres` mode** (full-fidelity JDBC read) when you specifically want
+> live dollars in BI.
+
+> [!TIP]
+> **`delay_trend` columns are non-summarizable.** The exported model marks `delay_trend`'s
+> numeric columns `summarizeBy: none`, so dropping `avg_delay_days` straight onto a chart
+> sends it to the **Legend**, not the Y-axis. Use the **`Avg Delay Trend`** measure above
+> (a measure always lands on the value axis), or set the column's **Summarize by → Average**.
 
 > [!TIP]
 > The table name in single quotes (`'artemis_supply_risk'`) is how Power BI named
@@ -285,11 +312,11 @@ maps to a query you can sanity-check in `dbsql_samples.sql`.
 
 | Visual | Field(s) | Purpose | Mirrors SQL |
 |---|---|---|---|
-| **KPI cards (4)** | `High Risk Materials`, `Critical Slips >30d`, `Sole-Source Exposure ($)`, `Pad Anomalies` | The headline numbers | #1, #3, #4 |
+| **KPI cards** | `High Risk Materials`, `Critical Slips >30d` (add `Pad Anomalies`, and `Sole-Source Exposure ($)` only in `postgres` mode — see redaction note above) | The headline numbers | #1, #3, #4 |
 | **Slicer** | `program` (default **Artemis-3**) | Mission filter | — |
 | **Stacked bar** | axis `program`, legend `risk_tier`, value `COUNTROWS` | Risk distribution by program | #2 |
 | **Table** | `material_name`, `vendor_name`, `risk_tier`, `risk_score`, `avg_delay_days`, `total_committed_usd` | The ranked at-risk parts + suppliers | #1 |
-| **Treemap** | group `vendor_name`, value `Sole-Source Exposure ($)` | Concentration of single-source spend | #3 |
+| **Treemap** | group `criticality`, value `Material Count` | Risk mix by criticality (redaction-safe; the `Sole-Source Exposure ($)` treemap is empty in gateway mode) | #2 |
 | **Line chart** | see [section 5](#5--the-delay-trend-line-chart) | Delay/slip trend over time | #5 |
 
 **Conditional formatting:** color the `risk_tier` field — **High = red `#FC3D21`**,
@@ -316,15 +343,17 @@ getting better or worse?"*
 | Well | Field | Why |
 |---|---|---|
 | **X-axis** | `delay_trend[order_month]` | The month buckets the notebook pre-aggregated |
-| **Y-axis (primary)** | `delay_trend[avg_delay_days]` | The trend line everyone watches |
+| **Y-axis (primary)** | **`Avg Delay Trend`** (measure) | The trend line everyone watches — use the measure, not the raw column (see the summarization gotcha in [section 3](#3--measures-dax)) |
 | **Secondary line (optional)** | `delay_trend[slipped_pos]` | How many orders slipped >30 days that month |
 | **Legend** | `delay_trend[program]` | One line per mission program |
 | **Filter / slicer** | `program` (default **Artemis-3**) | Focus on one program, or compare all |
 
-> **In plain terms:** because the notebook already grouped by program and month
-> (`GROUP BY program, date_trunc('MONTH', order_date)`), Power BI does **no**
-> aggregation here — it just plots the rows. That keeps the DirectQuery fast and
-> the chart honest.
+> **In plain terms:** the notebook already grouped by program and month
+> (`GROUP BY program, date_trunc('MONTH', order_date)`), so there's one row per
+> program-month. The **`Avg Delay Trend`** measure (`AVERAGE(delay_trend[avg_delay_days])`)
+> just surfaces that pre-aggregated value on the Y-axis — over a single row per point it
+> *is* the value, which keeps the DirectQuery fast and the chart honest. (A bare
+> `summarizeBy: none` column would otherwise refuse the value axis and jump to the Legend.)
 
 > [!TIP]
 > Sort the X-axis **ascending by `order_month`** (it's a date, so it sorts

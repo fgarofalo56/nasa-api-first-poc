@@ -1,0 +1,139 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "1c73cec40e4c75957c33",
+  "position": {
+    "x": 645,
+    "y": 456,
+    "z": 3,
+    "height": 224,
+    "width": 595,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "delay_trend"
+                    }
+                  },
+                  "Property": "order_month"
+                }
+              },
+              "queryRef": "delay_trend.order_month",
+              "nativeQueryRef": "order_month",
+              "active": true
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "delay_trend"
+                    }
+                  },
+                  "Property": "program"
+                }
+              },
+              "queryRef": "delay_trend.program",
+              "nativeQueryRef": "program"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "delay_trend"
+                    }
+                  },
+                  "Property": "Avg Delay Trend"
+                }
+              },
+              "queryRef": "delay_trend.Avg Delay Trend",
+              "nativeQueryRef": "Avg Delay Trend"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "delay_trend"
+                  }
+                },
+                "Property": "order_month"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "b33733f202dd677d9b00",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "delay_trend"
+              }
+            },
+            "Property": "order_month"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "5208725f5cc91688c6c6",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "delay_trend"
+              }
+            },
+            "Property": "Avg Delay Trend"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "7ef458c5834c5d0d6ce2",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "delay_trend"
+              }
+            },
+            "Property": "program"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}
