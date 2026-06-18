@@ -58,6 +58,14 @@ deploy() {  # name image port [extra args...]
   az containerapp show -g "$RG" -n "$name" --query properties.configuration.ingress.fqdn -o tsv
 }
 
+echo "==> 1b. observability: Log Analytics workspace + stream env app logs to it"
+az monitor log-analytics workspace create -g "$RG" -n artemis-logs -l "$LOC" \
+  --tags "${TAGS[@]}" -o none 2>/dev/null || true
+LA_CID="$(az monitor log-analytics workspace show -g "$RG" -n artemis-logs --query customerId -o tsv)"
+LA_KEY="$(az monitor log-analytics workspace get-shared-keys -g "$RG" -n artemis-logs --query primarySharedKey -o tsv)"
+az containerapp env update -g "$RG" -n "$CAE" --logs-destination log-analytics \
+  --logs-workspace-id "$LA_CID" --logs-workspace-key "$LA_KEY" -o none 2>/dev/null || true
+
 echo "==> 2. DAB: drop EasyAuth so the gateway can front it"
 az containerapp auth update -g "$RG" -n artemis-dab --action AllowAnonymous -o none 2>/dev/null || true
 DAB_FQDN="$(az containerapp show -g "$RG" -n artemis-dab --query properties.configuration.ingress.fqdn -o tsv)"
@@ -113,6 +121,11 @@ CAT_FQDN="$(deploy catalog catalog:latest 8080 \
 REG_FQDN="$(deploy registry registry:latest 8095 \
   --env-vars REGISTRY_PORT=8095 "KONG_ADMIN_INTERNAL_URL=https://$KONG_FQDN")"
 
+echo "==> 5b. MCP server (agent path) — reaches the gateway/issuer over their Azure URLs"
+az acr build -r "$ACR" -t mcp:latest -f services/mcp/Dockerfile . --no-logs >/dev/null
+MCP_FQDN="$(deploy mcp mcp:latest 8090 --min-replicas 1 \
+  --env-vars MCP_PORT=8090 "KONG_INTERNAL_URL=https://$KONG_FQDN" "IDENTITY_INTERNAL_URL=https://$IDENT_FQDN" JWT_AUDIENCE=artemis-api)"
+
 echo "==> 6. render UI config + build the frontend image (points at the Azure URLs)"
 cat > frontend/public/config.js <<EOF
 window.APP_CONFIG = {
@@ -139,4 +152,5 @@ echo "  NASA UI (tenant-locked):  https://$FE_FQDN"
 echo "  Gateway:   https://$KONG_FQDN     Identity: https://$IDENT_FQDN"
 echo "  Catalog:   https://$CAT_FQDN     Registry: https://$REG_FQDN"
 echo "  DAB:       https://$DAB_FQDN     Transport: https://$TRANSPORT_FQDN"
+echo "  MCP:       https://$MCP_FQDN     (agent path)"
 echo "Teardown: az group delete -n $RG --yes --no-wait  (+ az ad app delete --id $APPID)"

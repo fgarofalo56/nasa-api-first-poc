@@ -68,6 +68,13 @@ az apim product create -g "$RG" --service-name "$APIM" --product-id artemis \
   --approval-required false -o none 2>/dev/null || true
 az apim product api add -g "$RG" --service-name "$APIM" --product-id artemis --api-id artemis-procurement -o none
 
+echo "==> diagnostics: stream APIM GatewayLogs + metrics to Log Analytics (if present)"
+WSID="$(az monitor log-analytics workspace show -g "$RG" -n artemis-logs --query id -o tsv 2>/dev/null || true)"
+if [ -n "$WSID" ]; then
+  APIMID="$(az apim show -g "$RG" -n "$APIM" --query id -o tsv)"
+  az monitor diagnostic-settings create --name to-la --resource "$APIMID" --workspace "$WSID"     --logs '[{"category":"GatewayLogs","enabled":true}]' --metrics '[{"category":"AllMetrics","enabled":true}]' -o none 2>/dev/null || true
+fi
+
 echo "==> validate a call through APIM"
 GW="$(az apim show -g "$RG" -n "$APIM" --query gatewayUrl -o tsv)"
 KEY="$(az rest --method post --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/subscriptions/master/listSecrets?api-version=2022-08-01" --query primaryKey -o tsv 2>/dev/null)"
