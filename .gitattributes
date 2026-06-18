@@ -1,0 +1,17 @@
+# Keep LF in the repo so files that run inside Linux containers (shell scripts,
+# Dockerfiles, configs consumed by Kong/DAB/Postgres) are not corrupted by CRLF.
+* text=auto eol=lf
+
+*.sh        text eol=lf
+*.py        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+*.sql       text eol=lf
+*.toml      text eol=lf
+Dockerfile  text eol=lf
+*.bicep     text eol=lf
+
+# Binary
+*.png       binary
+*.csv       text eol=lf

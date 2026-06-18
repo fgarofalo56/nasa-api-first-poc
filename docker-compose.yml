@@ -1,0 +1,211 @@
+# nasa-api-first-poc — zero-move API-first data marketplace (local OSS analogue).
+#
+# Networks enforce zero-move: postgres + dab attach ONLY to `internal`; clients,
+# catalog, and mcp attach to `edge`. Kong is the ONLY service on both — so the sole
+# path to the data is through the gateway. (tests/test_zero_move.py proves it.)
+#
+# Profiles:  core (the demo stack) · observability (prometheus+grafana)
+#
+# Start:  cp .env.example .env && docker compose --profile core up -d
+
+x-env: &pg-env
+  POSTGRES_USER: ${POSTGRES_USER:-artemis}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-artemis_local_demo}
+  POSTGRES_DB: ${POSTGRES_DB:-procurement}
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+
+networks:
+  internal:
+    internal: true   # no egress; postgres/dab live here, unreachable from outside
+  edge:
+    driver: bridge
+
+volumes:
+  pgdata:
+  kong-config:   # identity renders the live RS256 public key into kong.yml here
+
+services:
+  # ── system of record (data never leaves here) ──────────────────────────────────
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment: *pg-env
+    networks: [internal]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-artemis} -d ${POSTGRES_DB:-procurement}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    profiles: [core]
+
+  # ── seeder (one-shot job: schema + data + classification, then exits) ───────────
+  seeder:
+    build:
+      context: .
+      dockerfile: services/seeder/Dockerfile
+    environment:
+      <<: *pg-env
+      SYNTHETIC_SEED: ${SYNTHETIC_SEED:-42}
+    networks: [internal]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    profiles: [core]
+
+  # ── auto-API (Microsoft Data API Builder over Postgres; REST+GraphQL+OpenAPI) ───
+  dab:
+    build:
+      context: services/dab
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DAB_CONNECTION_STRING: ${DAB_CONNECTION_STRING:-Host=postgres;Port=5432;Database=procurement;Username=artemis;Password=artemis_local_demo}
+      ASPNETCORE_URLS: http://0.0.0.0:5000
+    networks: [internal]
+    depends_on:
+      seeder:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5000/api/openapi >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    profiles: [core]
+
+  # ── identity (RS256 JWT issuer + JWKS; renders the gateway's public key) ────────
+  identity:
+    build:
+      context: services/identity
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ISSUER_PORT: "8081"
+      JWT_ISSUER: ${JWT_ISSUER:-https://issuer.local}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-artemis-api}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-60}
+      KONG_TEMPLATE: /app/kong.yml.tmpl
+      KONG_RENDERED: /shared/kong.yml
+    networks: [edge]
+    volumes:
+      - kong-config:/shared
+    ports:
+      - "${ISSUER_PORT:-8081}:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/healthz >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    profiles: [core]
+
+  # ── gateway (Kong OSS, DB-less): JWT · rate-limit · prometheus · correlation-id ─
+  kong:
+    image: kong:3.8
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /shared/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_STATUS_LISTEN: 0.0.0.0:8100
+      KONG_PLUGINS: bundled
+      KONG_NGINX_WORKER_PROCESSES: "1"
+    networks: [internal, edge]
+    depends_on:
+      dab:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+    volumes:
+      - kong-config:/shared:ro
+    ports:
+      - "${KONG_PROXY_PORT:-8000}:8000"
+      - "${KONG_ADMIN_PORT:-8001}:8001"
+    healthcheck:
+      test: ["CMD-SHELL", "kong health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    profiles: [core]
+
+  # ── catalog (marketplace entry: OpenAPI via Kong + owner + classification) ──────
+  catalog:
+    build:
+      context: .
+      dockerfile: services/catalog/Dockerfile
+    restart: unless-stopped
+    environment:
+      CATALOG_PORT: "8080"
+      KONG_PUBLIC_URL: ${KONG_PUBLIC_URL:-http://localhost:8000}
+      KONG_INTERNAL_URL: http://kong:8000
+    networks: [edge]
+    depends_on:
+      kong:
+        condition: service_healthy
+    ports:
+      - "${CATALOG_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    profiles: [core]
+
+  # ── mcp server (agent consumer: query_supply_risk tool through Kong) ────────────
+  mcp:
+    build:
+      context: .
+      dockerfile: services/mcp/Dockerfile
+    restart: unless-stopped
+    environment:
+      MCP_PORT: "8090"
+      KONG_INTERNAL_URL: http://kong:8000
+      IDENTITY_INTERNAL_URL: http://identity:8081
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-artemis-api}
+    networks: [edge]
+    depends_on:
+      kong:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+    ports:
+      - "${MCP_PORT:-8090}:8090"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8090/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    profiles: [core]
+
+  # ── observability (Kong Prometheus plugin → Prometheus → Grafana) ───────────────
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    restart: unless-stopped
+    networks: [edge]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    profiles: [observability]
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin_local_demo}
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    networks: [edge]
+    depends_on:
+      - prometheus
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    profiles: [observability]
