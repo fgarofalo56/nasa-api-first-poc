@@ -80,8 +80,8 @@ services:
   # ── identity (RS256 JWT issuer + JWKS; renders the gateway's public key) ────────
   identity:
     build:
-      context: services/identity
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/identity/Dockerfile
     restart: unless-stopped
     environment:
       ISSUER_PORT: "8081"

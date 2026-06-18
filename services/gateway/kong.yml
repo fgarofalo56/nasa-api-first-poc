@@ -1,0 +1,81 @@
+# Kong Gateway OSS — DB-less declarative config (the APIM-as-enterprise-gateway
+# pattern, OSS analogue). This is the canonical gateway config; the identity service
+# renders the two placeholders at startup into the effective /shared/kong.yml that
+# Kong loads:
+#   __RSA_PUBLIC_KEY__  -> the issuer's live RS256 public key (never committed)
+#   __RATE_LIMIT__      -> RATE_LIMIT_PER_MINUTE from .env
+#
+# The gateway is the ONLY path to the data. Plugins enforce:
+#   jwt            — reject no/invalid token at the edge (request never reaches DAB)
+#   rate-limiting  — per-consumer quota; 429 + Retry-After over the cap
+#   prometheus     — per-consumer call/latency metrics
+#   correlation-id — stamp + echo X-Correlation-ID (proves the call went through Kong)
+#   pre-function   — one OWASP API control (block over-broad extraction queries)
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: artemis-dab
+    url: http://dab:5000
+    routes:
+      - name: artemis-procurement-api
+        paths:
+          - /api
+        strip_path: false
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: client_id
+          claims_to_verify:
+            - exp
+      - name: rate-limiting
+        config:
+          minute: __RATE_LIMIT__
+          policy: local
+          limit_by: consumer
+          fault_tolerant: true
+          hide_client_headers: false
+      - name: correlation-id
+        config:
+          header_name: X-Correlation-ID
+          generator: uuid#counter
+          echo_downstream: true
+      - name: pre-function
+        config:
+          access:
+            - |
+              -- OWASP API4:2023 (Unrestricted Resource Consumption): block over-broad
+              -- extraction. A consumer may page with $first up to 200; anything larger
+              -- (an attempt to siphon the whole dataset in one call) is rejected here,
+              -- before the request ever reaches DAB/Postgres.
+              local args = kong.request.get_query()
+              local first = args["$first"]
+              if first and tonumber(first) and tonumber(first) > 200 then
+                return kong.response.exit(400, {
+                  message = "Over-broad query blocked (OWASP API4): $first exceeds 200",
+                  max_first = 200
+                })
+              end
+
+# Per-consumer metering + latency, exposed on the Kong status/admin /metrics endpoint.
+plugins:
+  - name: prometheus
+    config:
+      per_consumer: true
+      status_code_metrics: true
+      latency_metrics: true
+      bandwidth_metrics: true
+
+# Two consumers so per-consumer metering is visible. Both trust the single issuer key;
+# Kong tells them apart by the token's client_id claim (key_claim_name above).
+consumers:
+  - username: analyst
+    jwt_secrets:
+      - key: analyst
+        algorithm: RS256
+        rsa_public_key: "__RSA_PUBLIC_KEY__"
+  - username: artemis-agent
+    jwt_secrets:
+      - key: artemis-agent
+        algorithm: RS256
+        rsa_public_key: "__RSA_PUBLIC_KEY__"

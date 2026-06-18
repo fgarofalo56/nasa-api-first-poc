@@ -18,10 +18,12 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Endpoints (host-side ports; override via env to match a remote/CI stack).
-KONG_PROXY = os.environ.get("KONG_PROXY_URL", "http://localhost:8000")
-KONG_ADMIN = os.environ.get("KONG_ADMIN_URL", "http://localhost:8001")
-IDENTITY_URL = os.environ.get("IDENTITY_URL", "http://localhost:8081")
-CATALOG_URL = os.environ.get("CATALOG_URL", "http://localhost:8080")
+# Default to 127.0.0.1 (not "localhost") to avoid IPv6/IPv4 ambiguity when an
+# unrelated process is bound to the same port on ::1.
+KONG_PROXY = os.environ.get("KONG_PROXY_URL", "http://127.0.0.1:8000")
+KONG_ADMIN = os.environ.get("KONG_ADMIN_URL", "http://127.0.0.1:8001")
+IDENTITY_URL = os.environ.get("IDENTITY_URL", "http://127.0.0.1:8081")
+CATALOG_URL = os.environ.get("CATALOG_URL", "http://127.0.0.1:8080")
 
 # Internal hostnames (only resolvable/reachable from inside Docker networks).
 POSTGRES_HOST = os.environ.get("POSTGRES_HOST_TEST", "localhost")
@@ -29,15 +31,18 @@ POSTGRES_PORT = int(os.environ.get("POSTGRES_PORT", "5432"))
 
 
 def stack_up() -> bool:
-    """True when *our* Kong gateway answers on the admin status endpoint.
+    """True when our identity issuer is healthy AND Kong is fronting the API.
 
-    Validates the JSON shape so an unrelated local service on the same port does not
-    produce a false positive.
+    Probes the issuer (`/healthz`) and the Kong proxy (an unauthenticated `/api` call
+    must be rejected with 401). Avoids the admin port so an unrelated local service on
+    that port cannot produce a false positive.
     """
     try:
-        resp = httpx.get(f"{KONG_ADMIN}/status", timeout=1.5)
-        body = resp.json()
-        return resp.status_code == 200 and "memory" in body
+        health = httpx.get(f"{IDENTITY_URL}/healthz", timeout=1.5)
+        if health.status_code != 200 or health.json().get("status") != "ok":
+            return False
+        edge = httpx.get(f"{KONG_PROXY}/api/Material", timeout=1.5)
+        return edge.status_code == 401
     except Exception:
         return False
 
