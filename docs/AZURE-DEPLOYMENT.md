@@ -40,4 +40,43 @@ difference is data residency and personnel-access controls (ITAR/EAR), not the F
 level. See the Technical Companion (`docs/whitepapers/02_technical_api_first_companion.md`)
 for the full FedRAMP High / Azure Government / GCC discussion.
 
-> _Fill in the Bicep specifics under `infra/azure/` during the build (PRP §12)._
+## Reference Bicep (`infra/azure/`)
+
+These modules are **reference IaC** — they map the local stack to managed services and
+compile with `az bicep build`, but CI does **not** deploy them and does **not** require a
+subscription.
+
+| File | Deploys | Replaces (local) |
+|---|---|---|
+| `main.bicep` | orchestrates the modules below + outputs the APIM gateway URL | `docker-compose.yml` |
+| `modules/apim.bicep` | API Management + an API + a policy (`validate-azure-ad-token`, `rate-limit-by-key`, correlation-id header) | Kong + `kong.yml` |
+| `modules/postgres.bicep` | PostgreSQL Flexible Server (v16, public access disabled) + `procurement` db | local Postgres |
+| `modules/containerapp-dab.bicep` | DAB on Container Apps with **internal ingress** (only APIM can reach it) + Log Analytics wiring | local DAB container |
+| `modules/monitor.bicep` | Log Analytics workspace | Prometheus + Grafana |
+| `main.bicepparam` | parameters; the PG password comes from `PG_ADMIN_PASSWORD` via `readEnvironmentVariable` (never committed) | `.env` |
+
+The APIM policy is the direct analogue of the Kong plugins: validate the Entra JWT,
+rate-limit per caller, stamp a correlation id. APIM's AI-gateway policies
+(`llm-token-limit`, `llm-emit-token-metric`) extend the same metering to LLM endpoints.
+
+**Identity** (Entra app registration) and **Purview** governance are referenced rather
+than fully scripted here — app registration is a tenant operation done outside the RG
+deployment, and Purview cataloging is configured against the deployed data sources.
+
+Validate locally:
+
+```bash
+az bicep build --file infra/azure/main.bicep      # compiles clean; emits main.json (gitignored)
+```
+
+Deploy (with a subscription; illustrative):
+
+```bash
+az group create -n artemis-poc-rg -l usgovvirginia
+PG_ADMIN_PASSWORD='<choose-a-strong-secret>' \
+  az deployment group create -g artemis-poc-rg \
+    -f infra/azure/main.bicep -p infra/azure/main.bicepparam
+```
+
+Live, dated pricing for these targets: `make pricing` (or
+`python tools/azure_pricing.py --region usgovvirginia`).

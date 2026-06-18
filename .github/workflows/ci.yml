@@ -10,21 +10,39 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - name: Install tooling
-        run: pip install ruff pytest httpx
+      - name: Install tooling + deps
+        run: pip install -e ".[dev]"
       - name: Ruff format check
-        run: ruff format --check . || true   # remove '|| true' once sources land
+        run: ruff format --check .
       - name: Ruff lint
-        run: ruff check . || true            # remove '|| true' once sources land
-      - name: Tests
-        run: pytest -q || true               # remove '|| true' once tests land
+        run: ruff check .
+      - name: Tests (offline — integration tests skip without the stack)
+        run: pytest -q
 
   compose-smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Compose up (core) + demo smoke
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Prepare env + host deps
         run: |
-          echo "TODO (build): docker compose --profile core up -d"
-          echo "TODO (build): ./scripts/wait-for-healthy.sh && python client/query_supply_risk.py --program Artemis-3 --min-delay 30"
-          echo "TODO (build): assert known High-tier Artemis-3 rows returned; docker compose down"
+          cp .env.example .env
+          pip install -e .
+      - name: Compose up (core) + wait healthy
+        run: |
+          docker compose --profile core up -d --build
+          bash scripts/wait-for-healthy.sh 300
+      - name: Client answers the mission question through Kong
+        run: |
+          python client/query_supply_risk.py --program Artemis-3 --min-delay 30 | tee out.txt
+          grep -q "Mobile launcher umbilical" out.txt
+          grep -q "correlation-id=" out.txt
+      - name: Integration tests against the live stack
+        run: pytest -q -m integration
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose --profile core logs --no-color
+      - name: Tear down
+        if: always()
+        run: docker compose --profile core down -v

@@ -11,15 +11,16 @@ governs an auto-generated API in front of it, the data product is discoverable i
 catalog, and an agent answers a real supply-chain question **through the gateway** —
 with a documented, one-swap path to the Azure-Government managed equivalents.
 
-> **Status: scaffold + build spec.** The services are not implemented yet. This repo
-> contains everything a coding agent needs to build them: the complete build spec
-> (`PRP.md`), the synthetic data generator, the program narrative (`docs/whitepapers/`),
-> the folder structure, and the project rules (`CLAUDE.md`). See **"Start the build"**
-> below.
+> **Status: implemented + runnable.** `cp .env.example .env && make demo` brings the
+> whole stack up healthy and prints the Artemis-3 supply-risk answer sourced through the
+> gateway (with a correlation id). The complete build spec is in `PRP.md`; the program
+> narrative is in `docs/whitepapers/`.
+
+![Architecture](docs/architecture.png)
 
 ---
 
-## What it demonstrates (once built)
+## What it demonstrates
 
 1. **Zero data movement** — the system-of-record data never leaves its database; the
    gateway brokers every call.
@@ -59,16 +60,31 @@ identity for their managed equivalents. Full table in `PRP.md` §2 and
 > the open-source-rooted formats keep it divestable. Microsoft Fabric / OneLake are
 > excluded (not in Azure Gov/GCC). Details in `docs/AZURE-DEPLOYMENT.md`.
 
-## Quickstart (after the build)
+## Quickstart
+
+Requires only Docker + Python 3.11+ on the host.
 
 ```bash
 cp .env.example .env
-make demo        # up → wait-for-healthy → seed → run the client → print the answer
+pip install -e .          # host deps for the client + tests (httpx, pyjwt, pyyaml, mcp)
+make demo                 # up → wait-for-healthy → seed → client → MCP smoke → answer
 ```
 
 `make demo` brings the whole stack up, seeds the synthetic Artemis data, and prints
 the supply-risk answer sourced **through the gateway** with a gateway correlation id
-(proving the data never left Postgres).
+(proving the data never left Postgres). Other targets:
+
+```bash
+make test        # full suite incl. zero-move / auth (401/200/429) / discovery
+make obs         # Prometheus + Grafana (per-consumer dashboard at :3000)
+make pricing     # live, dated Azure Retail Prices for the managed-target services
+make diagram     # re-render docs/architecture.png
+make down        # stop + remove volumes
+```
+
+> **Port note:** the demo publishes Kong on `:8000`, identity on `:8081`, catalog on
+> `:8080`, MCP on `:8090`, Grafana on `:3000`. If any collide on your machine, override
+> in `.env` (e.g. `KONG_PROXY_PORT=18000`).
 
 ## Repo layout
 
@@ -87,16 +103,15 @@ scripts/                # demo.sh, wait-for-healthy.sh, gen-architecture-diagram
 tests/                  # zero-move / gateway-auth / discovery / supply-risk / no-fabric
 ```
 
-## Start the build (Claude Code)
+## How it maps to Azure Government
 
-1. Open this folder in a fresh Claude Code session.
-2. Tell it: **"Read PRP.md and CLAUDE.md, then build this exactly, phase by phase
-   (PRP §7), until every box in the Definition of Done (§13) is checked."**
-3. It will scaffold the services, implement them, wire CI, write the docs, and
-   validate — keeping each phase green before the next.
-
-The synthetic data, the program narrative, and the project constraints are already
-in place, so the agent can start implementing immediately.
+The local stack is the OSS analogue of the managed Azure-Gov target; promote it by
+swapping each component (Kong → API Management, the issuer → Microsoft Entra ID, DAB →
+DAB on Container Apps / Dataverse, `classification.yml` → Microsoft Purview,
+Prometheus/Grafana → Azure Monitor). Reference Bicep is under `infra/azure/`; the full
+discussion (FedRAMP High, the Azure-Gov managed-Unity-Catalog caveat) is in
+`docs/AZURE-DEPLOYMENT.md`. The complete build spec is `PRP.md`; the live demo walkthrough
+is `docs/DEMO-SCRIPT.md`.
 
 ## Constraints (enforced; see `CLAUDE.md` + `PRP.md` §9)
 
