@@ -18,6 +18,24 @@ API-first **zero-move** pattern on synthetic Artemis SAP-procurement data. Total
 > gateway governs an auto-generated API in front of it; an agent answers a real Artemis
 > supply-chain question through that gateway."
 
+> [!NOTE]
+> All data is **synthetic** Artemis SAP-procurement data — not real NASA data. See
+> [`DISCLAIMER.md`](DISCLAIMER.md).
+
+## 📋 Contents
+
+- [0. Prerequisites (before the room)](#-0-prerequisites-before-the-room)
+- [1. One command brings the whole stack up (2 min)](#️-1-one-command-brings-the-whole-stack-up-2-min)
+- [2. The mission answer — through the gateway (2 min)](#-2-the-mission-answer--through-the-gateway-2-min)
+- [3. Auth at the edge — 401 / 200 / 429 (2 min)](#-3-auth-at-the-edge--401--200--429-2-min)
+- [4. Prove zero-move (1 min)](#-4-prove-zero-move-1-min)
+- [5. Discovery — the catalog + OpenAPI (1 min)](#-5-discovery--the-catalog--openapi-1-min)
+- [6. The agent path — MCP (1 min)](#-6-the-agent-path--mcp-1-min)
+- [7. Observability — per-consumer traffic (1 min)](#-7-observability--per-consumer-traffic-1-min)
+- [7b. Add a source, live — the onboarding wizard (1–2 min)](#-7b-add-a-source-live--the-onboarding-wizard-12-min)
+- [8. Close — the Azure swap (30 sec)](#-8-close--the-azure-swap-30-sec)
+- [Teardown](#teardown)
+
 ## 🚀 0. Prerequisites (before the room)
 
 - Docker Desktop running. Python 3.11+ on the host (for the client + MCP smoke).
@@ -32,7 +50,18 @@ make demo
 ```
 
 This runs: `docker compose --profile core up -d` → wait-for-healthy → seed the synthetic
-data → run the governed client → run the MCP agent smoke. Narrate while it builds:
+data → run the governed client → run the MCP agent smoke.
+
+```mermaid
+flowchart LR
+    A[make demo] --> B[compose --profile core up -d]
+    B --> C[wait-for-healthy.sh]
+    C --> D[seed synthetic Artemis data]
+    D --> E[run governed client<br/>query_supply_risk.py]
+    E --> F[run MCP agent smoke<br/>smoke_client.py]
+```
+
+Narrate while it builds:
 
 - **Postgres** is the system of record (synthetic SAP tables: vendors, materials,
   purchase orders, derived supply risk).
@@ -49,6 +78,23 @@ The `make demo` output already shows it; re-run it live to narrate:
 
 ```bash
 python client/query_supply_risk.py --program Artemis-3 --min-delay 30
+```
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant I as Identity (issuer)
+    participant K as Kong (gateway)
+    participant D as DAB (auto-API)
+    participant P as Postgres (SoR)
+    C->>I: POST /token {consumer}
+    I-->>C: RS256 bearer token
+    C->>K: GET /api/SupplyRisk (Bearer token, OData $filter)
+    K->>D: forward (JWT verified, rate-limited, correlation id)
+    D->>P: query
+    P-->>D: rows
+    D-->>K: JSON
+    K-->>C: 200 + X-Correlation-ID
 ```
 
 > "Which Critical, sole-source materials on Artemis-3 have an average delay > 30 days?"
@@ -140,15 +186,16 @@ transportation DAB example) → **Publish through gateway.** Narrate:
 
 > "Onboarding a data product is registering its API with the gateway — minutes, not a
 > migration. The same step maps to publishing an API in Azure API Management / API
-> Center." (Full guide + the real-DOT-URL swap: `docs/ADD-A-SOURCE.md`.)
+> Center." (Full guide + the real-DOT-URL swap: [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md).)
 
 ## 🌐 8. Close — the Azure swap (30 sec)
 
 > "Same pattern promotes to Azure Government by swapping each OSS component for its
 > managed equivalent — Kong → **API Management**, the issuer → **Microsoft Entra ID**,
 > DAB → **DAB on Container Apps / Dataverse**, classification → **Microsoft Purview**,
-> Prometheus/Grafana → **Azure Monitor** — see `docs/AZURE-DEPLOYMENT.md` and the Bicep
-> under `infra/azure/`. Live, dated Azure prices: `make pricing`."
+> Prometheus/Grafana → **Azure Monitor** — see [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md)
+> and the Bicep under [`infra/azure/`](../infra/azure/). Live, dated Azure prices:
+> `make pricing`."
 
 ## Teardown
 

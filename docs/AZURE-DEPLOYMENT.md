@@ -1,5 +1,11 @@
 # Azure deployment path (reference)
 
+[Home](../README.md) > [Documentation](README.md) > **Azure deployment path (reference)**
+
+> [!WARNING]
+> **Illustrative reference · sample/synthetic data only · not an official NASA
+> document.** See **[DISCLAIMER.md](DISCLAIMER.md)** before sharing or adapting.
+
 > [!NOTE]
 > **TL;DR** — The local POC promotes to Azure by swapping each OSS/local component for its
 > managed equivalent (Kong → APIM, local JWT → Entra ID, Postgres → Flexible Server, etc.).
@@ -96,6 +102,7 @@ subscription.
 | `modules/postgres.bicep` | PostgreSQL Flexible Server (v16, public access disabled) + `procurement` db | local Postgres |
 | `modules/containerapp-dab.bicep` | DAB on Container Apps with **internal ingress** (only APIM can reach it) + Log Analytics wiring | local DAB container |
 | `modules/monitor.bicep` | Log Analytics workspace | Prometheus + Grafana |
+| `modules/databricks.bicep` | Data-platform layer: Azure Databricks workspace (premium, for Unity Catalog) + ADLS Gen2 (HNS) + access connector. **Standalone reference** — not wired into `main.bicep`. | the lakehouse / analytics path |
 | `modules/network.bicep` | **Production hardening:** spoke VNet (delegated Container Apps subnet + private-endpoint subnet) + a **private endpoint** and private DNS zone on the SoR — so Postgres has **no public path** (true zero-move). Enable with `enablePrivateNetworking=true`. | the compose `internal` network |
 | `main.bicepparam` | parameters; the PG password comes from `PG_ADMIN_PASSWORD` via `readEnvironmentVariable` (never committed) | `.env` |
 

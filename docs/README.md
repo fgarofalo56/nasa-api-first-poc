@@ -16,6 +16,7 @@ marketplace** — and the runnable proof in this repo.
 | [`../README.md`](../README.md) | Quickstart, what it demonstrates, repo layout |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Components, zero-move flow, Azure↔OSS mapping, federation + control-plane |
 | [`DEMO-DAY.md`](DEMO-DAY.md) | **Full end-to-end runbook** (local → Azure → APIM → Databricks → Power BI) |
+| [`DEMO-COMPLETE.md`](DEMO-COMPLETE.md) | Full superset presenter script (local + both gateway editions + Databricks + Power BI + Delta Sharing, ~25–35 min) |
 | [`DEMO-SCRIPT.md`](DEMO-SCRIPT.md) | ~10-minute local presenter walkthrough |
 | [`DISCLAIMER.md`](DISCLAIMER.md) | Legal notice + synthetic-data statement |
 

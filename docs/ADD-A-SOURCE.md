@@ -1,5 +1,12 @@
 # Add a data source — through the gateway, live
 
+[Home](../README.md) > [Documentation](README.md) > **Add a data source**
+
+> [!WARNING]
+> **Illustrative reference · sample/synthetic data only · not an official NASA
+> document.** All sources here (Artemis procurement, DOT bridge inventory) are
+> synthetic. See **[DISCLAIMER.md](DISCLAIMER.md)** before sharing or adapting.
+
 > [!NOTE]
 > **TL;DR** — Register a new data product's API with the gateway and it becomes governed
 > (JWT + rate-limit + correlation id) and discoverable **without changing the source, taking
@@ -24,6 +31,11 @@ it through the same Kong gateway with the same governance (JWT, rate-limit, corr
 - [Option B — the API (scriptable, same result)](#-option-b--the-api-scriptable-same-result)
 - [Federating the real published DOT DAB demo](#-federating-the-real-published-dot-dab-demo)
 - [Why this matters](#-why-this-matters)
+
+> [!TIP]
+> Two paths, one result: the **UI wizard** (Option A) and the **scriptable API**
+> (Option B) call the same registry control-plane, so a new source is governed and
+> discoverable through Kong either way — no source change, no downtime, no redeploy.
 
 ---
 

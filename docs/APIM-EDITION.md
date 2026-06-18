@@ -1,5 +1,7 @@
 # 🟦 APIM edition — the managed-gateway version
 
+[Home](../README.md) > [Documentation](README.md) > **APIM edition**
+
 > [!NOTE]
 > **TL;DR** — The same data marketplace, two interchangeable gateway editions:
 > **Kong (OSS)** — what we build & run locally and in Container Apps — and **Azure API
@@ -38,10 +40,10 @@ managed Postgres. Only the gateway swaps.
 
 ```mermaid
 flowchart LR
-    User(["👤 Consumer / Dev Portal"]) -->|Entra token| APIM["🟦 Azure API Management\nvalidate-azure-ad-token · rate-limit · correlation-id\n+ Developer Portal · Products"]
-    APIM -->|REST / OData| DAB["🔌 Data API Builder\n(Container Apps)"]
-    DAB -->|SQL stays put| PG[("🗄️ PostgreSQL\nFlexible Server")]
-    APIM -. publishes .- PORTAL["📖 Developer Portal\nbrowse · try-it · subscribe"]
+    User(["👤 Consumer / Dev Portal"]) -->|subscription key or Entra token| APIM["🟦 Azure API Management<br/>subscription-key or validate-azure-ad-token · rate-limit · correlation-id<br/>+ Developer Portal · Products"]
+    APIM -->|REST / OData| DAB["🔌 Data API Builder<br/>(Container Apps)"]
+    DAB -->|SQL stays put| PG[("🗄️ PostgreSQL<br/>Flexible Server")]
+    APIM -. publishes .- PORTAL["📖 Developer Portal<br/>browse · try-it · subscribe"]
     APIM -. metrics .- MON["📈 Azure Monitor"]
 ```
 
@@ -79,8 +81,16 @@ az apim create -g artemis-poc-rg -n artemis-apim-n1 -l centralus \
 ```
 
 `azure-deploy-apim.sh` imports the DAB API from its OpenAPI, applies the gateway policy
-(Entra JWT validation + per-caller rate-limit + correlation id), and publishes an
-**Artemis Data Products** Product.
+(**subscription-key** gate + per-caller rate-limit + correlation id), enables CORS and
+Entra sign-in for the Developer Portal, and publishes an **Artemis Data Products**
+Product.
+
+> [!TIP]
+> The script's default gate is the APIM **subscription key** (so the Developer Portal
+> *Try it* console works out of the box). To tenant-lock with Entra instead, the script
+> documents the `validate-azure-ad-token` upgrade inline, and
+> [`infra/azure/modules/apim.bicep`](../infra/azure/modules/apim.bicep) ships the Entra
+> validation in its policy by default.
 
 ## 📖 Showcase the Developer Portal
 
@@ -110,9 +120,9 @@ The APIM policy mirrors the Kong plugin chain 1:1 (see
 
 | Kong plugin | APIM policy |
 |---|---|
-| `jwt` (RS256) | `validate-azure-ad-token` (Entra) |
+| `jwt` (RS256) | `validate-azure-ad-token` (Entra) — shipped in `apim.bicep`; the deploy script gates on the subscription key by default and documents the Entra upgrade |
 | `rate-limiting` (per consumer) | `rate-limit-by-key` (per subscription) |
 | `correlation-id` | `set-header X-Correlation-ID` |
-| `prometheus` | Azure Monitor diagnostic settings |
-| `cors` | `cors` policy |
-| OWASP `pre-function` guard | `validate-content` / `check-header` policies |
+| `prometheus` | Azure Monitor diagnostic settings (`GatewayLogs` + `AllMetrics`) |
+| `cors` | global `cors` policy |
+| `pre-function` / `request-size-limiting` OWASP guards | `validate-content` / `check-header` policies (documented APIM equivalents) |

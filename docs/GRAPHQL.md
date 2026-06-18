@@ -1,5 +1,7 @@
 # 🔼 GraphQL through the gateway
 
+[Home](../README.md) > [Documentation](README.md) > **GraphQL through the gateway**
+
 > [!NOTE]
 > **TL;DR** — Data API Builder auto-generates a **GraphQL** endpoint alongside REST, and
 > Kong governs it on the same `/graphql` route (JWT + rate-limit + correlation id). This

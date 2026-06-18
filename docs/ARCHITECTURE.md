@@ -1,4 +1,4 @@
-# Architecture
+# 🏛️ Architecture
 
 [Home](../README.md) > [Documentation](README.md) > **Architecture**
 
@@ -6,12 +6,20 @@ The POC builds the **local / open-source analogue** of each Azure-Government tar
 service, so the same architecture promotes to Azure later by swapping the gateway,
 catalog, and identity for their managed equivalents — the *pattern* is identical.
 
+> [!NOTE]
+> **TL;DR** — A client (or MCP agent) presents a bearer token to **Kong**, the *only*
+> path to the data. Kong validates the JWT, rate-limits + meters the call, and proxies
+> to **Data API Builder**, which serves auto-generated REST/GraphQL over **PostgreSQL**.
+> Postgres and DAB live on an internal Docker network and are unreachable from clients —
+> that is the **zero-move** guarantee. All data is **synthetic** (see
+> [`DISCLAIMER.md`](DISCLAIMER.md)).
+
 ## 📑 Table of Contents
 
-- [The zero-move flow](#️-the-zero-move-flow)
-- [Azure ↔ OSS/local mapping](#-azure--osslocal-mapping)
-- [Networks (docker-compose)](#-networks-docker-compose)
-- [Multi-source federation + control-plane](#-multi-source-federation--control-plane)
+- [🏗️ The zero-move flow](#️-the-zero-move-flow)
+- [🔀 Azure ↔ OSS/local mapping](#-azure--osslocal-mapping)
+- [🌐 Networks (docker-compose)](#-networks-docker-compose)
+- [✨ Multi-source federation + control-plane](#-multi-source-federation--control-plane)
 
 ---
 
@@ -65,9 +73,9 @@ flowchart TD
 
 Postgres and DAB attach **only** to an internal Docker network; the sole path to the
 data for any client is **through Kong**. That is the zero-move proof (see
-`ZERO-MOVE.md` + `tests/test_zero_move.py`).
+[`ZERO-MOVE.md`](ZERO-MOVE.md) + [`tests/test_zero_move.py`](../tests/test_zero_move.py)).
 
-## 🌐 Azure ↔ OSS/local mapping
+## 🔀 Azure ↔ OSS/local mapping
 
 | Azure-Gov target component | POC local analogue (built here) | Why faithful |
 |---|---|---|
@@ -80,14 +88,22 @@ data for any client is **through Kong**. That is the zero-move proof (see
 | Microsoft Purview (classify + label) | `data/classification.yml` applied at seed | Classify BEFORE exposure |
 | Foundry/Copilot agent consumer (MCP) | **MCP server** + Python client | Agent reaches the governed surface, never the DB |
 | Azure Monitor / App Insights | **Prometheus + Grafana** | Per-consumer metering + latency dashboard |
-| Azure data platform (Databricks/Delta/UC) | documented only — see `AZURE-DEPLOYMENT.md` | Managed UC + Databricks SQL at FedRAMP High in commercial Azure |
+| Azure data platform (Databricks/Delta/UC) | documented only — see [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md) | Managed UC + Databricks SQL at FedRAMP High in commercial Azure |
 
 ## 🌐 Networks (docker-compose)
 
-- `internal` — `postgres` ↔ `dab` ↔ `transportation` ↔ kong-upstream only. The sources
-  attach here (no host ports).
-- `edge` — `kong` ↔ consumers / UI / catalog / mcp / registry. Consumers reach any
-  source only via Kong.
+Two Docker networks enforce zero-move. `kong` is the **only** service attached to both,
+so the sole path from any client to the data is through the gateway.
+
+| Network | `internal:` flag | Services attached | Purpose |
+|---|---|---|---|
+| `internal` | `internal: true` (no egress) | `postgres`, `seeder`, `dab`, `transportation`, `kong` | Sources live here with **no host ports** — unreachable from clients |
+| `edge` | bridge | `kong`, `identity`, `catalog`, `registry`, `mcp`, `prometheus`, `grafana`, `frontend` | Consumers / UI / control-plane reach any source **only via Kong** |
+
+> [!IMPORTANT]
+> Because `postgres` and `dab` publish **no host ports** and sit on the `internal`
+> (egress-disabled) network, the only reachable surface is Kong on `edge`. This is the
+> zero-move proof — verified by [`tests/test_zero_move.py`](../tests/test_zero_move.py).
 
 ## ✨ Multi-source federation + control-plane
 
@@ -111,6 +127,8 @@ flowchart LR
 - **`services/transportation`** — a DOT-flavored DAB-style API (synthetic bridge
   inventory) that stands in for the published Azure DAB demo; internal-only like the SoR.
 - Every added source inherits the same governance (JWT, per-consumer rate-limit,
-  correlation id, CORS). See `docs/ADD-A-SOURCE.md`.
+  correlation id, CORS). See [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md).
 
-See `PRP.md` §2 and §6 for the full component contracts.
+> [!TIP]
+> See [`PRP.md`](../PRP.md) §2 and §6 for the full component contracts, and
+> [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md) for the managed-Azure promotion path.

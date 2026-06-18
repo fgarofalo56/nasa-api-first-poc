@@ -1,5 +1,7 @@
 # 🚀 Demo day — the full end-to-end runbook
 
+[Home](../README.md) > [Documentation](README.md) > **Demo day**
+
 > [!NOTE]
 > **TL;DR** — One narrative across every surface: local zero-move marketplace → live
 > source onboarding → observability → agent (MCP) + GraphQL → **live in Azure**
@@ -11,6 +13,7 @@
 ## 📑 Table of contents
 
 - [The one-sentence frame](#-the-one-sentence-frame)
+- [The demo arc](#-the-demo-arc)
 - [Act 1 — the local marketplace (5 min)](#-act-1--the-local-marketplace-5-min)
 - [Act 2 — add a source, live (2 min)](#-act-2--add-a-source-live-2-min)
 - [Act 3 — agent + GraphQL (2 min)](#-act-3--agent--graphql-2-min)
@@ -25,6 +28,22 @@
 > not 'the one AI.' Data never moves; a governed gateway publishes an auto-generated API
 > over each source; the data product is discoverable; and any consumer — analyst, agent,
 > or the lakehouse — reaches it through the same governed surface."
+
+## 🗺️ The demo arc
+
+```mermaid
+flowchart LR
+    A1["🛰️ Act 1<br/>Local marketplace<br/>(5 min)"] --> A2["➕ Act 2<br/>Add a source live<br/>(2 min)"]
+    A2 --> A3["🤖 Act 3<br/>Agent + GraphQL<br/>(2 min)"]
+    A3 --> A4["☁️ Act 4<br/>Live in Azure<br/>(3 min)"]
+    A4 --> A5["🟦 Act 5<br/>APIM + Dev Portal<br/>(3 min)"]
+    A5 --> A6["📊 Act 6<br/>Lakehouse + Power BI<br/>(4 min)"]
+    A6 --> C["🎬 Close"]
+```
+
+> [!TIP]
+> Each act is self-contained — drop later acts to fit a shorter slot and still tell a
+> complete zero-move story.
 
 ## 🛰️ Act 1 — the local marketplace (5 min)
 

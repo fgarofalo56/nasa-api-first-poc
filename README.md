@@ -11,9 +11,10 @@ it, the data product is discoverable in a catalog, and an agent answers a real
 supply-chain question **through the gateway** — with a documented, one-swap path to the
 Azure-Government managed equivalents. All data is synthetic (see `docs/DISCLAIMER.md`).
 
-> **Status: implemented + runnable.** `cp .env.example .env && make demo` brings the
-> whole stack up healthy and prints the Artemis-3 supply-risk answer sourced through the
-> gateway (with a correlation id). The complete build spec is in `PRP.md`.
+> [!NOTE]
+> **TL;DR — Status: implemented + runnable.** `cp .env.example .env && make demo`
+> brings the whole stack up healthy and prints the Artemis-3 supply-risk answer sourced
+> through the gateway (with a correlation id). The complete build spec is in `PRP.md`.
 
 ![Architecture](docs/architecture.png)
 
@@ -35,6 +36,7 @@ high-risk parts (synthetic data):
 - [Repo layout](#-repo-layout)
 - [How it maps to Azure Government](#-how-it-maps-to-azure-government)
 - [Constraints](#️-constraints-enforced-see-claudemd--prpmd-9)
+- [Local branch protection](#️-local-branch-protection)
 - [License](#-license)
 
 ---

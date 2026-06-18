@@ -146,7 +146,7 @@ make ui                                                  # browser UI :5173 — 
 
 Everything from Part A, now **running in Azure Container Apps**, tenant-locked.
 
-### 1. The tenant-locked UI
+### 🔐 1. The tenant-locked UI
 
 Open **`https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`**.
 
@@ -160,7 +160,7 @@ Open **`https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`**.
 > enabled** — otherwise sign-in succeeds and the app returns 401. The deploy scripts set
 > this by default.
 
-### 2. Query through the gateway, in the browser
+### 🖥️ 2. Query through the gateway, in the browser
 
 Click the **Artemis Supply-Chain Risk API** card → the query console opens with the
 headline query pre-built (Artemis-3 · Critical · sole-source · >30-day slip · consumer
@@ -170,7 +170,7 @@ headline query pre-built (Artemis-3 · Critical · sole-source · >30-day slip �
 - the ranked **6-row** high-risk table (top: **Heat-pipe radiator panel**, risk 100,
   54-day slip), with suppliers resolved via a second governed call.
 
-### 3. Federation + redaction (from a terminal, against Azure)
+### 🔗 3. Federation + redaction (from a terminal, against Azure)
 
 ```bash
 D=icyocean-479340e8.centralus.azurecontainerapps.io
@@ -186,7 +186,7 @@ curl -s -H "Authorization: Bearer $TOK" "https://kong.$D/api/Material?\$first=1"
 > federated behind one governed gateway, zero-move, each call authed + rate-limited +
 > correlation-id'd. The 'add a source' wizard (Part A) is how a third arrives in minutes."
 
-### 4. Secrets, identity & SIEM (talk track)
+### 🗝️ 4. Secrets, identity & SIEM (talk track)
 
 - **Key Vault**: the DAB Postgres connection string lives in `artemis-kv-n1`; the app
   reads it via a **managed identity** + Key Vault reference — never inlined.
@@ -201,7 +201,7 @@ curl -s -H "Authorization: Bearer $TOK" "https://kong.$D/api/Material?\$first=1"
 
 The **managed twin** of the Kong gateway — same API, governed by APIM.
 
-### 1. The gateway (subscription-key gated)
+### 🚪 1. The gateway (subscription-key gated)
 
 ```bash
 GW=https://artemis-apim-n1.azure-api.net
@@ -210,7 +210,7 @@ curl -s -o /dev/null -w "no-key %{http_code}\n" "$GW/api/SupplyRisk?\$first=1"  
 curl -s -H "Ocp-Apim-Subscription-Key: <KEY>" "$GW/api/SupplyRisk?\$first=1" | python -m json.tool   # 200
 ```
 
-### 2. The Developer Portal — the self-service story
+### 🧑‍💻 2. The Developer Portal — the self-service story
 
 Open **`https://artemis-apim-n1.developer.azure-api.net`**:
 
@@ -239,7 +239,7 @@ Open **`https://artemis-apim-n1.developer.azure-api.net`**:
 The data product flows **into the lakehouse without copying the database** — landing a
 **Bronze → Silver → Gold** medallion in **Unity Catalog**, queryable from Databricks SQL.
 
-### Two read modes — both zero-move, different governance posture
+### 🔀 Two read modes — both zero-move, different governance posture
 
 | Mode | How it reads | Story |
 |---|---|---|
@@ -267,7 +267,7 @@ The runner imports the notebook, submits a single-node Unity-Catalog job, and pr
 notebook's JSON summary (gold rows + headline). The notebook logs each gateway read with
 its **correlation id** — proof the lakehouse was fed through the governed surface.
 
-### Verify in Databricks SQL
+### ✅ Verify in Databricks SQL
 
 ```sql
 USE CATALOG adb_eastus2_sandbox;

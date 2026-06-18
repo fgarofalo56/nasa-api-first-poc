@@ -1,8 +1,12 @@
-# Synthetic Artemis supply-chain dataset
+# 🛰️ Synthetic Artemis supply-chain dataset
 
-> ⚠️ **SYNTHETIC DATA — NOT REAL NASA PROCUREMENT.** Every vendor, material, price,
+[Home](../README.md) > **Synthetic data**
+
+> [!WARNING]
+> **SYNTHETIC DATA — NOT REAL NASA PROCUREMENT.** Every vendor, material, price,
 > and date is fabricated for demonstration only. Vendor names carry a `(SYNTHETIC)`
-> suffix. Safe for external sharing; contains no CUI/ITAR content.
+> suffix. Safe for external sharing; contains no CUI/ITAR content. See
+> [`docs/DISCLAIMER.md`](../docs/DISCLAIMER.md) for the full notice.
 
 ## 📑 Table of Contents
 
@@ -15,15 +19,11 @@
 
 ## 📁 What's here
 
-- **`synthetic_data.py`** — the deterministic, pure-stdlib generator.
-  `generate_artemis_procurement(out_dir, seed=42)` writes the four CSVs + a Markdown
-  data dictionary. The seeder service calls this; re-running with the same seed
-  reproduces the dataset exactly.
-- **`classification.yml`** — per-table/column sensitivity labels (Routine / Sensitive
-  / Confidential). The seeder applies these as Postgres column comments and surfaces
-  them in the catalog entry — *classify before exposure*.
-- **`sample/`** — a committed reference copy of the generated dataset (seed=42), so the
-  shape is inspectable without running anything.
+| Path | What it is |
+|---|---|
+| **`synthetic_data.py`** | The deterministic, pure-stdlib generator. `generate_artemis_procurement(out_dir, seed=42)` writes the four CSVs plus a Markdown data dictionary (`artemis_procurement_DATA_DICTIONARY.md`). The seeder service calls this; re-running with the same seed reproduces the dataset exactly. |
+| **`classification.yml`** | Per-table/column sensitivity labels (`Routine` / `Sensitive` / `Confidential`). The seeder applies these as Postgres column comments and surfaces them in the catalog entry — *classify before exposure*. |
+| **`sample/`** | A committed reference copy of the generated dataset (seed=42), so the shape is inspectable without running anything. |
 
 ## 🗄️ The four tables (SAP-shaped)
 
@@ -36,12 +36,25 @@
 
 ## 💡 The headline demo query
 
+> [!NOTE]
 > "Which **Critical, sole-source** materials on **Artemis-3** have an average delay
 > **> 30 days**?"
 
 This resolves to an OData-style call through the Kong gateway against `SupplyRisk` and
 returns the ranked high-risk parts + their suppliers — answered **without the data ever
 leaving Postgres**.
+
+```mermaid
+flowchart LR
+    C["Client / MCP tool"] -->|"OData query (JWT)"| K["Kong gateway"]
+    K -->|"REST / GraphQL"| D["Data API Builder"]
+    D -->|"SQL"| P[("PostgreSQL<br/>SupplyRisk")]
+    P -.->|"ranked high-risk parts"| C
+    subgraph internal["internal Docker network (zero-move)"]
+        D
+        P
+    end
+```
 
 ## 🔄 Regenerate
 

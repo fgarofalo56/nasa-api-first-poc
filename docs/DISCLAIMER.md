@@ -1,13 +1,23 @@
-# Disclaimer & data notice
+# ⚠️ Disclaimer & data notice
+
+[Home](../README.md) > [Documentation](README.md) > **Disclaimer & data notice**
 
 > [!WARNING]
-> ⚠️ **Illustrative reference · sample data only · not an official NASA document.**
+> **Illustrative reference · sample data only · not an official NASA document.**
 
 This repository and its documents present a **generic, illustrative use case** for an
 API-first, zero-move data marketplace in a mission-enterprise context. They are provided
 for **education and architecture demonstration only**.
 
-## ⚠️ Not affiliated / not official
+## 🧭 Contents
+
+- [Not affiliated / not official](#-not-affiliated--not-official)
+- [Synthetic data only](#-synthetic-data-only)
+- [No private or controlled information](#-no-private-or-controlled-information)
+- [Pricing & products](#-pricing--products)
+- [Warranty](#-warranty)
+
+## 🚫 Not affiliated / not official
 
 - This material is **not affiliated with, endorsed by, sponsored by, or approved by NASA**
   or any U.S. Government agency. References to "NASA," "OCIO," "Artemis," and mission

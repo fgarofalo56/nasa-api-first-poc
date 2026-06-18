@@ -1,5 +1,7 @@
 # What Azure API Management adds over the OSS gateway
 
+[Home](../README.md) > [Documentation](README.md) > **APIM capabilities**
+
 > [!NOTE]
 > **Framing (per repo constraints):** **Kong OSS is the path we *built*** in this POC; **Azure
 > API Management (APIM) is the managed Azure equivalent**. This
@@ -46,8 +48,26 @@ capabilities that are relevant to this program:
 
 ## 🔗 The honest mapping (so the demo is credible)
 
-- Everything the POC's Kong does has a 1:1 APIM policy (see `infra/azure/modules/apim.bicep`:
-  `validate-azure-ad-token` + `rate-limit-by-key` + correlation header).
+```mermaid
+flowchart LR
+    subgraph OSS["OSS path (built in this POC)"]
+        K["Kong DB-less<br/>JWT + rate-limit + correlation ID"]
+        UI["Catalog UI +<br/>Add-source wizard"]
+        PG["Prometheus / Grafana"]
+    end
+    subgraph AZ["Azure managed equivalent (APIM)"]
+        P["APIM policies<br/>validate-azure-ad-token + rate-limit-by-key + X-Correlation-ID"]
+        DP["Developer Portal +<br/>product onboarding"]
+        MON["Azure Monitor /<br/>App Insights"]
+    end
+    K -->|"1:1 policy"| P
+    UI -->|"managed twin"| DP
+    PG -->|"analogue"| MON
+```
+
+- Everything the POC's Kong does has a 1:1 APIM policy (see
+  [`infra/azure/modules/apim.bicep`](../infra/azure/modules/apim.bicep):
+  `validate-azure-ad-token` + `rate-limit-by-key` + `X-Correlation-ID` header).
 - The POC's **catalog UI + onboarding wizard** are the open-source analogue of APIM's
   **Developer Portal + product onboarding** — same idea, managed vs. self-hosted.
 - The POC's **Prometheus/Grafana** is the analogue of **Azure Monitor**.
@@ -57,4 +77,4 @@ capabilities that are relevant to this program:
 A live APIM instance (Developer tier) can front the deployed DAB API and light up the
 **Developer Portal** for a real click-through. Provisioning APIM Developer takes ~30–45 min
 and carries monthly cost, so it's an opt-in add to the demo (the reference policy is already
-in `infra/azure/modules/apim.bicep`). Ask and I'll deploy it.
+in [`infra/azure/modules/apim.bicep`](../infra/azure/modules/apim.bicep)). Ask and I'll deploy it.

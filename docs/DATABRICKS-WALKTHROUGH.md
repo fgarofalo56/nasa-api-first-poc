@@ -1,5 +1,11 @@
 # Databricks zero-move walkthrough — gateway → medallion (Unity Catalog) → Databricks SQL → Power BI
 
+[Home](../README.md) > [Documentation](README.md) > **Databricks zero-move walkthrough**
+
+> [!WARNING]
+> **Illustrative reference · sample/synthetic data only · not an official NASA
+> document.** See **[DISCLAIMER.md](DISCLAIMER.md)** before sharing or adapting.
+
 > [!NOTE]
 > **TL;DR** — Azure Databricks reads the data product *through the gateway* (authenticated,
 > metered, auditable), builds a Bronze → Silver → Gold medallion as Delta in Unity Catalog,
@@ -44,19 +50,19 @@ Artifacts in this repo:
 
 ## 📑 Table of Contents
 
-- [0. Use your existing workspace (no provisioning needed)](#0-use-your-existing-workspace-no-provisioning-needed)
-- [1. Two ways to run — pick one](#1-two-ways-to-run--pick-one)
-- [2. SQL warehouse](#2-sql-warehouse)
-- [3. Secrets](#3-secrets)
-- [4. Import + run the notebook](#4-import--run-the-notebook)
-- [5. Verify in Unity Catalog + Databricks SQL](#5-verify-in-unity-catalog--databricks-sql)
-- [6. Connect Power BI](#6-connect-power-bi)
-- [7. (Optional) Delta Sharing — zero-copy to external consumers](#7-optional-delta-sharing--zero-copy-to-external-consumers)
-- [8. Teardown (stop billing)](#8-teardown-stop-billing)
+- [0. 🏢 Use your existing workspace (no provisioning needed)](#0--use-your-existing-workspace-no-provisioning-needed)
+- [1. 🔀 Two ways to run — pick one](#1--two-ways-to-run--pick-one)
+- [2. 🏬 SQL warehouse](#2--sql-warehouse)
+- [3. 🔐 Secrets](#3--secrets)
+- [4. ▶️ Import + run the notebook](#4-️-import--run-the-notebook)
+- [5. ✅ Verify in Unity Catalog + Databricks SQL](#5--verify-in-unity-catalog--databricks-sql)
+- [6. 📊 Connect Power BI](#6--connect-power-bi)
+- [7. 🔗 (Optional) Delta Sharing — zero-copy to external consumers](#7--optional-delta-sharing--zero-copy-to-external-consumers)
+- [8. 🧹 Teardown (stop billing)](#8--teardown-stop-billing)
 
 ---
 
-## 0. Use your existing workspace (no provisioning needed)
+## 0. 🏢 Use your existing workspace (no provisioning needed)
 
 You already have a Unity-Catalog-enabled workspace — use it directly:
 
@@ -87,7 +93,7 @@ as the `catalog` widget below (the notebook defaults to `artemis`).
 > The reference IaC to stand up a *new* workspace is still in
 > `infra/azure/modules/databricks.bicep` if you ever need it — not required here.
 
-## 1. Two ways to run — pick one
+## 1. 🔀 Two ways to run — pick one
 
 The notebook has a **`source_mode`** widget:
 
@@ -98,22 +104,27 @@ The notebook has a **`source_mode`** widget:
   gateway* with a bearer token — the headline pattern. Use when the gateway/API is
   reachable from the workspace (e.g. fronted by API Management) and you have a token.
 
-## 2. SQL warehouse
+## 2. 🏬 SQL warehouse
 
 Use an existing SQL warehouse in `dbw-btfabric-dev`, or create one (Serverless/Pro,
 2X-Small). Note its **Server hostname** + **HTTP path** for Power BI.
 
-## 3. Secrets
+## 3. 🔐 Secrets
 
 ```bash
 databricks secrets create-scope artemis            # if it doesn't exist
 # postgres mode — the deployed SoR password:
 databricks secrets put-secret artemis pg_password  # paste the PG admin password
-# gateway mode (optional) — a bearer token for the API:
+# gateway mode (optional) — a pre-stored bearer token for the API:
 databricks secrets put-secret artemis gateway_token
 ```
 
-## 4. Import + run the notebook
+> [!TIP]
+> You only need to store `gateway_token` by hand if you want a fixed token. The
+> `run_notebook.py` helper (and the notebook's own gateway path) can instead **mint** a
+> token from the identity issuer at run time — see [§4](#4-️-import--run-the-notebook).
+
+## 4. ▶️ Import + run the notebook
 
 **One command (in this repo)** — imports the notebook, sets the secret, runs it on a
 single-node UC cluster, and prints a validation query (auth via `az`, no PAT):
@@ -127,6 +138,19 @@ python databricks/run_notebook.py \
   --pg-host artemis-pg-n1.postgres.database.azure.com
 ```
 
+> [!TIP]
+> For **gateway mode**, `run_notebook.py` mints a bearer token from the issuer for you
+> (no `PG_ADMIN_PASSWORD` needed) — pass `--gateway-url` and `--identity-url`
+> (and optionally `--consumer`, default `artemis-agent`):
+>
+> ```bash
+> python databricks/run_notebook.py \
+>   --host adb-7405607213468698.18.azuredatabricks.net \
+>   --catalog adb_eastus2_sandbox --source-mode gateway \
+>   --gateway-url https://kong.<aca-domain> \
+>   --identity-url https://identity.<aca-domain>
+> ```
+
 Or do it by hand:
 
 ```bash
@@ -139,8 +163,11 @@ Open `/Workspace/Users/<you>/artemis/01_zero_move_medallion`, attach a UC-enable
 
 - **postgres mode:** `source_mode=postgres`, `pg_host=artemis-pg-n1.postgres.database.azure.com`,
   `pg_secret_scope=artemis`, `pg_secret_key=pg_password`, `catalog=<your UC catalog>`.
-- **gateway mode:** `source_mode=gateway`, `gateway_url=https://<your-apim-or-app>`,
-  `token_secret_scope=artemis`, `token_secret_key=gateway_token`.
+- **gateway mode:** `source_mode=gateway`, `gateway_url=https://<your-apim-or-app>`. Then
+  either point the notebook at a pre-stored token
+  (`token_secret_scope=artemis`, `token_secret_key=gateway_token`) — e.g. the one
+  `run_notebook.py` minted — or let the notebook mint its own by setting
+  `identity_url=https://identity.<aca-domain>` and `consumer=artemis-agent`.
 
 It creates the catalog/schemas, lands Bronze Delta, refines to Silver, and builds
 `<catalog>.gold.artemis_supply_risk`. (To run headless: `databricks jobs submit` with a
@@ -161,7 +188,7 @@ It creates the catalog/schemas, lands Bronze Delta, refines to Silver, and build
 > redaction (`SECURITY.md`) applies to the analytics platform exactly as it does to the CLI,
 > MCP agent, and UI. Use postgres mode for the full-fidelity Power BI `$` measures.
 
-## 5. Verify in Unity Catalog + Databricks SQL
+## 5. ✅ Verify in Unity Catalog + Databricks SQL
 
 ```sql
 SHOW TABLES IN <catalog>.gold;
@@ -173,12 +200,12 @@ ORDER BY risk_score DESC;
 
 Run `databricks/sql/dbsql_samples.sql` for the report queries.
 
-## 6. Connect Power BI
+## 6. 📊 Connect Power BI
 
 See **`docs/POWERBI-GUIDE.md`** — connect Power BI to the SQL warehouse, import
 `<catalog>.gold.artemis_supply_risk`, add the measures, and build the supply-risk report.
 
-## 7. (Optional) Delta Sharing — zero-copy to external consumers
+## 7. 🔗 (Optional) Delta Sharing — zero-copy to external consumers
 
 ```sql
 CREATE SHARE IF NOT EXISTS artemis_supply_risk_share;
@@ -186,7 +213,7 @@ ALTER SHARE artemis_supply_risk_share ADD TABLE <catalog>.gold.artemis_supply_ri
 -- grant to a recipient; they query it WITHOUT a copy (zero-move, extended to analytics).
 ```
 
-## 8. Teardown (stop billing)
+## 8. 🧹 Teardown (stop billing)
 
 The notebook uses a **pre-existing** Databricks workspace (the reference is
 `dbw-btfabric-dev` in `rg-btfabric-tut57-dev`) — so **don't** delete that resource group.

@@ -1,15 +1,38 @@
-# Power BI — supply-risk report on the Databricks Gold mart
+# 📊 Power BI — supply-risk report on the Databricks Gold mart
+
+[Home](../README.md) > [Documentation](README.md) > **Power BI Guide**
+
+> [!WARNING]
+> **Illustrative reference · sample/synthetic data only · not an official NASA
+> document.** See **[DISCLAIMER.md](DISCLAIMER.md)** before sharing or adapting.
+
+> [!NOTE]
+> **TL;DR** — Point Power BI Desktop at the Databricks SQL warehouse over
+> **DirectQuery** and build a one-page supply-risk report on
+> `<catalog>.gold.artemis_supply_risk`. The mart is built by
+> [`databricks/notebooks/01_zero_move_medallion.ipynb`](../databricks/notebooks/01_zero_move_medallion.ipynb);
+> the reference workspace uses catalog **`adb_eastus2_sandbox`** (the notebook's
+> default `catalog` widget is `artemis`). Everything upstream is fully built in this
+> repo — only the `.pbix` is a manual, GUI artifact.
 
 Connect Power BI to the Databricks SQL warehouse and build a supply-risk report on
-`<catalog>.gold.artemis_supply_risk` (built by `databricks/notebooks/01_zero_move_medallion.ipynb`;
-the reference workspace uses catalog **`adb_eastus2_sandbox`**).
+`<catalog>.gold.artemis_supply_risk`.
+
+```mermaid
+flowchart LR
+    SoR[(Postgres<br/>system of record)] -->|governed, metered API| GW[Gateway<br/>Kong / APIM]
+    GW --> NB[Notebook 01<br/>medallion build]
+    NB --> Gold[("Unity Catalog<br/>gold.artemis_supply_risk")]
+    Gold --> DBSQL[Databricks SQL<br/>warehouse]
+    DBSQL -->|DirectQuery| PBI[Power BI<br/>report]
+```
 
 > [!NOTE]
 > **Why this is still zero-move:** use **DirectQuery** — Power BI queries the Delta mart
 > in place through the SQL warehouse; the data stays in the lakehouse. (Import mode caches
 > a copy in the PBIX; choose per governance needs.)
 
-> [!NOTE]
+> [!IMPORTANT]
 > **Note on automation:** a finished `.pbix` is a GUI artifact and isn't generated
 > headlessly — this is the build spec (connection + model + measures + visuals) a
 > presenter follows in Power BI Desktop. Everything upstream (Delta, Unity Catalog, the
@@ -19,29 +42,35 @@ the reference workspace uses catalog **`adb_eastus2_sandbox`**).
 
 ## 📑 Table of Contents
 
-- [1. Connect](#1-connect)
-- [2. Measures (DAX)](#2-measures-dax)
-- [3. Report layout (one page)](#3-report-layout-one-page-artemis-supply-chain-risk)
-- [4. Publish (optional)](#4-publish-optional)
-- [5. The narrative for the customer](#5-the-narrative-for-the-customer)
+- [1. Connect](#1--connect)
+- [2. Measures (DAX)](#2--measures-dax)
+- [3. Report layout (one page)](#3--report-layout-one-page-artemis-supply-chain-risk)
+- [4. Publish (optional)](#4--publish-optional)
+- [5. The narrative for the customer](#5--the-narrative-for-the-customer)
 
 ---
 
-## 1. Connect
+## 1. 🔌 Connect
 
-Power BI Desktop → **Get Data → Azure Databricks**:
-- **Server hostname** and **HTTP path** — from the SQL warehouse's *Connection details*.
-  In the reference workspace (Serverless Starter Warehouse):
-  - Server hostname: `adb-7405607213468698.18.azuredatabricks.net`
-  - HTTP path: `/sql/1.0/warehouses/973dba4787484119`
-- **Authentication:** Microsoft Entra ID (sign in with a tenant account — same tenant
-  lock as the rest of the demo).
-- **Data Connectivity mode:** **DirectQuery** (recommended) or Import.
+Power BI Desktop → **Get Data → Azure Databricks**. Supply these settings (the
+hostname/path come from the SQL warehouse's *Connection details*; the reference
+**Serverless Starter Warehouse** values are shown):
+
+| Setting | Value |
+|---|---|
+| Server hostname | `adb-7405607213468698.18.azuredatabricks.net` |
+| HTTP path | `/sql/1.0/warehouses/973dba4787484119` |
+| Authentication | Microsoft Entra ID (tenant account — same tenant lock as the rest of the demo) |
+| Data Connectivity mode | **DirectQuery** (recommended) or Import |
 
 Navigator → expand your catalog (reference: **`adb_eastus2_sandbox`**) → `gold` →
 select **`artemis_supply_risk`** → Load.
 
-## 2. Measures (DAX)
+> [!TIP]
+> The notebook also builds a time-series mart, `<catalog>.gold.delay_trend`
+> (monthly delay/slip trend per program) — load it too if you want a trend visual.
+
+## 2. 📐 Measures (DAX)
 
 ```DAX
 High Risk Materials = CALCULATE(COUNTROWS('artemis_supply_risk'), 'artemis_supply_risk'[risk_tier] = "High")
@@ -57,7 +86,7 @@ CALCULATE(
 )
 ```
 
-## 3. Report layout (one page, "Artemis Supply-Chain Risk")
+## 3. 🖥️ Report layout (one page, "Artemis Supply-Chain Risk")
 
 | Visual | Field(s) | Purpose |
 |---|---|---|
@@ -70,13 +99,13 @@ CALCULATE(
 Conditional formatting: color `risk_tier` (High = red `#FC3D21`, Medium = amber, Low =
 green) to match the marketplace UI.
 
-## 4. Publish (optional)
+## 4. 🚀 Publish (optional)
 
 **Publish** to a Power BI Service workspace in the tenant; set the Databricks data source
 credentials (Entra) in the dataset settings. Row-level security and sensitivity labels
 (Microsoft Purview) extend the classify-before-exposure discipline to the report layer.
 
-## 5. The narrative for the customer
+## 5. 🗣️ The narrative for the customer
 
 > "The same supply-risk answer the gateway serves — `Heat-pipe radiator panel`, risk 100,
 > 54-day average slip — now lands in the lakehouse via a governed, metered read, is
