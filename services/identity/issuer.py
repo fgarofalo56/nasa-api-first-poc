@@ -25,6 +25,7 @@ import uvicorn
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
@@ -119,6 +120,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Artemis local identity issuer", version="0.1.0", lifespan=lifespan)
+
+# Local demo: allow the browser SPA (any local origin) to request tokens.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class TokenRequest(BaseModel):

@@ -77,10 +77,15 @@ the supply-risk answer sourced **through the gateway** with a gateway correlatio
 ```bash
 make test        # full suite incl. zero-move / auth (401/200/429) / discovery
 make obs         # Prometheus + Grafana (per-consumer dashboard at :3000)
+make ui          # optional browser catalog UI (Vite SPA at :5173)
 make pricing     # live, dated Azure Retail Prices for the managed-target services
 make diagram     # re-render docs/architecture.png
 make down        # stop + remove volumes
 ```
+
+The **catalog UI** (`make ui`, then <http://localhost:5173>) lists the data product,
+shows its OpenAPI paths + classification, and runs the supply-risk query through Kong
+from the browser — displaying the gateway correlation id with each answer.
 
 > **Port note:** the demo publishes Kong on `:8000`, identity on `:8081`, catalog on
 > `:8080`, MCP on `:8090`, Grafana on `:3000`. If any collide on your machine, override

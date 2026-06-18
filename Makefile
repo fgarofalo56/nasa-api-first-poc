@@ -7,7 +7,7 @@ COMPOSE ?= docker compose
 PY ?= python
 
 .DEFAULT_GOAL := help
-.PHONY: help up down seed demo test lint diagram pricing logs clean obs
+.PHONY: help up down seed demo test lint diagram pricing logs clean obs ui
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -29,6 +29,10 @@ obs: ## Start Prometheus + Grafana (per-consumer metrics dashboard at :3000)
 	$(COMPOSE) --profile observability up -d
 	@echo "Grafana:    http://localhost:$${GRAFANA_PORT:-3000}  (anonymous viewer enabled)"
 	@echo "Prometheus: http://localhost:$${PROMETHEUS_PORT:-9090}"
+
+ui: ## Start the catalog UI (browser SPA at :5173)
+	$(COMPOSE) --profile frontend up -d --build
+	@echo "Catalog UI: http://localhost:$${FRONTEND_PORT:-5173}"
 
 test: ## Run the test suite (zero-move / auth / discovery / supply-risk / no-fabric)
 	$(PY) -m pytest -q

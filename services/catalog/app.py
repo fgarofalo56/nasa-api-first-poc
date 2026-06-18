@@ -15,6 +15,7 @@ from pathlib import Path
 import uvicorn
 import yaml
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 APP_DIR = Path(__file__).resolve().parent
 CATALOG_JSON = Path(os.environ.get("CATALOG_JSON", APP_DIR / "catalog.json"))
@@ -24,6 +25,14 @@ PORT = int(os.environ.get("CATALOG_PORT", "8080"))
 KONG_PUBLIC_URL = os.environ.get("KONG_PUBLIC_URL", "http://localhost:8000").rstrip("/")
 
 app = FastAPI(title="Artemis Data Marketplace Catalog", version="0.1.0")
+
+# Local demo: allow the browser SPA to read the catalog from any local origin.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def _load_catalog() -> dict:

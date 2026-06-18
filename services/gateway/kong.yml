@@ -40,6 +40,7 @@ services:
           - name: jwt
             config:
               key_claim_name: client_id
+              run_on_preflight: false   # let the cors plugin answer the browser preflight
               claims_to_verify:
                 - exp
           - name: rate-limiting
@@ -65,13 +66,31 @@ services:
                       max_first = 200
                     })
                   end
-    # Service-level: correlation id is stamped + echoed on every route.
+    # Service-level: correlation id is stamped + echoed on every route; CORS lets the
+    # browser SPA call the gateway (preflight is answered before the jwt plugin runs,
+    # and X-Correlation-ID is exposed to JS).
     plugins:
       - name: correlation-id
         config:
           header_name: X-Correlation-ID
           generator: uuid#counter
           echo_downstream: true
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - OPTIONS
+          headers:
+            - Authorization
+            - Content-Type
+          exposed_headers:
+            - X-Correlation-ID
+            - Retry-After
+            - RateLimit-Remaining
+          credentials: false
+          preflight_continue: false
 
 # Per-consumer metering + latency, exposed on the Kong status/admin /metrics endpoint.
 plugins:

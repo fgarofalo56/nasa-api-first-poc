@@ -193,6 +193,22 @@ services:
       - "${PROMETHEUS_PORT:-9090}:9090"
     profiles: [observability]
 
+  # ── optional catalog UI (browser SPA; calls the gateway/issuer/catalog directly) ──
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    networks: [edge]
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:80/ >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    profiles: [frontend]
+
   grafana:
     image: grafana/grafana:11.2.0
     restart: unless-stopped
