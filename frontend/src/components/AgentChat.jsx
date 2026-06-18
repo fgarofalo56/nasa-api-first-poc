@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { askAgent } from "../api.js";
-import { labelFor } from "../labels.js";
+import { labelFor, productImageSrc } from "../labels.js";
 
 const TIER_COLOR = { high: "#fc3d21", medium: "#ff9e1b", low: "#3ddc97" };
 const SUGGESTIONS = [
@@ -198,10 +198,13 @@ function BarChart({ chart }) {
 function DetailCard({ d, onOpen }) {
   const m = d.material || {};
   const [imgFailed, setImgFailed] = useState(false);
+  // Key the blueprint by material NAME (matches ProductDetail + the SVG files); fall back
+  // to whatever path the agent supplied, then to the satellite glyph.
+  const imgSrc = productImageSrc(m.maktx) || d.image;
   return (
     <button className="agent-detail" onClick={onOpen} aria-label={`Open full details for ${m.maktx}`}>
-      {!imgFailed ? (
-        <img src={d.image} alt={`Render of ${m.maktx}`} onError={() => setImgFailed(true)} />
+      {!imgFailed && imgSrc ? (
+        <img src={imgSrc} alt={`Render of ${m.maktx}`} onError={() => setImgFailed(true)} />
       ) : (
         <div className="agent-detail-img-fallback" aria-hidden>🛰️</div>
       )}
