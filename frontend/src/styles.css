@@ -216,3 +216,52 @@ table.mini th, table.mini td { text-align: left; padding: 6px 8px; border-bottom
 table.mini th { color: var(--muted); font-weight: 600; }
 .detail-foot { font-size: 12px; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 14px; }
 .detail-foot code { font-size: 11px; }
+
+/* ── Mission agent chat ── */
+.agent-fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 70;
+  background: linear-gradient(180deg, var(--nasa-blue-2), var(--nasa-blue)); color: #fff;
+  border: 0; padding: 12px 18px; border-radius: 999px; font-weight: 700; font-size: 13.5px;
+  cursor: pointer; box-shadow: 0 8px 28px rgba(11, 61, 145, .5);
+}
+.agent-fab:hover { filter: brightness(1.08); }
+.agent-panel {
+  position: fixed; right: 20px; bottom: 78px; z-index: 70; width: min(420px, calc(100vw - 32px));
+  height: min(620px, calc(100vh - 120px)); display: flex; flex-direction: column;
+  background: linear-gradient(180deg, var(--panel), var(--space-2)); border: 1px solid var(--line);
+  border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.6); overflow: hidden;
+}
+.agent-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 14px; }
+.agent-badge { font-size: 10px; font-weight: 700; color: var(--green); border: 1px solid rgba(61,220,151,.5); border-radius: 999px; padding: 2px 8px; text-transform: uppercase; letter-spacing: .08em; }
+.agent-log { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.agent-msg { max-width: 92%; }
+.agent-msg.user { align-self: flex-end; background: var(--nasa-blue); color: #fff; padding: 8px 12px; border-radius: 12px 12px 2px 12px; }
+.agent-msg.agent { align-self: flex-start; }
+.agent-text p { margin: 0 0 6px; font-size: 13.5px; line-height: 1.5; }
+.agent-text p:last-child { margin-bottom: 0; }
+.agent-typing { color: var(--muted); font-size: 13px; font-style: italic; }
+.agent-cards { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.agent-card { text-align: left; background: rgba(18,26,54,.7); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.agent-card:hover { border-color: var(--cyan); }
+.agent-card strong { font-size: 13px; }
+.agent-card-meta { color: var(--muted); font-size: 11.5px; }
+.agent-chart { margin: 8px 0; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: rgba(10,19,48,.5); }
+.agent-chart figcaption { color: var(--muted); font-size: 11.5px; margin-bottom: 8px; }
+.bar-row { display: grid; grid-template-columns: 96px 1fr 34px; align-items: center; gap: 8px; margin: 3px 0; }
+.bar-label { font-size: 11px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { height: 12px; background: #0c1330; border-radius: 6px; overflow: hidden; }
+.bar-fill { display: block; height: 100%; border-radius: 6px; }
+.bar-val { font-size: 11px; color: var(--muted); text-align: right; }
+.agent-detail { display: flex; gap: 10px; text-align: left; width: 100%; background: rgba(18,26,54,.7); border: 1px solid var(--line); border-radius: 12px; padding: 10px; cursor: pointer; margin-top: 8px; }
+.agent-detail:hover { border-color: var(--cyan); }
+.agent-detail img { width: 88px; height: 88px; object-fit: cover; border-radius: 8px; background: #0a1f4d; }
+.agent-detail-img-fallback { width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: #0a1f4d; border-radius: 8px; }
+.agent-detail-body { display: flex; flex-direction: column; gap: 3px; }
+.agent-detail-body strong { font-size: 13.5px; }
+.agent-src { margin-top: 8px; font-size: 11px; color: var(--muted); }
+.agent-src code { font-size: 10.5px; }
+.agent-suggestions { display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px; border-top: 1px solid var(--line); }
+.chip-btn { white-space: nowrap; background: rgba(80,230,255,.08); border: 1px solid var(--line); color: var(--ink); border-radius: 999px; padding: 5px 10px; font-size: 11.5px; cursor: pointer; }
+.chip-btn:hover { border-color: var(--cyan); }
+.agent-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+.agent-input input { flex: 1; background: #0c1330; border: 1px solid var(--line); color: var(--ink); border-radius: 9px; padding: 9px 12px; font-size: 13px; }

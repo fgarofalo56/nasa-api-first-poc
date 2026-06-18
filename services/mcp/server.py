@@ -78,6 +78,76 @@ def query_supply_risk(
     }
 
 
+@mcp.tool()
+def material_detail(material: str) -> dict:
+    """Full governed record for ONE material — risk, recent purchase orders, and supplier.
+
+    Accepts an NSN material number (e.g. "NSN-4002-901834") or a name fragment
+    (e.g. "battery module"). Composes several gateway calls (SupplyRisk -> PurchaseOrder
+    -> Vendor); net price/value + unit cost are redacted at the gateway. Data never
+    leaves Postgres.
+    """
+    is_nsn = material.strip().upper().startswith("NSN-")
+    with httpx.Client() as client:
+        token = _token(client)
+        hdr = {"Authorization": f"Bearer {token}"}
+        if is_nsn:
+            rk = client.get(
+                f"{KONG_URL}/api/SupplyRisk/matnr/{material.strip()}", headers=hdr, timeout=20
+            )
+            rk.raise_for_status()
+            corr = rk.headers.get("X-Correlation-ID")
+            body = rk.json()
+            risk_rows = body.get("value", [body] if body and "matnr" in body else [])
+        else:
+            # DAB doesn't support OData contains(); fetch the highest-risk page (the
+            # materials a supply-risk question is about) and match the name client-side.
+            rk = client.get(
+                f"{KONG_URL}/api/SupplyRisk?$orderby=risk_score desc&$first=200",
+                headers=hdr,
+                timeout=20,
+            )
+            rk.raise_for_status()
+            corr = rk.headers.get("X-Correlation-ID")
+            term = material.strip().lower()
+            risk_rows = [r for r in rk.json().get("value", []) if term in str(r.get("maktx", "")).lower()]
+        if not risk_rows:
+            return {"found": False, "query": material, "gateway_correlation_id": corr,
+                    "note": "No matching material in the governed supply-risk product."}
+        risk = risk_rows[0]
+        matnr = risk["matnr"]
+        pos = client.get(
+            f"{KONG_URL}/api/PurchaseOrder?$filter=matnr eq '{matnr}'&$orderby=delay_days desc&$first=5",
+            headers=hdr, timeout=20,
+        )
+        po_rows = pos.json().get("value", []) if pos.status_code == 200 else []
+        vendor = None
+        if po_rows:
+            vr = client.get(
+                f"{KONG_URL}/api/Vendor/lifnr/{po_rows[0].get('lifnr')}", headers=hdr, timeout=20
+            )
+            if vr.status_code == 200:
+                vv = vr.json()
+                vlist = vv.get("value", [vv] if "lifnr" in vv else [])
+                vendor = vlist[0] if vlist else None
+    return {
+        "found": True,
+        "material_id": matnr,
+        "material_name": risk.get("maktx"),
+        "program": risk.get("program"),
+        "criticality": risk.get("criticality"),
+        "risk_tier": risk.get("risk_tier"),
+        "risk_score": risk.get("risk_score"),
+        "avg_delay_days": risk.get("avg_delay_days"),
+        "sole_source": risk.get("sole_source"),
+        "supplier": (vendor or {}).get("name1"),
+        "cage_code": (vendor or {}).get("cage_code"),
+        "recent_pos": po_rows,
+        "gateway_correlation_id": corr,
+        "note": "Composed from SupplyRisk -> PurchaseOrder -> Vendor through the gateway; cost fields redacted.",
+    }
+
+
 @mcp.custom_route("/healthz", methods=["GET"])
 async def healthz(_request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok"})

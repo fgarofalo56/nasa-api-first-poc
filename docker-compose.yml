@@ -236,6 +236,28 @@ services:
       retries: 12
     profiles: [core]
 
+  # ── mission agent (grounded chat: NL question → MCP tools → gateway → cited answer) ──
+  agent:
+    build:
+      context: .
+      dockerfile: services/agent/Dockerfile
+    restart: unless-stopped
+    environment:
+      AGENT_PORT: "8110"
+      MCP_URL: http://mcp:8090/mcp
+    networks: [edge]
+    depends_on:
+      mcp:
+        condition: service_healthy
+    ports:
+      - "${AGENT_PORT:-8110}:8110"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8110/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    profiles: [core]
+
   # ── observability (Kong Prometheus plugin → Prometheus → Grafana) ───────────────
   prometheus:
     image: prom/prometheus:v2.54.1
