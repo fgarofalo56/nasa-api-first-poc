@@ -110,6 +110,28 @@ Open Grafana at <http://localhost:3000> (anonymous viewer enabled) → dashboard
 watch the **per-consumer request count** and **p50/p95 latency** panels update. This is
 the metering story: usage attributed to `analyst` vs `artemis-agent`.
 
+## 7b. Add a source, live — the onboarding wizard (1–2 min)
+
+This is the "how easy is it to onboard a new data product?" moment.
+
+```bash
+make ui            # browser catalog UI at http://localhost:5173
+```
+
+In the UI: **“+ Add a data source”** → step through (pre-filled with the DOT
+transportation DAB example) → **Publish through gateway.** Narrate:
+
+- The wizard calls the **registry**, which **hot-reloads Kong** (no restart) to add the
+  new upstream — the source itself is never touched.
+- It instantly proves the new source answers **through Kong**: HTTP 200, a gateway
+  correlation id, and rows returned.
+- The new product appears in the marketplace and is queryable like any other, with the
+  **same governance** (JWT, rate-limit, correlation id).
+
+> "Onboarding a data product is registering its API with the gateway — minutes, not a
+> migration. The same step maps to publishing an API in Azure API Management / API
+> Center." (Full guide + the real-DOT-URL swap: `docs/ADD-A-SOURCE.md`.)
+
 ## 8. Close — the Azure swap (30 sec)
 
 > "Same pattern promotes to Azure Government by swapping each OSS component for its

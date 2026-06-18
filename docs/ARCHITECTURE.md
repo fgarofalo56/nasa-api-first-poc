@@ -51,7 +51,33 @@ data for any client is **through Kong**. That is the zero-move proof (see
 
 ## Networks (docker-compose)
 
-- `internal` — `postgres` ↔ `dab` ↔ kong-upstream only. Postgres + DAB attach here.
-- `edge` — `kong` ↔ clients / catalog / mcp. Clients reach the API only via Kong.
+- `internal` — `postgres` ↔ `dab` ↔ `transportation` ↔ kong-upstream only. The sources
+  attach here (no host ports).
+- `edge` — `kong` ↔ consumers / UI / catalog / mcp / registry. Consumers reach any
+  source only via Kong.
+
+## Multi-source federation + control-plane
+
+The gateway fronts **multiple** sources. Beyond the built-in Artemis system of record,
+an **onboarding wizard** publishes additional existing APIs (e.g. the DOT transportation
+DAB API) through the same gateway at runtime — the API-Management / API-Center pattern.
+
+```mermaid
+flowchart LR
+    UI["NASA-themed UI<br/>(onboarding wizard)"] -->|POST /sources| REG["Registry /<br/>control-plane"]
+    REG -->|hot-reload POST /config| KONG["Kong gateway"]
+    KONG -->|/api/* governed| DAB["DAB → Postgres<br/>(Artemis SoR)"]
+    KONG -->|/dot/* governed| DOT["DOT Transportation API<br/>(2nd source)"]
+    CLI["Consumer + token"] --> KONG
+    CAT["Catalog"] -. lists both .- KONG
+```
+
+- **`services/registry`** — reads the running base config (rendered with the live RSA
+  key), merges a Kong `service`+`route`+plugins for each registered source, and hot-reloads
+  Kong's DB-less config via the admin `/config` endpoint. No restart, no source change.
+- **`services/transportation`** — a DOT-flavored DAB-style API (synthetic bridge
+  inventory) that stands in for the published Azure DAB demo; internal-only like the SoR.
+- Every added source inherits the same governance (JWT, per-consumer rate-limit,
+  correlation id, CORS). See `docs/ADD-A-SOURCE.md`.
 
 See `PRP.md` §2 and §6 for the full component contracts.

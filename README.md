@@ -35,6 +35,10 @@ with a documented, one-swap path to the Azure-Government managed equivalents.
    sole-source materials on Artemis-3 are slipping > 30 days?" — via a Python client
    **and** an MCP tool an agent can call.
 6. **Observability** — per-consumer call/latency metrics on a Grafana dashboard.
+7. **Multi-source federation + onboarding wizard** — a NASA-themed marketplace UI with
+   an "add a data source" wizard that publishes an existing API (e.g. a DOT
+   Data API Builder endpoint) through the same gateway **live, with no restart** — the
+   API-Management / API-Center pattern. See `docs/ADD-A-SOURCE.md`.
 
 ## Architecture at a glance (Azure → local mapping)
 
@@ -98,8 +102,9 @@ PRP.md                  # the complete build spec — read this first
 CLAUDE.md               # project rules for the Claude Code build session
 .claude/                # Claude Code config (settings, skills)
 data/                   # synthetic Artemis generator + classification manifest
-docs/                   # ARCHITECTURE / DEMO-SCRIPT / ZERO-MOVE / SECURITY / AZURE-DEPLOYMENT + whitepapers/
-services/               # seeder · dab · gateway(kong) · identity · catalog · mcp
+docs/                   # ARCHITECTURE / DEMO-SCRIPT / ZERO-MOVE / SECURITY / ADD-A-SOURCE / AZURE-DEPLOYMENT + whitepapers/
+services/               # seeder · dab · gateway(kong) · identity · catalog · mcp · transportation · registry
+frontend/               # NASA-themed marketplace UI + onboarding wizard (Vite/React)
 client/                 # Python CLI that queries the gateway
 tools/                  # azure_pricing.py (live Azure Retail Prices helper)
 observability/          # prometheus + grafana
