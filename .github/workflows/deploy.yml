@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure   # gate with required reviewers for a prod-like guardrail
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
