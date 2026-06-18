@@ -63,3 +63,6 @@ infra/azure/*.json
 
 # Subagent scratch memory
 .claude/agent-memory/
+
+# Root-level screenshot artifacts (Playwright/Chrome captures)
+/*.png
