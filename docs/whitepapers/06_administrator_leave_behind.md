@@ -1,8 +1,17 @@
 # API-First, in One Page
 
-### Microsoft's recommended approach for the mission enterprise — administrator brief
+### An API-first approach for the mission enterprise — administrator brief
 
-*Microsoft Federal — Data, Analytics & AI · One-page leave-behind · Companion to the Executive Concept Paper*
+*An illustrative NASA-mission use case — API-First Data Marketplace (reference architecture).*
+
+> ⚠️ **Illustrative reference · sample data only · not an official NASA document.**
+> This paper presents a **generic** API-first, zero-move data-marketplace use case for a
+> mission enterprise. It is an educational architecture illustration — **not** affiliated
+> with, endorsed by, or approved by NASA, and not a proposal, commitment, or statement of
+> work. All names, vendors, prices, quantities, dates, and scenarios are **synthetic and
+> fabricated**; **no real NASA, ITAR, CUI, or procurement-sensitive data** is included.
+> Product and architecture choices are examples — verify against current vendor docs.
+> Provided "as is," without warranty. See [`../DISCLAIMER.md`](../DISCLAIMER.md).
 
 ---
 
@@ -57,7 +66,7 @@ platform governs three asset classes: **data, APIs, and code.**
   source before any external quote. Azure infrastructure is priced against live
   Azure list pricing; staffing carries no dollar figures.
 
-## What we ask on June 24
+## What we ask
 
 1. **Confirm the framing** — one platform across data, APIs, and code; Microsoft as
    the interoperability layer, not "the one AI."

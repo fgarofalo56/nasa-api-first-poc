@@ -2,7 +2,16 @@
 
 ### Microsoft as the secure interoperability layer for an API-first, multi-model, zero-move mission enterprise
 
-*Microsoft Federal — Data, Analytics & AI · Executive Concept Paper · Prepared for OCIO review*
+*An illustrative NASA-mission use case — API-First Data Marketplace (reference architecture).*
+
+> ⚠️ **Illustrative reference · sample data only · not an official NASA document.**
+> This paper presents a **generic** API-first, zero-move data-marketplace use case for a
+> mission enterprise. It is an educational architecture illustration — **not** affiliated
+> with, endorsed by, or approved by NASA, and not a proposal, commitment, or statement of
+> work. All names, vendors, prices, quantities, dates, and scenarios are **synthetic and
+> fabricated**; **no real NASA, ITAR, CUI, or procurement-sensitive data** is included.
+> Product and architecture choices are examples — verify against current vendor docs.
+> Provided "as is," without warranty. See [`../DISCLAIMER.md`](../DISCLAIMER.md).
 
 ---
 
@@ -73,7 +82,7 @@ governed, discoverable APIs.
 An Administrator-level directive will ask every organization to expose its mission
 data through governed APIs, discoverable in an enterprise catalog, with access
 controls — an **enterprise entitlement** led and coordinated by the OCIO and
-targeted at the next fiscal year. Resources accompany the directive; mission
+targeted at a subsequent program phase. Resources accompany the directive; mission
 organizations are not asked to self-fund participation.
 
 The priorities are the Ignition-Day missions — Artemis III, Moon Base, and SR-1
@@ -324,8 +333,8 @@ rather than tying the first deliverable to a single in-flight effort:
 | Phase | Window | Outcome |
 |---|---|---|
 | **Foundation** | Current year, existing budget | Stand up the shared backbone (gateway, catalog, identity integration, telemetry); establish the governance and authorization workflow; design the onboarding factory. |
-| **First pilots (parallel)** | Into the next fiscal year | **Track B:** software-assurance pilot on consolidated source control — inventory and scan in-house code. **Track A:** Artemis supply-chain (SAP procurement) → governed API façade → catalog entry → consumable downstream. |
-| **Scale** | Next fiscal year | Apply the proven factory and governance patterns center-by-center across the enterprise; extend to additional Ignition-Day data sets. |
+| **First pilots (parallel)** | Into a subsequent program phase | **Track B:** software-assurance pilot on consolidated source control — inventory and scan in-house code. **Track A:** Artemis supply-chain (SAP procurement) → governed API façade → catalog entry → consumable downstream. |
+| **Scale** | A subsequent program phase | Apply the proven factory and governance patterns center-by-center across the enterprise; extend to additional Ignition-Day data sets. |
 
 The two pilots are chosen for the same reason: each is contained and measurable,
 each exercises identity + gateway + telemetry end to end, and together they prove

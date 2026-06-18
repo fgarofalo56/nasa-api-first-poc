@@ -22,7 +22,7 @@ flowchart LR
 ```
 
 Artifacts in this repo:
-- `databricks/notebooks/01_zero_move_medallion.py` — the medallion notebook (Databricks source format).
+- `databricks/notebooks/01_zero_move_medallion.ipynb` — the medallion notebook (Jupyter — proper markdown + code cells).
 - `databricks/sql/dbsql_samples.sql` — Databricks SQL queries (also the Power BI basis).
 - `infra/azure/modules/databricks.bicep` — reference IaC (workspace + ADLS + access connector).
 - `docs/POWERBI-GUIDE.md` — connect Power BI + the sample report spec.
@@ -127,9 +127,9 @@ It creates the catalog/schemas, lands Bronze Delta, refines to Silver, and build
 ## 5. Verify in Unity Catalog + Databricks SQL
 
 ```sql
-SHOW TABLES IN artemis.gold;
+SHOW TABLES IN <catalog>.gold;
 -- the headline answer, now from Delta in UC:
-SELECT * FROM artemis.gold.artemis_supply_risk
+SELECT * FROM <catalog>.gold.artemis_supply_risk
 WHERE program='Artemis-3' AND criticality='Critical' AND sole_source=true AND avg_delay_days>30
 ORDER BY risk_score DESC;
 ```
@@ -139,17 +139,17 @@ Run `databricks/sql/dbsql_samples.sql` for the report queries.
 ## 6. Connect Power BI
 
 See **`docs/POWERBI-GUIDE.md`** — connect Power BI to the SQL warehouse, import
-`artemis.gold.artemis_supply_risk`, add the measures, and build the supply-risk report.
+`<catalog>.gold.artemis_supply_risk`, add the measures, and build the supply-risk report.
 
 ## 7. (Optional) Delta Sharing — zero-copy to external consumers
 
 ```sql
 CREATE SHARE IF NOT EXISTS artemis_supply_risk_share;
-ALTER SHARE artemis_supply_risk_share ADD TABLE artemis.gold.artemis_supply_risk;
+ALTER SHARE artemis_supply_risk_share ADD TABLE <catalog>.gold.artemis_supply_risk;
 -- grant to a recipient; they query it WITHOUT a copy (zero-move, extended to analytics).
 ```
 
 ## 8. Teardown (stop billing)
 
-Delete the SQL warehouse + clusters, drop the catalog (`DROP CATALOG artemis CASCADE`),
+Delete the SQL warehouse + clusters, drop the catalog (`DROP SCHEMA <catalog>.bronze CASCADE; DROP SCHEMA <catalog>.silver CASCADE; DROP SCHEMA <catalog>.gold CASCADE`),
 and `az group delete -n artemis-poc-rg --yes` (removes the workspace/storage too).

@@ -24,9 +24,9 @@ from pathlib import Path
 
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service import compute, jobs
-from databricks.sdk.service.workspace import ImportFormat, Language
+from databricks.sdk.service.workspace import ImportFormat
 
-NOTEBOOK = Path(__file__).resolve().parent / "notebooks" / "01_zero_move_medallion.py"
+NOTEBOOK = Path(__file__).resolve().parent / "notebooks" / "01_zero_move_medallion.ipynb"
 PG_DRIVER = "org.postgresql:postgresql:42.7.4"
 
 
@@ -64,8 +64,7 @@ def main() -> int:
     w.workspace.import_(
         path=nb_path,
         content=base64.b64encode(NOTEBOOK.read_bytes()).decode(),
-        format=ImportFormat.SOURCE,
-        language=Language.PYTHON,
+        format=ImportFormat.JUPYTER,  # .ipynb — proper markdown + code cells
         overwrite=True,
     )
     print(f"imported notebook -> {nb_path}")
@@ -104,26 +103,33 @@ def main() -> int:
     print(f"\nrun {run.run_id}: {state.result_state} — {state.state_message or ''}")
     print(f"run page: https://{args.host}/#job/{run.run_id}")
 
-    # 4) validation query
+    # 4) validation — the notebook returns a JSON summary via dbutils.notebook.exit
+    ok = str(state.result_state) == "RunResultState.SUCCESS"
     try:
-        wh = next((x for x in w.warehouses.list() if x.state and x.state.value == "RUNNING"), None)
-        wh = wh or next(iter(w.warehouses.list()), None)
-        if wh:
-            q = (
-                f"SELECT material_name, vendor_name, risk_tier, risk_score, avg_delay_days "
-                f"FROM {args.catalog}.gold.artemis_supply_risk "
-                f"WHERE program='Artemis-3' AND criticality='Critical' AND sole_source=true "
-                f"AND avg_delay_days>30 ORDER BY risk_score DESC"
-            )
-            res = w.statement_execution.execute_statement(warehouse_id=wh.id, statement=q, wait_timeout="30s")
-            rows = (res.result.data_array if res.result else None) or []
-            print(f"\nvalidation ({args.catalog}.gold.artemis_supply_risk): {len(rows)} headline row(s)")
-            for r in rows:
-                print("  ", r)
-    except Exception as exc:  # noqa: BLE001
-        print(f"(validation query skipped: {exc})")
+        candidates = []
+        if run.tasks:
+            candidates.append(run.tasks[0].run_id)
+        candidates.append(run.run_id)
+        nb = None
+        for rid in candidates:
+            out = w.jobs.get_run_output(run_id=rid)
+            nb = out.notebook_output.result if out.notebook_output else None
+            if nb:
+                break
+        print(f"\nnotebook summary: {nb}")
+        if nb:
+            import json as _json
 
-    return 0 if str(state.result_state) == "RunResultState.SUCCESS" else 1
+            s = _json.loads(nb)
+            print(
+                f"  -> {s.get('gold_table')}: {s.get('gold_rows')} rows; "
+                f"headline={s.get('headline_rows')} ({s.get('headline_material')})"
+            )
+            ok = ok and s.get("headline_rows", 0) >= 1
+    except Exception as exc:  # noqa: BLE001
+        print(f"(could not read notebook output: {exc})")
+
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

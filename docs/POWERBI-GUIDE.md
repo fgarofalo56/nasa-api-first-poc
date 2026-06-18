@@ -1,7 +1,7 @@
 # Power BI — supply-risk report on the Databricks Gold mart
 
 Connect Power BI to the Databricks SQL warehouse and build a supply-risk report on
-`artemis.gold.artemis_supply_risk` (built by `databricks/notebooks/01_zero_move_medallion.py`).
+`artemis.gold.artemis_supply_risk` (built by `databricks/notebooks/01_zero_move_medallion.ipynb`).
 
 > **Why this is still zero-move:** use **DirectQuery** — Power BI queries the Delta mart
 > in place through the SQL warehouse; the data stays in the lakehouse. (Import mode caches

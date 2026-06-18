@@ -2,7 +2,16 @@
 
 ### A capability and staffing-pattern model for the OCIO enterprise program
 
-*Prepared by Microsoft Federal — Data, Analytics & AI · For NASA OCIO program planning · Companion to the Executive Concept Paper*
+*An illustrative NASA-mission use case — API-First Data Marketplace (reference architecture).*
+
+> ⚠️ **Illustrative reference · sample data only · not an official NASA document.**
+> This paper presents a **generic** API-first, zero-move data-marketplace use case for a
+> mission enterprise. It is an educational architecture illustration — **not** affiliated
+> with, endorsed by, or approved by NASA, and not a proposal, commitment, or statement of
+> work. All names, vendors, prices, quantities, dates, and scenarios are **synthetic and
+> fabricated**; **no real NASA, ITAR, CUI, or procurement-sensitive data** is included.
+> Product and architecture choices are examples — verify against current vendor docs.
+> Provided "as is," without warranty. See [`../DISCLAIMER.md`](../DISCLAIMER.md).
 
 ---
 

@@ -2,7 +2,16 @@
 
 ### Technical companion — Azure API Management, Dataverse, and Azure AI as the secure connective tissue
 
-*Microsoft Federal — Data, Analytics & AI · Technical companion to the Executive Concept Paper · De-identified — cleared for external sharing*
+*An illustrative NASA-mission use case — API-First Data Marketplace (reference architecture).*
+
+> ⚠️ **Illustrative reference · sample data only · not an official NASA document.**
+> This paper presents a **generic** API-first, zero-move data-marketplace use case for a
+> mission enterprise. It is an educational architecture illustration — **not** affiliated
+> with, endorsed by, or approved by NASA, and not a proposal, commitment, or statement of
+> work. All names, vendors, prices, quantities, dates, and scenarios are **synthetic and
+> fabricated**; **no real NASA, ITAR, CUI, or procurement-sensitive data** is included.
+> Product and architecture choices are examples — verify against current vendor docs.
+> Provided "as is," without warranty. See [`../DISCLAIMER.md`](../DISCLAIMER.md).
 
 ---
 
@@ -137,7 +146,7 @@ attribution), LLM semantic caching, and content safety; it supports OpenAI Chat
 Completions/Responses and Anthropic Messages schemas (the Anthropic schema in v2
 tiers). Crucially, APIM can **expose any managed REST API as a remote MCP server**
 (operations become tools) and **proxy and govern existing external MCP servers**
-(which must conform to MCP specification 2025-06-18+) — the same rate-limit, JWT,
+(which must conform to a current MCP specification) — the same rate-limit, JWT,
 IP-filter, and caching policies apply to MCP traffic. This is the mechanism for
 token-exhaustion and cost control across multi-model orchestration, and it directly
 addresses the cost trajectory of a token-broker approach. **Tradeoffs:**
@@ -158,7 +167,7 @@ evaluating, using its own requirements and tests.
 | Zero-trust wrapping | OAuth 2.0 client↔gateway↔backend, JWT/Entra-token validation, mTLS client certificates, IP filtering, and managed identities — composed to the Microsoft Zero Trust API-protection guidance. [18] |
 | Multi-backend / hybrid | Load-balanced backend pools (up to 30 backends, round-robin/weighted/priority, circuit breakers); a self-hosted Linux container deployable to Kubernetes/AKS, Azure Arc, or Azure Container Apps, requiring only outbound TCP 443. [7][9] |
 | AI / LLM token & cost | The AI gateway extends the same gateway: `llm-token-limit`, `llm-emit-token-metric` for per-consumer cost attribution, LLM semantic caching, and content safety. [10][11] |
-| Agent / MCP governance | Expose a managed REST API as a remote MCP server and proxy/govern existing external MCP servers (spec 2025-06-18+); the same rate-limit, JWT, IP-filter, and caching policies apply to MCP traffic. [12][13][14] |
+| Agent / MCP governance | Expose a managed REST API as a remote MCP server and proxy/govern existing external MCP servers (a current spec version); the same rate-limit, JWT, IP-filter, and caching policies apply to MCP traffic. [12][13][14] |
 
 ### 2.9 Open-source gateway path — Kong self-hosted on AKS
 

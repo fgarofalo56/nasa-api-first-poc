@@ -2,7 +2,16 @@
 
 ### Synthetic SAP procurement → governed API façade → catalog entry → downstream consumable, with zero data movement
 
-*Microsoft Federal — Data, Analytics & AI · Worked example companion to the API-First deliverable set*
+*An illustrative NASA-mission use case — API-First Data Marketplace (reference architecture).*
+
+> ⚠️ **Illustrative reference · sample data only · not an official NASA document.**
+> This paper presents a **generic** API-first, zero-move data-marketplace use case for a
+> mission enterprise. It is an educational architecture illustration — **not** affiliated
+> with, endorsed by, or approved by NASA, and not a proposal, commitment, or statement of
+> work. All names, vendors, prices, quantities, dates, and scenarios are **synthetic and
+> fabricated**; **no real NASA, ITAR, CUI, or procurement-sensitive data** is included.
+> Product and architecture choices are examples — verify against current vendor docs.
+> Provided "as is," without warranty. See [`../DISCLAIMER.md`](../DISCLAIMER.md).
 
 ---
 

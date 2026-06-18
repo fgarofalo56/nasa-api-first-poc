@@ -1,8 +1,17 @@
 # Pre-Read — API-First Data Marketplace for the Mission Enterprise
 
-### A short brief ahead of the June 24 OCIO discussion
+### A short brief ahead of an OCIO working discussion
 
-*Prepared by Microsoft Federal — Data, Analytics & AI · For the June 24 OCIO session · Read time ≈ 5 minutes*
+*An illustrative NASA-mission use case — API-First Data Marketplace (reference architecture).*
+
+> ⚠️ **Illustrative reference · sample data only · not an official NASA document.**
+> This paper presents a **generic** API-first, zero-move data-marketplace use case for a
+> mission enterprise. It is an educational architecture illustration — **not** affiliated
+> with, endorsed by, or approved by NASA, and not a proposal, commitment, or statement of
+> work. All names, vendors, prices, quantities, dates, and scenarios are **synthetic and
+> fabricated**; **no real NASA, ITAR, CUI, or procurement-sensitive data** is included.
+> Product and architecture choices are examples — verify against current vendor docs.
+> Provided "as is," without warranty. See [`../DISCLAIMER.md`](../DISCLAIMER.md).
 
 ---
 
@@ -11,9 +20,9 @@
 The agency is preparing an Administrator-level directive that will ask every
 organization to expose its mission data through governed APIs, discoverable in an
 enterprise catalog, with access controls — an enterprise entitlement led and
-coordinated by the OCIO, targeted at the next fiscal year. This pre-read frames
+coordinated by the OCIO, targeted at a subsequent program phase. This pre-read frames
 **how Microsoft supports the API-first, multi-model, zero-move architecture you
-have already chosen**, so the June 24 discussion can move quickly to decisions.
+have already chosen**, so the the working session discussion can move quickly to decisions.
 
 The full detail lives in two companion documents — an **Executive Concept Paper**
 and a **Technical API-First Companion**. This page is the orientation.
@@ -99,7 +108,7 @@ other enterprise use cases then ride.
 | **Policy & metadata standards** | A federated-catalog discipline and a data-stewardship capability that put governance and correct labeling first — the actual blocker. |
 | **Power Platform / Dataverse owner** | Dataverse as a first-class API-first surface: an open OData v4 Web API with `$metadata` discovery, governed through the same gateway as everything else. |
 
-## What we're asking for on June 24
+## Recommended next steps
 
 1. **Confirm the framing** — one platform across data, APIs, and code; Microsoft as
    the interoperability layer, not "the one AI."
