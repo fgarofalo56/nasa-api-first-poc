@@ -103,6 +103,7 @@ gateways, OAuth2, Data API Builder, or Azure.
 | 4 | [Identity (JWT / OAuth2)](concepts/04-identity-jwt-oauth.md) | Bearer tokens, RS256, JWKS, and the mint → present → validate handshake |
 | 5 | [The Lakehouse](concepts/05-lakehouse-databricks.md) | Delta Lake, the medallion, Unity Catalog, Delta Sharing on Azure Databricks |
 | 6 | [Observability & Security](concepts/06-observability-and-security.md) | Metrics/logs/traces + defense-in-depth (identity, OWASP, classification, redaction) |
+| 7 | [MCP & Grounded Agents](concepts/07-mcp-and-agents.md) | What an agent + the open MCP standard are; the grounded mission agent that answers *through* the gateway and cites its source; Copilot/Foundry over MCP |
 
 > [!TIP]
 > Two companions to keep open while you read anything in this manual: the
@@ -213,6 +214,7 @@ order; each step assumes the one before it. Times are rough reading estimates.
 | **Next** | [SECURITY.md](SECURITY.md) | The token flow (JWT/OAuth2) and which OWASP API Top-10 controls are enforced *at the gateway* — the security model end to end. ~15 min. |
 | **Next** | [ADD-A-SOURCE.md](ADD-A-SOURCE.md) | How a *second* data source is onboarded through the same gateway live, with no restart — the federation / API-Center story. ~10 min. |
 | **Next** | [GRAPHQL.md](GRAPHQL.md) | The same auto-API served as GraphQL through the gateway — the multi-model angle. ~5 min. |
+| **Next** | [07 MCP & Grounded Agents](concepts/07-mcp-and-agents.md) | The "can my AI assistant query this safely?" answer: the grounded mission agent is an **MCP host** that reaches data *only* through Kong (UI → agent → MCP tools → Kong → DAB), so rate-limit, metering, and redaction all still hold; every answer **cites its source** (the MCP tool + gateway correlation id) and off-topic questions are refused. The same MCP tools Copilot / Foundry would call. ~12 min. |
 | **Then** | [AZURE-DEPLOYMENT.md](AZURE-DEPLOYMENT.md) → [AZURE-LIVE-DEPLOYMENT.md](AZURE-LIVE-DEPLOYMENT.md) | The reference Bicep target, then the *actually deployed* Container Apps + Entra deployment. ~20 min. |
 | **Next** | [APIM-EDITION.md](APIM-EDITION.md) + [APIM-CAPABILITIES.md](APIM-CAPABILITIES.md) | The managed-gateway edition (APIM + Developer Portal) and what it adds over Kong. ~15 min. |
 | **Finish with** | [DATABRICKS-WALKTHROUGH.md](DATABRICKS-WALKTHROUGH.md) → [POWERBI-GUIDE.md](POWERBI-GUIDE.md) | The lakehouse extension: zero-move medallion (Bronze→Silver→Gold Delta in Unity Catalog) → Databricks SQL → Power BI. ~20 min. |
@@ -239,10 +241,11 @@ Prerequisites: only **Docker** and **Python 3.11+** on the host. Nothing else.
 | **Next** | [ARCHITECTURE.md](ARCHITECTURE.md) | Now that it's running, learn what each container *is* and how a request flows left to right. ~20 min. |
 | **Next** | [data/README.md](../data/README.md) | The synthetic Artemis dataset (vendors, materials, purchase orders, supply risk) and its SAP-shaped fields — the data you just queried. ~10 min. |
 | **Next** | [Service reference](#-service-by-service-reference) → start with [seeder](../services/seeder/README.md), then [dab](../services/dab/README.md), then [gateway](../services/gateway/README.md) | Read the services in *data-flow order*: how data lands, how the API is generated, how the gateway fronts it. ~20 min. |
-| **Next** | [services/identity](../services/identity/README.md) → [services/catalog](../services/catalog/README.md) → [services/mcp](../services/mcp/README.md) | How a token is issued, how the catalog publishes the product, and how an AI agent calls it over MCP. ~15 min. |
+| **Next** | [services/identity](../services/identity/README.md) → [services/catalog](../services/catalog/README.md) → [services/mcp](../services/mcp/README.md) | How a token is issued, how the catalog publishes the product, and how the MCP tools (`query_supply_risk`, `material_detail`) front the governed query for an agent. ~15 min. |
+| **Next** | [07 MCP & Grounded Agents](concepts/07-mcp-and-agents.md) + the chat widget at `make ui` | The grounded **mission agent** (`services/agent`) is the MCP *host* the UI chat talks to: ask a supply-chain question and it answers *through the gateway* with a cited source (MCP tool + correlation id), renders ranked material cards / a chart / a detail card, and refuses off-topic questions. Routing is deterministic (no hallucination). ~12 min. |
 | **Next** | [client/README.md](../client/README.md) | The Python CLI you ran — read its source to see the bearer-token → gateway → answer flow concretely. ~5 min. |
 | **Then** | [ZERO-MOVE.md](ZERO-MOVE.md) + run `make test` | Run the test suite (zero-move, auth 401/200/429, discovery) and read why each test exists. This is the best way to internalize the guarantees. ~15 min. |
-| **Finish with** | [ADD-A-SOURCE.md](ADD-A-SOURCE.md) + `make ui` | Launch the browser UI and walk the "add a data source" wizard — see federation happen live. ~10 min. |
+| **Finish with** | [ADD-A-SOURCE.md](ADD-A-SOURCE.md) + `make ui` | Launch the browser UI: from the public landing page, open the chat agent, click a result to open the drill-down modal (it composes Material → SupplyRisk → PurchaseOrder → Vendor calls through the gateway), then walk the "add a data source" wizard — see federation happen live (DOT can be removed and re-added). ~10 min. |
 
 > [!TIP]
 > **Read services in data-flow order, not alphabetical:** seeder → dab → gateway →
@@ -269,6 +272,7 @@ Prerequisites: only **Docker** and **Python 3.11+** on the host. Nothing else.
 | **Next** | [DEMO-DAY.md](DEMO-DAY.md) | The full end-to-end runbook (local → Azure → APIM → Databricks → Power BI) — use this when you have a longer slot and want the whole arc. ~20 min. |
 | **Optional / advanced** | [DEMO-COMPLETE.md](DEMO-COMPLETE.md) | The superset script (local + *both* gateway editions + Databricks + Power BI + Delta Sharing, ~25–35 min) — the "everything" demo for a technical audience. ~30 min to rehearse. |
 | **Know your data** | [data/README.md](../data/README.md) | So you can answer "is this real?" instantly: **no — it's synthetic, seeded, ITAR/CUI-safe.** Memorize the headline (~11 High-tier materials, ~14 sole-source at seed 42). ~5 min. |
+| **The AI beat** | [07 MCP & Grounded Agents](concepts/07-mcp-and-agents.md) | The crowd-pleaser: open the UI chat and ask a supply-chain question — the **grounded agent** answers *through the gateway* and shows its **cited source** (MCP tool + correlation id), renders material cards / a chart, and refuses an off-topic question with space-themed sass. The line to land: "same MCP tools Copilot and Foundry would call — and it can't exceed what the gateway serves." ~10 min. |
 | **Backstop** | [ZERO-MOVE.md](ZERO-MOVE.md) + [SECURITY.md](SECURITY.md) | The two questions every technical audience asks — "did the data move?" and "how is it secured?" Have the answers (and the test names) ready. ~15 min. |
 | **If asked about Azure** | [APIM-CAPABILITIES.md](APIM-CAPABILITIES.md) + [AZURE-DEPLOYMENT.md](AZURE-DEPLOYMENT.md) | The "and in production this becomes…" pivot. ~10 min. |
 
@@ -296,6 +300,7 @@ know what you're looking for.
 | [concepts/04-identity-jwt-oauth.md](concepts/04-identity-jwt-oauth.md) | OAuth2 / JWT / RS256 / JWKS and the gateway handshake |
 | [concepts/05-lakehouse-databricks.md](concepts/05-lakehouse-databricks.md) | Delta Lake, medallion, Unity Catalog, Delta Sharing on Azure Databricks |
 | [concepts/06-observability-and-security.md](concepts/06-observability-and-security.md) | Metrics/logs/traces + defense-in-depth security |
+| [concepts/07-mcp-and-agents.md](concepts/07-mcp-and-agents.md) | Agents + the open MCP standard; the grounded mission agent that answers through the gateway and cites its source |
 | [GLOSSARY.md](GLOSSARY.md) | Every term, acronym, and SAP field name — defined in one place |
 | [API.md](API.md) | The API contract: routes, token flow, OData options, the 401/200/429/400 contract |
 | [LOCAL-DEV.md](LOCAL-DEV.md) | The local dev/test loop: `make` targets, compose profiles, ports, iteration rhythm |
@@ -338,6 +343,7 @@ know what you're looking for.
 | [`../PRP.md`](../PRP.md) | The complete, self-contained build spec — mission, contracts, phases, Definition of Done |
 | [data/README.md](../data/README.md) | The synthetic Artemis dataset + SAP-field data dictionary |
 | [client/README.md](../client/README.md) | The governed-consumer Python CLI |
+| [services/agent/README.md](../services/agent/README.md) | The grounded mission agent (MCP host) behind the UI chat widget |
 | [infra/azure/README.md](../infra/azure/README.md) | The Azure deployment reference (Bicep modules) |
 
 ---
@@ -355,7 +361,9 @@ flowchart LR
     ID["🔐 identity"] -->|issues JWT| KONG
     KONG --> CAT["📚 catalog"]
     KONG --> MCP["🤖 mcp"]
-    MCP --> CLIENT["client / agent"]
+    AGENT["💬 agent (MCP host)"] --> MCP
+    MCP --> CLIENT["client"]
+    UI["🌐 frontend chat"] --> AGENT
     style KONG fill:#cce5ff
     style PG fill:#d4edda
 ```
@@ -367,7 +375,8 @@ flowchart LR
 | 3 | [gateway](../services/gateway/README.md) | Kong OSS: JWT, rate-limit, metering, OWASP control | Azure API Management |
 | 4 | [identity](../services/identity/README.md) | Issues RS256 JWTs + JWKS | Microsoft Entra ID |
 | 5 | [catalog](../services/catalog/README.md) | Publishes the discoverable data product | APIM Dev Portal / API Center |
-| 6 | [mcp](../services/mcp/README.md) | Exposes the query as an MCP tool for agents | Foundry / Copilot over MCP |
+| 6 | [mcp](../services/mcp/README.md) | Exposes the query as MCP tools (`query_supply_risk`, `material_detail`) for agents | Foundry / Copilot over MCP |
+| 7 | [agent](../services/agent/README.md) | Grounded mission agent — MCP *host* the UI chat calls; answers through the gateway and cites its source | Copilot Studio / Azure AI Foundry agent |
 
 ---
 

@@ -6,12 +6,16 @@
 > **TL;DR** — This is the **full stack actually running in Azure**, not a reference diagram.
 > Every local Docker service has been re-deployed to **Azure Container Apps (ACA)** in the
 > `limitlessdata` tenant: the NASA-themed UI, the Kong gateway, the identity issuer, the
-> catalog, the registry, the DOT transportation source, an **MCP server** for AI agents, and
-> the **Data API Builder** auto-API over a **managed PostgreSQL**. The front end is
-> **tenant-locked by Microsoft Entra** (anonymous callers get bounced to sign-in), the DAB
-> database connection string lives in **Azure Key Vault** (never in app config), and the
-> telemetry flows into **Log Analytics + Microsoft Sentinel**. One script reproduces all of
-> it: [`scripts/azure-deploy-fullstack.sh`](../scripts/azure-deploy-fullstack.sh).
+> catalog, the registry, the DOT transportation source, an **MCP server** for AI agents, a
+> **grounded mission agent** (an MCP *host* that chats over the governed data), and the
+> **Data API Builder** auto-API over a **managed PostgreSQL**. The front end opens on a
+> **public landing page** and offers **deferred sign-in with Microsoft Entra** (the gate is
+> *AllowAnonymous*, not an auto-redirect), the DAB database connection string lives in
+> **Azure Key Vault** (never in app config), **add/remove of a data source works live** in
+> Azure (the registry is the source of truth), and the telemetry flows into **Log Analytics +
+> Microsoft Sentinel**. One script reproduces all of it:
+> [`scripts/azure-deploy-fullstack.sh`](../scripts/azure-deploy-fullstack.sh). The live demo:
+> **<https://agent.icyocean-479340e8.centralus.azurecontainerapps.io>**.
 
 > [!WARNING]
 > **Illustrative reference · sample/synthetic data only · not an official NASA document.**
@@ -27,6 +31,8 @@
 - [What is deployed (and what each app does)](#-what-is-deployed-and-what-each-app-does)
 - [Access and verification (with worked examples)](#-access-and-verification-with-worked-examples)
 - [The MCP agent path on Azure](#-the-mcp-agent-path-on-azure)
+- [The grounded mission agent (chat over governed data)](#-the-grounded-mission-agent-chat-over-governed-data)
+- [Live add/remove of a data source — in Azure](#-live-addremove-of-a-data-source--in-azure)
 - [Secrets, identity and observability](#-secrets-identity-and-observability)
 - [Honest deltas vs. the local stack](#-honest-deltas-vs-the-local-stack)
 - [Gotchas and troubleshooting](#-gotchas-and-troubleshooting)
@@ -92,20 +98,23 @@ ever talks to the **gateway**; the gateway fans out to the backends; only DAB to
 
 ```mermaid
 flowchart TD
-    User(["👤 Consumer<br/>(limitlessdata tenant)"]) -->|Entra sign-in| UI["🚀 Front end (NASA UI)<br/>tenant-locked · Entra EasyAuth"]
-    Agent(["🤖 AI agent / MCP host"]) --> MCP["🧩 MCP server<br/>query_supply_risk"]
+    User(["👤 Consumer<br/>(public landing · optional Entra sign-in)"]) -->|deferred sign-in / explore| UI["🚀 Front end (NASA UI)<br/>public landing · AllowAnonymous + Entra option"]
+    UI -->|chat widget POSTs /ask| AG["💬 Mission agent<br/>(MCP host · grounded · cites source)"]
+    Ext(["🤖 External MCP host<br/>Copilot / Foundry / Claude"]) --> MCP["🧩 MCP server<br/>query_supply_risk · material_detail"]
+    AG -->|calls MCP tools| MCP
     UI -->|JWT · every data call| Kong["🐙 Kong OSS gateway<br/>jwt · rate-limit · correlation-id · cors"]
     MCP -->|JWT from issuer| Kong
     Kong --> ID["🪪 Identity (RS256 issuer)"]
-    Kong --> Cat["📚 Catalog"]
-    Kong --> Reg["🗂️ Registry (control-plane)"]
+    Kong --> Cat["📚 Catalog<br/>(reads the registry live)"]
+    Kong --> Reg["🗂️ Registry (control-plane)<br/>source of truth · single replica"]
     Kong --> DAB["🔌 DAB auto-API<br/>REST + GraphQL + OpenAPI"]
-    Kong --> DOT["🌉 DOT transportation<br/>(federated 2nd source)"]
+    Kong --> DOT["🌉 DOT transportation<br/>(federated · pre-seeded + removable)"]
     DAB -->|conn string from Key Vault| PG[("🗄️ PostgreSQL Flexible Server<br/>artemis-pg-n1 · procurement db")]
     DAB -. managed identity .-> KV[["🔐 Key Vault<br/>artemis-kv-n1 · dab-conn"]]
     Kong -. logs .-> LA[["📈 Log Analytics<br/>artemis-logs"]]
     LA -. SIEM .-> SENT["🛡️ Microsoft Sentinel"]
     style UI fill:#0b3d91,color:#fff
+    style AG fill:#5a2d91,color:#fff
     style Kong fill:#1168bd,color:#fff
     style PG fill:#2d6a4f,color:#fff
 ```
@@ -121,14 +130,15 @@ will see in the Azure portal under resource group `artemis-poc-rg`.
 | PostgreSQL Flexible Server | `artemis-pg-n1` | The **system of record** — managed Postgres 16, `procurement` db, seeded with ~10k synthetic rows. **Never** reachable directly by clients. |
 | Container Registry (ACR) | `artemispocacrn1` | Holds the per-service images the script builds with `az acr build` |
 | Container Apps environment | `artemis-cae` | The shared, managed compute fabric all the apps run in |
-| **Front end (NASA UI)** | `frontend` | The demo UI; **tenant-locked with Entra EasyAuth** — the human entry point |
-| Gateway (Kong OSS) | `kong` | The **only** path to data. DB-less, config baked into the image; both sources pre-registered |
+| **Front end (NASA UI)** | `frontend` | The demo UI; opens on a **public landing page** with a **deferred** *Sign in with Microsoft (Entra)* button — the human entry point. Auth is **AllowAnonymous** (no auto-redirect on load). |
+| Gateway (Kong OSS) | `kong` | The **only** path to data. DB-less, config baked into the image; both sources pre-baked as routes |
 | Identity (RS256 issuer) | `identity` | Mints short-lived RS256 JWTs for demo consumers; its public key is baked into the gateway config so Kong can verify tokens |
-| Catalog | `catalog` | The "data products" listing the UI renders (both sources) |
-| Registry | `registry` | The control-plane that *would* add sources live; live add is a local-only feature (see deltas) |
-| DOT transportation | `transportation` | A **second, federated** data source proving the gateway fronts more than one upstream |
+| Catalog | `catalog` | The "data products" listing the UI renders — it **reads the registry live**, so add/remove shows up immediately |
+| Registry | `registry` | The control-plane and **source of truth** for add/remove. **Live onboarding works in Azure** (DOT is pre-seeded yet removable, and re-addable). Runs **single-replica** — the source list is on the app's own ephemeral filesystem |
+| DOT transportation | `transportation` | A **second, federated** data source proving the gateway fronts more than one upstream. **Pre-seeded but removable** — the wizard can take it out and add it back |
 | DAB auto-API | `artemis-dab` | **Data API Builder** — turns Postgres tables/views into REST + GraphQL + OpenAPI with zero hand-written endpoints. Connection string resolved from **Key Vault**. |
-| MCP server | `mcp` | The **AI-agent path** — exposes `query_supply_risk` as an MCP tool that calls the gateway, never the database |
+| MCP server | `mcp` | The **AI-agent path** — exposes `query_supply_risk` and `material_detail` as MCP tools that call the gateway, never the database |
+| **Mission agent** | `agent` | A **grounded chat agent** and **MCP host** — turns a natural-language question into MCP tool calls, cites the gateway correlation id, and refuses off-topic asks. The UI chat widget POSTs to it (`/ask`). Live at **`https://agent.<domain>`** |
 | Key Vault | `artemis-kv-n1` | RBAC-authorized vault holding the DB connection string as secret `dab-conn` |
 | Log Analytics | `artemis-logs` | Collects Container Apps env logs (+ APIM `GatewayLogs`/metrics in the APIM edition) |
 | Entra app registrations | `artemis-ui-easyauth`, `artemis-dab-easyauth` | Single-tenant app regs that back EasyAuth on the UI (and the standalone DAB deploy) |
@@ -159,25 +169,36 @@ All apps share the Container Apps environment domain
 > URLs** at the end (the `FULL STACK DEPLOYED` banner) — copy them from there rather than from
 > this page.
 
-### The human path: the tenant-locked NASA UI
+### The human path: the public landing page → the NASA UI
 
-- **NASA UI (tenant-locked):**
+- **NASA UI (public landing):**
   `https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`
-  → redirects to **Entra sign-in**; sign in with a **`limitlessdata`-tenant** account to use it.
+  → opens a **public landing page** (real NASA logo, value prop). From there you can either
+  **Sign in with Microsoft** (Entra, `limitlessdata` tenant) or **Explore the demo** — auth no
+  longer auto-redirects on load (the deferred, *AllowAnonymous* pattern).
+- **Mission agent (grounded chat):**
+  `https://agent.icyocean-479340e8.centralus.azurecontainerapps.io` — the live demo entry point.
 - Supporting services (each on the same domain): Gateway `https://kong.…`, Identity
   `https://identity.…`, Catalog `https://catalog.…`, Registry `https://registry.…`, DAB
-  `https://artemis-dab.…`, Transport `https://transportation.…`, MCP `https://mcp.…`.
+  `https://artemis-dab.…`, Transport `https://transportation.…`, MCP `https://mcp.…`, Agent
+  `https://agent.…`.
 
 **What "verified live" means here.** A browser end-to-end pass confirmed the full governance
 story on the running deployment:
 
-1. Visiting the UI anonymously returns **HTTP 401 / redirect to Entra** — the tenant lock works.
-2. After signing in with a `limitlessdata` account the NASA UI loads with **no console errors**.
+1. Visiting the UI anonymously lands on the **public landing page** (no auto-redirect); the
+   *Sign in with Microsoft* button starts the Entra flow on demand.
+2. Choosing **Explore the demo** (or signing in) loads the NASA UI with **no console errors**.
 3. The headline supply-risk query runs **through Kong** and returns **HTTP 200**, a **gateway
    correlation id** (`X-Correlation-ID`), and the ranked **6-row high-risk table**.
-4. The catalog lists **both data products** (Artemis procurement + DOT bridges).
-5. The "add a source" wizard renders (it is informational on Azure — see the deltas section).
-6. The gateway also serves the **federated `/dot` bridge inventory** with the same JWT +
+4. Clicking any result row opens a **centered drill-down modal** that composes several nested
+   governed calls (Material → SupplyRisk → PurchaseOrder → Vendor) and shows the assembled
+   record — with net price/value and unit cost **redacted at the gateway**.
+5. The catalog lists **both data products** (Artemis procurement + DOT bridges), and the **add /
+   remove a source** wizard works live (remove DOT, re-add it; see the dedicated section below).
+6. The **mission agent** answers a natural-language question by calling the MCP tools, renders
+   ranked cards / a chart / a detail card, and **cites the gateway correlation id**.
+7. The gateway also serves the **federated `/dot` bridge inventory** with the same JWT +
    rate-limit + correlation-id treatment.
 
 ### Worked example 1 — prove the gateway is the only door (no token → 401)
@@ -250,8 +271,8 @@ point, not a single-API proxy.
 ## 🧩 The MCP agent path on Azure
 
 The deployment doesn't just serve humans — it serves **AI agents**. The `mcp` Container App runs
-the server in [`services/mcp/server.py`](../services/mcp/server.py), which exposes a single tool,
-**`query_supply_risk`**. The crucial detail: the agent does **not** get a database connection. It
+the server in [`services/mcp/server.py`](../services/mcp/server.py), which exposes two tools —
+**`query_supply_risk`** and **`material_detail`**. The crucial detail: the agent does **not** get a database connection. It
 gets a *governed* tool that fetches a token from the issuer and calls **Kong**, exactly like the
 UI does.
 
@@ -310,6 +331,127 @@ never left Postgres."* — which is the entire zero-move thesis, asserted by the
 
 ---
 
+## 💬 The grounded mission agent (chat over governed data)
+
+The `agent` Container App ([`services/agent/agent.py`](../services/agent/agent.py)) is the
+**human-friendly front of the MCP path**. In the UI a floating chat widget POSTs the user's
+question to the agent's `/ask` endpoint; the agent is itself an **MCP host** — it turns the
+question into calls to the MCP server's tools (`query_supply_risk`, `material_detail`), which
+reach data **only through Kong**. Every answer is therefore grounded in governed data and
+**cites its source**: the MCP tool name *and* the gateway correlation id.
+
+```mermaid
+sequenceDiagram
+    participant Browser as 🧑‍🚀 UI chat widget
+    participant Agent as 💬 agent (ACA)
+    participant MCP as 🧩 mcp (ACA)
+    participant Kong as 🐙 Kong gateway
+    participant DAB as 🔌 DAB → Postgres
+    Browser->>Agent: POST /ask {question:"What's at risk on Artemis-3?"}
+    Agent->>MCP: call query_supply_risk(program="Artemis-3", …)
+    MCP->>Kong: GET /api/SupplyRisk?$filter=… (Bearer JWT)
+    Kong->>DAB: forward (jwt + rate-limit + correlation-id)
+    DAB-->>Kong: rows
+    Kong-->>MCP: 200 + X-Correlation-ID
+    MCP-->>Agent: {materials, gateway_correlation_id}
+    Agent-->>Browser: cited answer + ranked cards / chart / detail card
+```
+
+**What it renders in the chat.** The agent returns a *structured* response the UI renders richly
+([`frontend/src/components/AgentChat.jsx`](../frontend/src/components/AgentChat.jsx)):
+
+| Question shape | What the agent returns | Rendered as |
+|---|---|---|
+| "What's at risk on Artemis-3?" | ranked materials | clickable **material cards** (click → the drill-down modal) |
+| "Show me risk stats by tier" | broadened query + tier distribution | a **bar chart** + a stats summary |
+| "Tell me about the Li-ion battery module" / an `NSN-…` | one material via `material_detail` | a **detail card** (click → full record) |
+| Off-topic ("weather on Mars?") | a sarcastic, space-themed **refusal** | text that points the user to a **Microsoft rep** |
+
+> [!NOTE]
+> **Routing is deterministic — on purpose.** The agent classifies the question and picks the
+> tool with plain pattern matching, so it is **reliable and free for a live demo and never
+> hallucinates**. An optional Azure OpenAI phrasing upgrade (`AGENT_LLM=azure-openai`) can make
+> the *wording* nicer, but the LLM still only ever sees gateway-returned data and must cite it.
+
+**How the Azure container is wired.** In `azure-deploy-fullstack.sh` (step 5c) the agent is built
+and deployed pointing at the *Azure* URL of the MCP server:
+
+```bash
+AGENT_FQDN="$(deploy agent agent:latest 8110 --min-replicas 1 \
+  --env-vars AGENT_PORT=8110 "MCP_URL=https://$MCP_FQDN/mcp")"
+```
+
+The frontend's `config.js` then carries `agent: "https://$AGENT_FQDN"` so the chat widget knows
+where to POST. Verify liveness:
+
+```bash
+curl -s "https://<agent-fqdn>/healthz"   # -> {"status":"ok"}
+
+curl -s -X POST "https://<agent-fqdn>/ask" \
+  -H 'content-type: application/json' \
+  -d '{"question":"What is at risk on Artemis-3?"}' | head -c 600
+# -> grounded answer + render payload + sources[].gateway_correlation_id
+```
+
+> **Why this matters:** this is the *"AI grounded on governed data over the open MCP standard"*
+> story made concrete. The exact same tools Copilot or Azure AI Foundry would call are the ones
+> this agent calls — and because they go through the gateway, the agent inherits authn, rate
+> limits, metering, field-level redaction, and an audit trail keyed by correlation id **for
+> free**. That is the difference between "we let an LLM hit the database" and "we let an LLM use
+> a *governed data product*."
+
+---
+
+## ➕ Live add/remove of a data source — in Azure
+
+Earlier editions of this doc called live onboarding a *local-only* feature. **That is no longer
+true: add/remove of a data source works in the Azure deploy too** — driven by the **registry as
+the single source of truth**, with the catalog reading it live and the `/dot` Kong route
+**pre-baked** so a re-added source routes immediately.
+
+```mermaid
+flowchart LR
+    Wizard["🧙 Add-a-source wizard<br/>(or ✕ remove on a card)"] -->|POST/DELETE /sources| Reg["🗂️ Registry<br/>source of truth · single replica"]
+    Reg -->|persists source list| FS[("📄 ephemeral filesystem<br/>sources.json")]
+    Cat["📚 Catalog"] -->|reads /sources live| Reg
+    UI["🚀 NASA UI"] -->|lists products| Cat
+    UI -->|queries re-added source| Kong["🐙 Kong<br/>pre-baked /dot route"]
+    style Reg fill:#0b3d91,color:#fff
+    style Kong fill:#1168bd,color:#fff
+```
+
+**How it works on ACA** (steps 5–6 of the deploy script, plus
+[`services/registry/app.py`](../services/registry/app.py)):
+
+- **The registry is the source of truth.** Add (`POST /sources`) and remove (`DELETE
+  /sources/{id}`) persist the source list *first*; the catalog reads `/sources` **live**, so the
+  marketplace grid reflects a change the moment it happens — no Kong reload required for the
+  listing.
+- **DOT is pre-seeded yet removable.** The deploy passes `SEED_SOURCES_JSON` so the registry
+  starts with the DOT source present, and the `liveOnboarding: true` config flag lights up the
+  **✕ remove** control and the **+ Add a data source** wizard in the UI.
+- **The `/dot` Kong route is pre-baked.** Because ACA doesn't cleanly expose Kong's admin port,
+  the registry's best-effort hot-reload **no-ops gracefully** in Azure (it logs *"Kong
+  hot-reload skipped/failed (expected in Azure)"*). That's fine for DOT: its route is already
+  baked into the gateway config at deploy time (step 4), so a **re-added DOT routes immediately**
+  through `/dot`.
+- **Single replica, ephemeral list.** In Azure there is no shared `/shared` volume, so the
+  registry persists the source list to **its own ephemeral filesystem**. Run it **single-replica**
+  so every reader sees one coherent list, and expect the list to **reset to the seed on a
+  restart/redeploy** — exactly right for a demo.
+
+> [!IMPORTANT]
+> **What still differs from local.** A *brand-new* upstream you add live in Azure will appear in
+> the catalog, but it will only **route through Kong if a matching route was pre-baked** (DOT is;
+> an arbitrary new host is not, because Kong's admin can't be hot-reloaded on ACA). The
+> remove-and-re-add of the **pre-baked DOT source** is the fully working Azure showpiece; for
+> onboarding an *arbitrary* new upstream end-to-end, the local `make ui` flow
+> ([`ADD-A-SOURCE.md`](ADD-A-SOURCE.md)) remains the richer demo. In the managed
+> **[APIM edition](APIM-EDITION.md)** this gap closes — APIM exposes a first-class management
+> plane for adding APIs without rebuilding a gateway image.
+
+---
+
 ## 🔐 Secrets, identity and observability
 
 This deployment models three enterprise non-negotiables: **secrets never live in app config**,
@@ -345,12 +487,23 @@ through Kong (200) with the secret resolved straight from the vault.
 > Vault reference* is a pointer (`keyvaultref:…`) the platform dereferences for you. Nobody — not
 > even an operator reading the app config — sees the database password.
 
-### 🪪 Tenant lock — Entra EasyAuth (single-tenant)
+### 🪪 Sign-in — Entra EasyAuth, deferred (AllowAnonymous landing)
 
-The front end uses **Entra EasyAuth**, the Container Apps built-in authentication layer. It is
-configured single-tenant (`AzureADMyOrg`), so anonymous callers are redirected to sign-in and
-**only `limitlessdata` accounts** can reach the UI. EasyAuth runs *in front of* your container —
-your app code does nothing; the platform enforces the gate.
+The front end uses **Entra EasyAuth**, the Container Apps built-in authentication layer, wired to
+a **single-tenant** (`AzureADMyOrg`) app registration. But unlike a hard tenant lock, the gate is
+**deferred**: the front end is **AllowAnonymous**, so a visitor lands on a **public landing page**
+(real NASA logo, value prop) and *chooses* to **Sign in with Microsoft** or **Explore the demo**.
+Sign-in is no longer an auto-redirect on load — it is a button that kicks off the Entra flow on
+demand (the DOT-style pattern). This is driven by an `authEnabled` config flag the frontend reads
+([`frontend/src/api.js`](../frontend/src/api.js) → `authStatus()`), which decides whether to show
+the *Sign in with Microsoft* call-to-action.
+
+> [!NOTE]
+> **Why a public landing instead of a hard lock?** A demo URL you can hand to anyone is far more
+> shareable than one that bounces every anonymous visitor to a tenant sign-in. The governance
+> claim is unchanged: every **data** call still carries the issuer-minted RS256 JWT that Kong
+> verifies, so the open landing page can show the value prop without weakening the data-access
+> boundary. Sign-in remains available for the tenant-scoped experience.
 
 > [!IMPORTANT]
 > **EasyAuth gotcha (already fixed in the deploy scripts).** ACA EasyAuth uses the OIDC **hybrid
@@ -363,12 +516,13 @@ your app code does nothing; the platform enforces the gate.
 > and the teardown script deletes the app registrations so a redeploy starts clean.
 
 > [!NOTE]
-> **Two layers of identity, on purpose.** Entra gates *who may open the UI* (the human, at the
-> front door). The Kong `jwt` plugin gates *every data call* (per-consumer tokens, rate limits,
-> metering) behind the UI. The UI's data calls and the MCP agent's calls both carry the
-> issuer-minted RS256 JWT that Kong verifies. In the fully managed **[APIM edition](APIM-EDITION.md)**
-> these two layers collapse into one — APIM does native Entra validation *and* the gateway
-> policy.
+> **Two layers of identity, on purpose.** Entra (optionally) authenticates *the human at the
+> front door* — deferred sign-in for a tenant-scoped session. The Kong `jwt` plugin gates *every
+> data call* (per-consumer tokens, rate limits, metering) regardless of whether the human signed
+> in. The UI's data calls, the MCP agent's calls, and the mission agent's calls all carry the
+> issuer-minted RS256 JWT that Kong verifies — so the **data** boundary holds even on the public
+> landing page. In the fully managed **[APIM edition](APIM-EDITION.md)** these two layers collapse
+> into one — APIM does native Entra validation *and* the gateway policy.
 
 ### 📈 Observability + SIEM — Log Analytics + Microsoft Sentinel
 
@@ -390,11 +544,14 @@ gateway/app telemetry is immediately available to **SIEM** analytics rules and t
 
 A teaching doc earns trust by stating what the cloud deploy *doesn't* do, and why.
 
-- **Live "add a source" wizard is local-only.** The one-click onboarding wizard needs Kong's
-  **admin port**, which ACA doesn't cleanly expose, so both sources (Artemis + DOT) are
-  **pre-registered** in the baked `kong.yml`. The wizard still renders on Azure (it's
-  informational), but the interactive add stays the **local showpiece** (`make ui` — see
-  [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md)).
+- **Live add/remove works in Azure — with one caveat on *arbitrary* upstreams.** Remove-and-re-add
+  of the **pre-baked DOT source** is fully working in this deploy (registry is the source of truth;
+  the catalog reads it live; the `/dot` Kong route is pre-baked). The caveat: a *brand-new* upstream
+  you add live will show in the catalog but only **routes through Kong if its route was pre-baked**,
+  because ACA doesn't expose Kong's admin port for a hot-reload. Onboarding an *arbitrary* new
+  upstream end-to-end stays the richer **local** demo (`make ui` — see
+  [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md)). See [Live add/remove of a data source](#-live-addremove-of-a-data-source--in-azure)
+  above for the full mechanism.
 - **Kong Manager / Prometheus / Grafana are local-only.** Those use Kong's admin/metrics ports,
   also not exposed on ACA. Run them locally, or use the managed equivalents: **Azure Monitor** /
   **Log Analytics** for metrics and the **[APIM Developer Portal](APIM-EDITION.md)** for the
@@ -420,7 +577,9 @@ A teaching doc earns trust by stating what the cloud deploy *doesn't* do, and wh
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Sign-in succeeds, then **HTTP 401** from the UI | Entra app reg missing ID-token issuance (hybrid flow) | Recreate with `--enable-id-token-issuance true` (the scripts now do this) |
-| `curl` to a service returns a **redirect to login** | You hit the EasyAuth-protected front end, not the gateway | Call the **gateway** FQDN for data; the UI is meant for browsers |
+| `curl` to a service returns **HTML / a login link** | You hit the front end (it serves the public landing SPA), not the gateway | Call the **gateway** FQDN for data; the UI is meant for browsers |
+| Added a **new** source live but it **404s through Kong** | Only pre-baked routes (e.g. `/dot`) route on ACA; Kong admin isn't hot-reloadable here | Re-add the **pre-baked DOT** source, or onboard arbitrary upstreams locally (`make ui`) |
+| The agent replies but **cites no correlation id** | The MCP/gateway call failed and the agent degraded gracefully | Check `mcp` + `kong` are healthy; retry once warm (the agent degrades, never crashes) |
 | Data call returns **401** with a valid-looking token | Token consumer not in the baked Kong config, or wrong audience | Use `analyst` or `artemis-agent`; the issuer's public key must match the one baked into `kong.yml` |
 | DAB **500 / can't connect to DB** | Key Vault RBAC not yet propagated, or PG firewall | The script `sleep`s for RBAC propagation; ensure the `AllowAzureServices` firewall rule exists |
 | Redeploy fails with a **Key Vault name conflict** | Soft-deleted vault still holds the name | The teardown script **purges** the soft-deleted vault; or `az keyvault purge -n artemis-kv-n1` |

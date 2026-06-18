@@ -169,14 +169,25 @@ FedRAMP High, and the one place the managed Databricks/Unity-Catalog gap applies
    product, lands Bronze→Silver→Gold **Delta in Unity Catalog**, and serves a Databricks
    SQL → **Power BI** report. See [`docs/DATABRICKS-WALKTHROUGH.md`](docs/DATABRICKS-WALKTHROUGH.md)
    + [`docs/POWERBI-GUIDE.md`](docs/POWERBI-GUIDE.md).
-9. **Live in Azure** — the auto-API deployed to Container Apps over Azure Postgres,
-   tenant-locked with Entra. See [`docs/AZURE-LIVE-DEPLOYMENT.md`](docs/AZURE-LIVE-DEPLOYMENT.md).
+9. **Live in Azure** — the full stack deployed to Container Apps over Azure Postgres,
+   with a **public landing page + Microsoft (Entra) sign-in** (deferred auth — no
+   auto-redirect). See [`docs/AZURE-LIVE-DEPLOYMENT.md`](docs/AZURE-LIVE-DEPLOYMENT.md).
+10. **A grounded AI agent over MCP** — an in-UI chat agent that answers supply-chain
+    questions **only** from the governed data product: it calls the MCP server's tools
+    (which reach data only through the gateway), **cites its source** (MCP tool + gateway
+    correlation id), renders cards/charts in-chat, and sass-refuses off-topic questions.
+    The "AI grounded on governed data over the open MCP standard" story. *Azure: the same
+    tools a Foundry / Copilot agent would call.* See [`docs/concepts/07-mcp-and-agents.md`](docs/concepts/07-mcp-and-agents.md).
+11. **Drill-down detail via nested calls** — click any result row to compose a full
+    product record (Material → SupplyRisk → PurchaseOrder → Vendor) through several
+    governed gateway calls, with the cost fields **redacted at the gateway**.
 
 ### NASA-themed marketplace UI
 
-The browser UI (`make ui`) lists each data product and runs the mission query **through
-the gateway** — showing the HTTP status, the gateway correlation id, and the ranked
-high-risk parts (synthetic data):
+The browser UI (`make ui`) opens on a **public landing page** (sign in with Microsoft or
+explore), lists each data product, runs the mission query **through the gateway** —
+showing the HTTP status, gateway correlation id, and ranked high-risk parts — and lets you
+**click a row to drill in** or **ask the grounded mission agent** (synthetic data):
 
 ![Marketplace UI — query through the gateway](docs/img/ui-query.png)
 

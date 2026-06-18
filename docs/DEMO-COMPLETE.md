@@ -7,8 +7,12 @@
 > a newcomer through **everything** this proof-of-concept builds, and — critically — **why
 > each piece exists**. The headline story is **"deploy to Azure to show the full art of the
 > possible"**: a live deployment in *both* gateway editions (**Azure API Management** and
-> **Kong**), a **Databricks** zero-move lakehouse (two read modes), a **Power BI**
-> executive report, and **Delta Sharing** to an external partner. The local
+> **Kong**), a **public landing page** with deferred Microsoft sign-in, a **grounded
+> mission agent** (an MCP host that answers — and *cites* — supply-risk questions from
+> governed data), a **click-row drill-down** that composes nested governed calls, **live
+> add/remove of a federated source**, a **Databricks** zero-move lakehouse (two read
+> modes), a **Power BI** executive report, and **Delta Sharing** to an external partner.
+> The local
 > `docker compose` stack is the **dev/test loop** you use to build and rehearse before the
 > Azure demo. Pick the segments you need — the whole thing runs ~25–35 min; the core story
 > is ~10. New to any term? Every acronym links to the **[Glossary](GLOSSARY.md)**, and each
@@ -30,7 +34,8 @@
 - [Azure-first, OSS-faithful: the mapping you keep referring back to](#-azure-first-oss-faithful-the-mapping-you-keep-referring-back-to)
 - [Live endpoints (reference card)](#-live-endpoints-reference-card)
 - [Part A — Local stack in one command (the dev/test loop)](#-part-a--local-stack-in-one-command-the-devtest-loop-10-min)
-- [Part B — Live in Azure: the Kong edition](#-part-b--live-in-azure-the-kong-edition-6-min)
+- [Part B — Live in Azure: the Kong edition](#-part-b--live-in-azure-the-kong-edition-8-min)
+- [Part B-bonus — The four showpiece moments (landing, drill-down, agent, live onboarding)](#-part-b-bonus--the-four-showpiece-moments-landing-drill-down-agent-live-onboarding-7-min)
 - [Part C — Azure API Management edition (the managed twin)](#-part-c--azure-api-management-edition-the-managed-twin-5-min)
 - [Part D — Databricks zero-move lakehouse](#-part-d--databricks-zero-move-lakehouse-6-min)
 - [Part E — Power BI report](#-part-e--power-bi-report-3-min)
@@ -105,8 +110,11 @@ flowchart LR
     GW["Governed gateway<br/>Kong OSS · or · Azure APIM"]
     DAB --> GW
     DOT --> GW
-    GW --> CLI["CLI + MCP agent"]
-    GW --> UI["NASA marketplace UI<br/>+ add-a-source wizard"]
+    GW --> CLI["CLI client"]
+    AG["Grounded mission agent<br/>(MCP host)"] --> MCP["MCP tools<br/>query_supply_risk · material_detail"]
+    MCP --> GW
+    UI["NASA marketplace UI<br/>landing · drill-down · wizard"] --> AG
+    GW --> UI
     GW --> DBX["Databricks<br/>Bronze → Silver → Gold (Unity Catalog)"]
     DBX --> PBI["Power BI<br/>(DirectQuery)"]
     DBX --> SHARE["Delta Sharing<br/>(zero-copy out)"]
@@ -124,7 +132,8 @@ flowchart LR
 | Segment | Surface | The point it proves |
 |---|---|---|
 | **A** | Local `docker compose` stack | the whole pattern, one command, fully offline — your dev/test loop |
-| **B** | Azure Container Apps + **Kong** | the live product: tenant-locked UI, federation, Key Vault, redaction |
+| **B** | Azure Container Apps + **Kong** | the live product: public landing + Entra sign-in, federation, Key Vault, redaction |
+| **B-bonus** | The marketplace UI in depth | the four crowd-pleasers: landing, click-row drill-down, the grounded agent, live add/remove |
 | **C** | Azure **API Management** | the managed twin: Developer Portal, Entra sign-in, Try-It, subscriptions |
 | **D** | **Databricks** medallion (Unity Catalog) | zero-move *into the lakehouse* — two read modes, two governance postures |
 | **E** | **Power BI** | the executive report over DirectQuery — zero-move all the way to the boardroom |
@@ -170,10 +179,12 @@ contracts (OpenAPI, OAuth2/JWT, OData, MCP), only the implementations swap.
 
 | Surface | URL | Azure service behind it |
 |---|---|---|
-| NASA marketplace UI (tenant-locked) | `https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps + EasyAuth |
+| NASA marketplace UI (public landing → Entra sign-in) | `https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps + EasyAuth (AllowAnonymous) |
+| Grounded mission agent (chat over MCP) | `https://agent.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps (MCP host) |
 | Kong gateway | `https://kong.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps |
 | Identity (token issuer) | `https://identity.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps (stands in for Entra ID) |
 | Catalog | `https://catalog.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps |
+| Registry (source control-plane) | `https://registry.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps |
 | APIM gateway | `https://artemis-apim-n1.azure-api.net` | API Management |
 | APIM Developer Portal | `https://artemis-apim-n1.developer.azure-api.net` | API Management |
 | Databricks workspace | `https://adb-7405607213468698.18.azuredatabricks.net` | Azure Databricks |
@@ -263,29 +274,41 @@ make ui                                                   # browser UI :5173 —
 
 ---
 
-## 🅱️ Part B — Live in Azure: the Kong edition (6 min)
+## 🅱️ Part B — Live in Azure: the Kong edition (8 min)
 
-Everything from Part A, now **running in Azure Container Apps** and **tenant-locked** — this
-is the first half of "the art of the possible." Same architecture, real cloud, real identity.
+Everything from Part A, now **running in Azure Container Apps** with a **public landing
+page** and **deferred Microsoft sign-in** — this is the first half of "the art of the
+possible." Same architecture, real cloud, real identity.
 
-### 🔐 1. The tenant-locked UI
+### 🚪 1. The public landing page + deferred Microsoft sign-in
 
 Open **`https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`**.
 
-- Unauthenticated → you are redirected to **Microsoft Entra** sign-in (single-tenant
-  **EasyAuth** — Container Apps' built-in authentication layer). A wrong-tenant account is
-  rejected outright (*"does not exist in tenant 'Limitless Data'"*).
-- Sign in with a **`@limitlessdata.ai`** account → the **NASA marketplace** UI loads.
+- A visitor lands on a **public landing page** — the real **NASA logo**, the zero-move value
+  prop, and four highlight tiles (zero data movement, governed-at-the-edge, drill-down,
+  lakehouse + Power BI). Auth **no longer auto-redirects on load** — the frontend EasyAuth is
+  configured **AllowAnonymous**, so the page is reachable by anyone (the DOT-style entry
+  pattern). A config flag (`authEnabled`) drives which buttons appear.
+- Two calls to action: **“Sign in with Microsoft”** (→ Entra, `/.auth/login/aad`) and
+  **“Explore the demo →”** (enter straight into the marketplace, anonymous).
+- Sign in with a **`@limitlessdata.ai`** account → the landing shows *“✓ Signed in as …”* and
+  an **“Enter the marketplace →”** link. (A wrong-tenant account is rejected by single-tenant
+  Entra.)
 
-> **In plain terms:** EasyAuth means *Azure handles the login before your app ever sees the
-> request.* In dev/test you faked this with the local issuer; in Azure it is real Entra ID,
-> the same identity plane your organization already uses.
+> **In plain terms:** EasyAuth means *Azure can handle the login before your app ever sees the
+> request.* Setting it **AllowAnonymous** lets a public visitor see the value prop first and
+> *choose* to sign in — the deferred-auth pattern — rather than hitting a login wall. In
+> dev/test you faked the identity plane with the local issuer; in Azure it is real Entra ID.
 
 > [!NOTE]
 > **EasyAuth gotcha (already handled by the deploy scripts):** ACA EasyAuth uses the hybrid
 > flow (`response_type=code id_token`, `form_post`), so the Entra app registration must have
 > **ID-token issuance enabled** — otherwise sign-in *succeeds* but the app returns 401, which
 > is maddening to debug. `scripts/azure-deploy-fullstack.sh` sets this by default.
+
+> **Say it:** "A public front door — a real visitor sees the value prop, then signs in with
+> **Microsoft** on *their* terms. Auth is deferred, not a wall; governance still lives at the
+> gateway behind every data call, signed-in or not."
 
 ### 🖥️ 2. Query through the gateway, in the browser
 
@@ -296,10 +319,13 @@ press **Run through gateway**:
 - **HTTP 200** plus a live **gateway correlation-id** (e.g. `…#21`) — your visible proof the
   call traversed Kong,
 - the ranked **6-row** high-risk table (top: **Heat-pipe radiator panel**, risk 100, 54-day
-  slip), with suppliers resolved via a *second* governed call (PurchaseOrder → Vendor).
+  slip), with **human-friendly column labels** (Material, Risk tier, Avg delay, …) instead of
+  raw SAP field names, and suppliers resolved via a *second* governed call
+  (PurchaseOrder → Vendor).
 
 This is the exact same six rows the CLI printed in Part A — now rendered for a human in a
-browser, behind a real corporate login. Same data product, different consumer.
+browser. Same data product, different consumer. **Every row is clickable** — that click is the
+drill-down you show next.
 
 ### 🔗 3. Federation + redaction (from a terminal, against Azure)
 
@@ -341,6 +367,113 @@ curl -s -H "Authorization: Bearer $TOK" "https://kong.$D/api/Material?\$first=1"
 > In Azure those become **Key Vault + managed identity** and **Azure Monitor + Sentinel** —
 > the same responsibilities, now enterprise-grade and audited. Deep dive:
 > [`concepts/06-observability-and-security.md`](concepts/06-observability-and-security.md).
+
+---
+
+## ✨ Part B-bonus — The four showpiece moments (landing, drill-down, agent, live onboarding) (7 min)
+
+These are the segments that land in a live room. All four run **in the same browser UI in
+Azure** (`https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`) and every data
+call still goes **through Kong** — nothing here is a side-channel.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Visitor
+    participant UI as Marketplace UI
+    participant AG as Mission agent<br/>(MCP host)
+    participant MCP as MCP tools
+    participant GW as Kong gateway
+    participant DAB as DAB → Postgres
+    U->>UI: land (public) → sign in / explore
+    U->>UI: click a result row
+    UI->>GW: Material → SupplyRisk → PurchaseOrder → Vendor (nested, each with a token)
+    GW->>DAB: governed reads (cost fields redacted)
+    DAB-->>UI: assembled record + correlation ids
+    U->>AG: "What's at risk on Artemis-3?"
+    AG->>MCP: query_supply_risk(...)
+    MCP->>GW: GET /api/SupplyRisk (bearer)
+    GW->>DAB: governed read
+    DAB-->>AG: rows
+    AG-->>U: cited answer + ranked cards / chart
+```
+
+### 🔎 1. Click-row drill-down — nested governed calls + field-level redaction (2 min)
+
+In the marketplace, run the headline query, then **click any result row** (e.g. the
+**Heat-pipe radiator panel**). A **centered floating modal** opens and *composes several
+governed gateway calls in sequence*:
+
+> **Material → SupplyRisk → PurchaseOrder → Vendor**
+
+— each hop is its own authenticated call through Kong with its own **correlation id**. The
+modal assembles the full product record: a **blueprint visual**, a risk banner, the material
+facts, the resolved **supplier** (CAGE code, past-performance score), and the recent purchase
+orders — and it footnotes the exact **correlation ids** plus the count of governed calls it
+made.
+
+> **Watch the redaction:** the modal states plainly that **net price/value and unit cost are
+> redacted at the gateway** — the same field-level governance every consumer gets. You are
+> looking at an assembled, multi-entity product record with the *sensitive* columns still
+> stripped, end to end.
+
+> **Say it:** "One human click fans out into a chain of *nested* governed calls — Material,
+> risk, purchase orders, the supplier — each authenticated and correlation-id'd, and the cost
+> fields never cross the gateway. This is how a real consuming app composes a rich record from
+> a governed data product without ever touching the database."
+
+### 🤖 2. The grounded mission agent — ask a risk question, get a *cited* answer (3 min)
+
+Click **“🚀 Ask the mission agent.”** This is a chat agent that is itself an **MCP host**: it
+answers by calling the MCP server's tools (`query_supply_risk`, `material_detail`), which reach
+data **only through Kong**. Every answer is **grounded** in governed data and **cites its
+source** — the MCP tool *and* the gateway correlation id.
+
+Run these three asks live:
+
+| Ask | What renders | The point |
+|---|---|---|
+| **“What's at risk on Artemis-3?”** | a short grounded summary **+ ranked material cards** (click a card → the same drill-down modal) | the agent answers the mission question from governed data, and cites `query_supply_risk` + the gw correlation id |
+| **“Show me risk stats by tier”** | a **bar chart** + a risk-tier distribution | analytics questions get a chart, still grounded + cited |
+| **“What's the weather on Mars?”** | a **sarcastic, space-themed refusal** that points you to a **Microsoft rep** | a grounded agent only speaks to the data product it was given — it won't hallucinate off-topic |
+
+> **In plain terms:** the agent does **not** make up answers. On-topic questions are routed to
+> an MCP tool that hits the gateway; off-topic ones are politely (and amusingly) refused. The
+> routing is **deterministic** by default — reliable and free for a live demo, and it *never*
+> hallucinates — with an optional Azure OpenAI phrasing upgrade (`AGENT_LLM=azure-openai`) that
+> still only sees gateway data and must still cite.
+
+> **Say it:** "This is the 'AI grounded on governed data over the open **MCP** standard' story.
+> The exact same tools **Copilot** or **Azure AI Foundry** would call. Ask it the mission
+> question — it answers from the governed product and *cites* the source. Ask it the weather on
+> Mars — it refuses, with personality, and sends you to your Microsoft rep to build the agent
+> that *does* do that, grounded on *your* governed data."
+
+### 🧩 3. Live add/remove of a federated source (2 min)
+
+The **DOT Transportation – Bridge Inventory** source is **pre-registered yet removable**, and
+the **“+ Add a data source”** wizard re-adds it — live, in Azure.
+
+1. On the DOT card, click the **✕** (remove) → the card disappears and the marketplace count
+   drops. The **registry is the source of truth**; the catalog reads it **live**, so the change
+   is immediate.
+2. Open the wizard and **re-add DOT** (id `dot-bridges`, path `/dot`, the transport upstream).
+   It reappears as a governed product — and queries route immediately, because the **`/dot` Kong
+   route is pre-baked** in the Azure deploy (ACA can't hot-reload Kong's admin, so the registry's
+   reload is a graceful no-op there while the route already exists).
+
+> [!NOTE]
+> **Why it just works in Azure:** locally the registry hot-reloads Kong's DB-less config to
+> add a route on the fly; in Azure there's no reachable Kong admin or shared volume, so the
+> **`/dot` route is pre-baked** and the registry runs **single-replica** (its source list is
+> ephemeral). `liveOnboarding: true` tells the UI to show the add/remove controls. Either way,
+> **no source is ever modified** — only the gateway (and the catalog that reads the registry)
+> learns about it. Deep dive: [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md).
+
+> **Say it:** "A marketplace is only real if a *new* source can arrive — and leave — without
+> copying data or touching the source. Watch: I remove DOT, the catalog updates live; I re-add
+> it through the wizard, and it routes through the same governed front door immediately. One
+> token, one gateway, sources coming and going behind it."
 
 ---
 
@@ -553,7 +686,11 @@ See [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md) · [`AZURE-LIVE-DEPLOYMENT.md`]
 |---|---|---|
 | Local `make demo` hangs on "wait-for-healthy" | a default port (8000/8081/8080/3000) is already bound | set `KONG_PROXY_PORT` etc. in `.env`; see [`LOCAL-DEV.md`](LOCAL-DEV.md) |
 | Azure sign-in succeeds but the app returns 401 | EasyAuth hybrid flow needs **ID-token issuance** on the app registration | re-run `scripts/azure-deploy-fullstack.sh` (sets it) or enable it in the Entra app reg |
-| Wrong-tenant account rejected at the UI | single-tenant EasyAuth — *expected* | sign in with a `@limitlessdata.ai` account |
+| Wrong-tenant account rejected at the UI | single-tenant Entra — *expected* | sign in with a `@limitlessdata.ai` account |
+| Landing page loads but never prompts to sign in | *expected* — EasyAuth is **AllowAnonymous**; sign-in is deferred | click **“Sign in with Microsoft”**; or **“Explore the demo”** to enter anonymously |
+| Mission agent answers "couldn't reach the data product" | agent / MCP server still warming up, or the gateway is cold | wait a moment and retry; the agent degrades gracefully rather than crashing |
+| Agent refuses an on-topic question | the deterministic router didn't see a supply-chain keyword | rephrase with a term like *risk*, *material*, *vendor*, *delay*, or a program name |
+| Re-added DOT source returns 404 from the gateway | the `/dot` route isn't pre-baked in this deploy | re-run `scripts/azure-deploy-fullstack.sh` (it pre-bakes `/dot`); locally the registry hot-reloads Kong |
 | `curl` returns `400 Over-broad query blocked` | you asked for `$first > 200` (OWASP API4 guard) | lower `$first`, or page; this is the control working as designed |
 | `429` from the gateway | you exceeded the per-consumer rate cap (default 60/min) | honor the `Retry-After` header; raise `RATE_LIMIT_PER_MINUTE` in `.env` for local testing |
 | Databricks gateway-mode read returns no cost column | redaction is working — `anonymous` role excludes cost | use `--source-mode postgres` for the privileged full-fidelity read |

@@ -160,6 +160,9 @@ echo "==> 5. registry (DOT pre-seeded + removable) + catalog (reads the registry
 SEED_DOT="[{\"id\":\"dot-bridges\",\"title\":\"DOT Transportation - Bridge Inventory\",\"upstream_url\":\"https://$TRANSPORT_FQDN\",\"base_path\":\"/dot\",\"owner\":\"US DOT (synthetic)\",\"domain\":\"Transportation / Infrastructure\",\"classification_label\":\"Routine\",\"require_jwt\":true,\"sample_path\":\"/dot/api/Bridge?\$orderby=condition_rating asc&\$first=8\"}]"
 REG_FQDN="$(deploy registry registry:latest 8095 \
   --env-vars REGISTRY_PORT=8095 "KONG_ADMIN_INTERNAL_URL=https://$KONG_FQDN" "SEED_SOURCES_JSON=$SEED_DOT")"
+# Pin the registry to ONE replica: its source list is in-memory/ephemeral per replica, so
+# multiple replicas would diverge (a remove on one wouldn't be seen by the catalog's read).
+az containerapp update -g "$RG" -n registry --min-replicas 1 --max-replicas 1 -o none 2>/dev/null || true
 CAT_FQDN="$(deploy catalog catalog:latest 8080 \
   --env-vars "KONG_PUBLIC_URL=https://$KONG_FQDN" "REGISTRY_INTERNAL_URL=https://$REG_FQDN")"
 
@@ -200,7 +203,9 @@ APPID="$(az ad app create --display-name artemis-ui-easyauth --sign-in-audience 
   --web-redirect-uris "https://$FE_FQDN/.auth/login/aad/callback" --query appId -o tsv)"
 SECRET="$(az ad app credential reset --id "$APPID" --append --display-name easyauth --query password -o tsv)"
 az containerapp auth microsoft update -g "$RG" -n frontend --client-id "$APPID" --client-secret "$SECRET" --tenant-id "$TENANT" --yes -o none
-az containerapp auth update -g "$RG" -n frontend --action RedirectToLoginPage --redirect-provider azureactivedirectory --enabled true -o none
+# AllowAnonymous (not RedirectToLoginPage): the SPA shows a PUBLIC landing page with a
+# "Sign in with Microsoft" button (deferred auth, DOT-style) — so don't auto-redirect.
+az containerapp auth update -g "$RG" -n frontend --action AllowAnonymous --redirect-provider azureactivedirectory --enabled true -o none
 
 echo
 echo "================ FULL STACK DEPLOYED ================"

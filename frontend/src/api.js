@@ -9,10 +9,10 @@ const CFG = window.APP_CONFIG || {
 
 export const ENDPOINTS = CFG;
 
-// Live "add/remove a source" needs the registry's shared base-config volume + Kong's
-// admin port — both present locally but NOT in the Azure Container Apps deploy (one
-// ingress port per app, no shared volume), where sources are pre-registered. The deploy
-// sets `liveOnboarding: false` so the UI hides those controls instead of erroring.
+// Whether the UI offers the live "add/remove a source" wizard. Enabled both locally and
+// in Azure: the registry is the source of truth (the catalog reads it live), DOT is
+// pre-seeded yet removable, and a re-added DOT routes through the pre-baked /dot Kong
+// route. A deploy can set `liveOnboarding: false` to hide those controls.
 export const LIVE_ONBOARDING = CFG.liveOnboarding !== false;
 
 export async function getToken(consumer = "analyst") {

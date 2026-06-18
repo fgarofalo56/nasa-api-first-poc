@@ -126,7 +126,7 @@ flowchart LR
 ## 🧩 The primers (what you will learn in each)
 
 > [!NOTE]
-> The primers are **six numbered chapters**, ordered so each builds on the last. Read
+> The primers are **seven numbered chapters**, ordered so each builds on the last. Read
 > them top to bottom for the full arc, or jump to the one you need. The **"grounded
 > in"** column points to the deep-dive doc and the exact code each chapter draws on, so
 > you can always go deeper.
@@ -139,14 +139,16 @@ flowchart LR
 | 4 | [`04-identity-jwt-oauth.md`](04-identity-jwt-oauth.md) | What an OAuth2 bearer token / JWT is, how RS256 signing + a JWKS let the gateway trust a token, the full mint → present → validate handshake, and why the local issuer stands in for **Microsoft Entra ID**. | [`SECURITY.md`](../SECURITY.md) · [`services/identity`](../../services/identity) |
 | 5 | [`05-lakehouse-databricks.md`](05-lakehouse-databricks.md) | The lakehouse from zero: **Delta Lake**, the **Bronze/Silver/Gold medallion**, **Unity Catalog**, **Databricks SQL**, and **Delta Sharing** — and how the lakehouse is just another governed consumer reading *through* the gateway. | [`DATABRICKS-WALKTHROUGH.md`](../DATABRICKS-WALKTHROUGH.md) · [`databricks`](../../databricks) |
 | 6 | [`06-observability-and-security.md`](06-observability-and-security.md) | Metrics vs logs vs traces and the Kong → Prometheus → Grafana pipeline, plus defense-in-depth security as four layers (identity, OWASP gateway controls, classify-before-exposure, field-level redaction). Includes the OWASP API Top 10 mapping. | [`SECURITY.md`](../SECURITY.md) · [`observability`](../../observability) · [`data/classification.yml`](../../data/classification.yml) |
+| 7 | [`07-mcp-and-agents.md`](07-mcp-and-agents.md) | What an **agent** and the open **Model Context Protocol (MCP)** are from first principles, then how this repo's **grounded mission agent** answers supply-chain questions through the gateway (UI → agent → MCP tools → Kong → DAB), why grounding + governance means the agent can't exceed what the gateway serves (rate limits, metering, redaction all hold), and the off-topic-refusal behavior — every answer cites its source. | [`services/agent`](../../services/agent) · [`services/mcp`](../../services/mcp) · [`frontend/src/components/AgentChat.jsx`](../../frontend/src/components/AgentChat.jsx) |
 
 > [!TIP]
 > Two reference companions sit beside the primers: the
 > [`GLOSSARY.md`](../GLOSSARY.md) (every term and SAP field name in one place) and the
 > [`API.md`](../API.md) contract reference (the exact routes, token flow, and status
 > contract). Multi-source federation and the onboarding wizard are covered in
-> [`ADD-A-SOURCE.md`](../ADD-A-SOURCE.md); the MCP agent path in
-> [`services/mcp`](../../services/mcp).
+> [`ADD-A-SOURCE.md`](../ADD-A-SOURCE.md); the grounded agent and the open **MCP** tool
+> path get their own teaching chapter, [`07 MCP & Agents`](07-mcp-and-agents.md), over the
+> code in [`services/agent`](../../services/agent) and [`services/mcp`](../../services/mcp).
 
 ---
 
@@ -161,11 +163,13 @@ flowchart TD
     Q -->|"Build / run it"| DEV["Engineer path"]
     Q -->|"Secure / govern it"| SEC["Security path"]
     Q -->|"Take it to Azure"| CLOUD["Cloud path"]
+    Q -->|"Add AI / agents"| AI["AI / agent path"]
 
     EXEC --> E1["01 Big Idea"]
     DEV --> D1["02 Gateways · 03 DAB · 04 Identity"]
     SEC --> S1["04 Identity · 06 Observability & Security"]
     CLOUD --> C1["02 Gateways · 05 Lakehouse · 06 Observability & Security"]
+    AI --> A1["02 Gateways · 04 Identity · 07 MCP & Agents"]
 ```
 
 | If you are a… | Read these primers, in order | Then run |
@@ -174,6 +178,7 @@ flowchart TD
 | **Application engineer** (wants to consume the API) | [`02 API Gateways`](02-api-gateways.md) → [`03 Data API Builder`](03-data-api-builder.md) → [`04 Identity`](04-identity-jwt-oauth.md) | [`DEMO-SCRIPT.md`](../DEMO-SCRIPT.md) |
 | **Security / governance** (wants the controls) | [`04 Identity`](04-identity-jwt-oauth.md) → [`06 Observability & Security`](06-observability-and-security.md) | [`SECURITY.md`](../SECURITY.md) · [`ZERO-MOVE.md`](../ZERO-MOVE.md) |
 | **Cloud / platform engineer** (wants Azure) | [`02 API Gateways`](02-api-gateways.md) → [`05 The Lakehouse`](05-lakehouse-databricks.md) → [`06 Observability & Security`](06-observability-and-security.md) | [`AZURE-LIVE-DEPLOYMENT.md`](../AZURE-LIVE-DEPLOYMENT.md) |
+| **AI / agent builder** (wants grounded AI over the data) | [`02 API Gateways`](02-api-gateways.md) → [`04 Identity`](04-identity-jwt-oauth.md) → [`07 MCP & Agents`](07-mcp-and-agents.md) | [`DEMO-SCRIPT.md`](../DEMO-SCRIPT.md) · [`services/agent`](../../services/agent) |
 
 ---
 

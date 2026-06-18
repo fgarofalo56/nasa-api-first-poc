@@ -33,10 +33,13 @@ system at a whiteboard.
 - [🔀 Azure ↔ local/OSS mapping](#-azure--localoss-mapping)
 - [🧩 The components, and why each one is here](#-the-components-and-why-each-one-is-here)
 - [🏗️ The zero-move request flow](#️-the-zero-move-request-flow)
+- [🤖 The grounded mission agent (MCP host → gateway)](#-the-grounded-mission-agent-mcp-host--gateway)
 - [🌐 Networks: how zero-move is enforced](#-networks-how-zero-move-is-enforced)
 - [🛡️ The Kong plugin chain (and where it is configured)](#️-the-kong-plugin-chain-and-where-it-is-configured)
 - [🔐 Field-level redaction: defense in depth](#-field-level-redaction-defense-in-depth)
+- [🔎 Drill-down detail: nested governed calls](#-drill-down-detail-nested-governed-calls)
 - [✨ Multi-source federation + control plane](#-multi-source-federation--control-plane)
+- [🖥️ The UI: public landing + deferred auth](#️-the-ui-public-landing--deferred-auth)
 - [🧭 Where to next](#-where-to-next)
 
 ---
@@ -92,13 +95,16 @@ identity provider, one catalog, one monitoring plane.
 ```mermaid
 flowchart TB
     subgraph consumers["Consumers"]
-        USER["Analyst / app"]
-        AGENT["AI agent<br/>(Copilot · Foundry · MCP host)"]
+        USER["Analyst / app<br/>(SPA: landing → catalog → query → drill-down)"]
+        CHAT["Mission-agent chat<br/>(grounded NL questions)"]
+        AGENT["AI agent host<br/>(Copilot · Foundry · MCP host)"]
     end
 
     ENTRA["Microsoft Entra ID<br/>(OAuth2 / OIDC — issues JWTs)"]
 
     subgraph azure["Azure subscription (commercial or Azure Government)"]
+        AGENTSVC["Mission agent (MCP host)<br/>on Azure Container Apps<br/>deterministic routing · cites source"]
+        MCPSVC["MCP server<br/>query_supply_risk · material_detail<br/>(the same tools Copilot/Foundry call)"]
         APIM["Azure API Management<br/>validate-azure-ad-token · rate-limit-by-key<br/>correlation id · AI-gateway token metering<br/>(the ONLY door to data)"]
         subgraph vnet["Spoke VNet — production-hardened zero-move (network.bicep)"]
             CAE["Container Apps Environment<br/>(VNet-injected)"]
@@ -114,8 +120,11 @@ flowchart TB
 
     USER -->|get token| ENTRA
     AGENT -->|get token| ENTRA
+    CHAT -->|"/ask"| AGENTSVC
+    AGENTSVC -->|MCP tool call| MCPSVC
+    AGENT -->|MCP tool call| MCPSVC
+    MCPSVC -->|"Bearer token"| APIM
     USER -->|"Bearer token"| APIM
-    AGENT -->|"Bearer token"| APIM
     APIM -->|REST / OData| CAE
     CAE --> DAB
     DAB -->|private endpoint only| PE
@@ -128,6 +137,8 @@ flowchart TB
     style APIM fill:#cce5ff
     style PG fill:#d4edda
     style ENTRA fill:#fff3cd
+    style AGENTSVC fill:#ffe6cc
+    style MCPSVC fill:#ffe6cc
 ```
 
 A few things to understand from this picture:
@@ -143,6 +154,17 @@ A few things to understand from this picture:
   `llm-emit-token-metric`) that would extend the same metering idea to large-language-model
   traffic — noted in the module as the future-proofing path for agent consumers, though the
   shipped reference policy enforces only JWT + rate-limit + correlation id.
+- **The grounded mission agent is just another governed consumer.** The agent
+  ([`services/agent/agent.py`](../services/agent/agent.py)) is an **MCP host**: it answers
+  natural-language chat questions by calling the MCP server's tools
+  (`query_supply_risk`, `material_detail`), which reach data **only through the gateway**.
+  It never queries the database and it cannot exceed what the gateway serves — so rate
+  limiting, metering, field-level redaction, and audit govern the agent *for free*. Every
+  answer **cites its source** (the MCP tool plus the gateway correlation id), and off-topic
+  questions are refused outright. In Azure the agent maps to **Copilot Studio / Azure AI
+  Foundry**, the MCP server runs on Container Apps, and consumer `artemis-agent` maps to a
+  **Microsoft Entra Agent ID** — the *same MCP tools Copilot would call*. This is the "AI
+  grounded on governed data over the open MCP standard" story.
 - **Data API Builder runs on Azure Container Apps.** DAB is a real Microsoft product
   (MIT-licensed) that turns a database into REST + GraphQL + OpenAPI **without you writing
   an API**. In Azure it runs as a container app; locally it runs as a container. Same
@@ -186,7 +208,8 @@ once and promote by swapping; the *contract* each piece honors stays the same.
 | API catalog / discovery | APIM developer portal / **Azure API Center** | **catalog** service (FastAPI) | Discoverable entry: title, owner, classification, request path, OpenAPI URL |
 | Schema discovery | DAB `/api/openapi` (Dataverse `$metadata` analogue) | DAB `/api/openapi` published *unauthenticated* via Kong | Schema is findable without tribal knowledge, the same way |
 | Classify + label before exposure | **Microsoft Purview** | `data/classification.yml` applied at seed (column comments) | Classify *before* exposure; same intent, same labels surfaced in the catalog |
-| Agent consumer | Copilot / Foundry / any **MCP** host | **MCP server** + Python client | Agent reaches the *governed surface*, never the database |
+| Agent tools (MCP) | Copilot / Foundry / any **MCP** host | **MCP server** (`query_supply_risk`, `material_detail`) + Python client | Agent reaches the *governed surface*, never the database |
+| Grounded chat agent | **Copilot Studio / Azure AI Foundry** (consumer ↔ Entra Agent ID) | **agent** service (FastAPI MCP host; deterministic routing, cites source) | Same pattern: the agent is one more governed consumer, capped by the gateway |
 | Observability / metering | **Azure Monitor / Log Analytics** | **Prometheus + Grafana** | Per-consumer call counts + latency; same metrics shape |
 | Analytics platform | **Azure Databricks + Unity Catalog + Delta** | documented + reference notebooks under [`databricks/`](../databricks/) | Managed UC + Databricks SQL at FedRAMP High; see [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md) |
 
@@ -214,10 +237,11 @@ startup so nothing comes up before its dependencies are ready.
 | `kong` | The gateway — the **only** path to data; enforces the plugin chain | `internal` + `edge` | 8000/8001/8002 | Azure API Management |
 | `catalog` | Marketplace entry: lists products with owner, classification, request path | `edge` | 8080 | APIM portal / API Center |
 | `registry` | Control plane for the onboarding wizard; hot-reloads Kong with new sources | `edge` | 8095 | API Management / API Center registration |
-| `mcp` | MCP server exposing `query_supply_risk` as an agent tool, through Kong | `edge` | 8090 | Copilot / Foundry / MCP host |
+| `mcp` | MCP server exposing `query_supply_risk` + `material_detail` as agent tools, through Kong | `edge` | 8090 | Copilot / Foundry / MCP host |
+| `agent` | Grounded mission agent — an **MCP host** that answers chat questions by calling the MCP tools (UI → agent → MCP → Kong) | `edge` | 8110 | Copilot Studio / Azure AI Foundry |
 | `prometheus` | Scrapes Kong's per-consumer metrics (`observability` profile) | `edge` | 9090 | Azure Monitor |
 | `grafana` | Dashboards over Prometheus (`observability` profile) | `edge` | 3000 | Azure Monitor / Workbooks |
-| `frontend` | Optional NASA-themed catalog UI + onboarding wizard (`frontend` profile) | `edge` | 5173 | a portal SPA |
+| `frontend` | Optional NASA-themed UI — **public landing page**, catalog, query console, drill-down detail, onboarding wizard, and the **mission-agent chat** (`frontend` profile) | `edge` | 5173 | a portal SPA |
 
 > [!TIP]
 > Profiles keep the stack lean: `core` is the demo, `observability` adds Prometheus +
@@ -299,10 +323,82 @@ SQL against **Postgres** and returns the rows. The answer comes back with an
 
    catalog    ── publishes OpenAPI + owner + classification + request path
    registry   ── adds new sources to Kong at runtime (control plane)
+   mcp/agent  ── grounded AI path: agent -> MCP tools -> Kong (same door, cites source)
    prometheus ── per-consumer call + latency metrics  (Azure Monitor in Azure)
 ```
 
 </details>
+
+---
+
+## 🤖 The grounded mission agent (MCP host → gateway)
+
+The newest consumer in the stack is an **AI agent** — and it is the clearest answer to the
+question "can my AI assistant query this data safely?" The answer is: yes, because the
+agent is *just one more governed consumer*. It reaches the data on the exact same path
+every other client does, and the gateway governs it for free.
+
+In the UI a chat widget ([`frontend/src/components/AgentChat.jsx`](../frontend/src/components/AgentChat.jsx))
+POSTs a natural-language question to the **agent** service's `/ask`
+([`services/agent/agent.py`](../services/agent/agent.py)). The agent is an **MCP host**:
+it calls the **MCP server**'s tools
+([`services/mcp/server.py`](../services/mcp/server.py)) over the open Model Context
+Protocol, and those tools fetch a token for consumer `artemis-agent` and call **Kong** —
+never the database.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Chat widget (SPA)
+    participant A as Agent (MCP host)
+    participant M as MCP server
+    participant I as Identity issuer
+    participant K as Kong gateway
+    participant D as DAB → Postgres
+
+    U->>A: POST /ask {question}
+    Note over A: ON_TOPIC regex gates the request<br/>off-topic → sassy refusal (NO tool call, NO source)<br/>deterministic routing picks the tool
+    A->>M: MCP call query_supply_risk / material_detail
+    M->>I: POST /token {consumer: artemis-agent}
+    I-->>M: RS256 bearer token
+    M->>K: GET /api/... (Bearer token)
+    K->>D: proxied (internal network only)
+    D-->>K: rows (redacted columns)
+    K-->>M: JSON + X-Correlation-ID
+    M-->>A: structured payload + gateway correlation id
+    A-->>U: grounded answer + cards/chart + 🔗 Source (tool + correlation id)
+```
+
+What makes this a *grounded* agent rather than a chatbot:
+
+- **The agent exposes exactly two tools** — the whole of its capability:
+  `query_supply_risk(program, min_delay, criticality, sole_source_only)` runs one governed
+  `GET /api/SupplyRisk` with an OData `$filter`/`$orderby`; `material_detail(material)`
+  composes several gateway calls (`SupplyRisk → PurchaseOrder → Vendor`) for one material.
+  Net price/value and unit cost are **redacted at the gateway**, even for the agent.
+- **Routing is deterministic, not LLM-driven.** The agent uses regular expressions to pick
+  the tool and parse parameters — reliable, free to run in a live demo, and it can never
+  hallucinate a tool call or an answer. An LLM is strictly **opt-in** (set
+  `AGENT_LLM=azure-openai` with the `AZURE_OPENAI_*` env): it only *phrases* the grounded
+  answer, still sees only gateway data, and still must cite.
+- **Every grounded answer cites its source.** The response carries a `sources` block — the
+  MCP tool name plus the gateway `X-Correlation-ID` — surfaced in the chat as a
+  "🔗 Source" line. That citation is the proof the answer came from governed data.
+- **Off-topic questions are refused.** An `ON_TOPIC` regex gates every request; anything
+  off-mission gets a space-themed refusal that points the user to a Microsoft rep — and
+  crucially, **no tool is called and no source block is emitted**. The *absence* of a
+  citation is the tell that the agent declined to ground an answer (and it saved a metered
+  gateway call doing so).
+- **Rich, grounded rendering.** The chat renders the structured result inline: ranked
+  **material cards** (click → the drill-down modal), a **bar chart** for stats/analytics
+  questions (which broaden the filter for a fuller picture), and a **detail card** for a
+  single material.
+
+> **Why this matters:** the agent cannot exceed what the gateway serves. Rate limiting,
+> per-consumer metering, field-level redaction, and audit apply to it automatically,
+> because it is on the *same governed path* as a human. In Azure this is the
+> Copilot Studio / Azure AI Foundry story — the agent calls the **same MCP tools** a
+> Copilot would, with consumer `artemis-agent` mapping to a Microsoft Entra Agent ID.
 
 ---
 
@@ -329,7 +425,7 @@ from your laptop and from any client.
 | Network | `internal:` flag | Services attached | What it means |
 |---|---|---|---|
 | `internal` | `true` (no egress) | `postgres`, `seeder`, `dab`, `transportation`, `kong` | Sources live here with **no host ports** — unreachable from clients |
-| `edge` | bridge | `kong`, `identity`, `catalog`, `registry`, `mcp`, `prometheus`, `grafana`, `frontend` | Consumers, UI, and control plane reach a source **only via Kong** |
+| `edge` | bridge | `kong`, `identity`, `catalog`, `registry`, `mcp`, `agent`, `prometheus`, `grafana`, `frontend` | Consumers, UI, the agent, and the control plane reach a source **only via Kong** |
 
 **`kong` is the only service attached to both networks.** It listens for clients on `edge`
 and reaches DAB/Postgres on `internal`. That dual-homing is the entire trick: it is the
@@ -338,7 +434,7 @@ single bridge between "where consumers are" and "where the data is."
 ```mermaid
 flowchart LR
     subgraph edge["edge network (bridge — reachable from your laptop)"]
-        CLI["clients · catalog · registry · mcp · grafana · frontend"]
+        CLI["clients · catalog · registry · mcp · agent · grafana · frontend"]
     end
     subgraph internal["internal network (internal: true — NO host ports, NO egress)"]
         DAB["DAB"]
@@ -467,6 +563,46 @@ redacted view. Field-level redaction is therefore *guaranteed*, not accidental.
 
 ---
 
+## 🔎 Drill-down detail: nested governed calls
+
+A single API call answers "what is at risk?". Answering "tell me *everything* about this
+one material" takes a *composed* record — and the POC builds it the right way: as **several
+nested calls through the gateway**, never a back-door join against the database.
+
+Clicking any result row (in the query console *or* on an agent card) opens a **centered
+floating modal** ([`frontend/src/components/ProductDetail.jsx`](../frontend/src/components/ProductDetail.jsx)),
+which calls the MCP/agent `material_detail` tool. That tool assembles the full product
+record from a chain of governed gateway calls:
+
+```mermaid
+flowchart LR
+    CLICK["click a row / agent card"] --> MD["material_detail"]
+    MD -->|"1 · GET /api/SupplyRisk"| RISK["risk tier · score · avg delay"]
+    MD -->|"2 · GET /api/PurchaseOrder ($filter matnr)"| POS["recent purchase orders"]
+    MD -->|"3 · GET /api/Vendor"| VEN["supplier · CAGE code"]
+    RISK --> REC["assembled record + blueprint visual"]
+    POS --> REC
+    VEN --> REC
+    REC --> IDS["shows the gateway correlation ids<br/>net price / value + unit cost REDACTED"]
+    style MD fill:#cce5ff
+```
+
+The modal shows the assembled record, a blueprint visual for the component, and — the
+governance payoff — **the gateway correlation ids for every hop** plus a note that net
+price/value and unit cost are **redacted at the gateway**. Each nested hop is independently
+authenticated, rate-limited, metered, and correlation-id-stamped, exactly like a top-level
+call.
+
+> **Why this matters:** a composed/nested read is the realistic shape of a "give me the
+> 360° view" request. Doing it through the gateway proves the zero-move pattern holds even
+> for rich, multi-entity records — the convenience of a joined view *without* surrendering
+> per-call governance or copying data into a denormalized store. Result tables also use
+> human-friendly column labels (Material, Risk tier, Avg delay…) via
+> [`frontend/src/labels.js`](../frontend/src/labels.js), so the governed surface reads like
+> a product, not a raw schema.
+
+---
+
 ## ✨ Multi-source federation + control plane
 
 A real marketplace fronts **many** sources, and you must be able to add a source
@@ -509,12 +645,59 @@ How registration actually works (see [`services/registry/app.py`](../services/re
 
 **The catalog reflects both paths.** [`services/catalog/app.py`](../services/catalog/app.py)
 lists the built-in Artemis product (from `catalog.json`, enriched with the classification
-from `classification.yml`) *and* every dynamically registered source. In Azure — where
-there is no shared volume — the catalog reads pre-registered sources from a `SOURCES_JSON`
-environment variable instead of the shared `sources.json` file, which is why the same
-service works in both deployments.
+from `classification.yml`) *and* every dynamically registered source.
+
+**Live add/remove works in Azure too — with the registry as the source of truth.** The
+full-stack Azure deployment ([`scripts/azure-deploy-fullstack.sh`](../scripts/azure-deploy-fullstack.sh))
+sets `liveOnboarding: true`: the catalog reads the **registry** live, so a source can be
+added *and removed* in the deployed UI. DOT transportation is **pre-seeded yet removable**
+— the wizard re-adds it — and its `/dot` Kong route is **pre-baked** into the gateway
+image, so a re-added DOT routes immediately even though ACA cannot hot-reload Kong's admin
+port the way local DB-less Kong does. The registry runs as a **single replica** in Azure
+because its source list is ephemeral (it is the live system of record for add/remove), and
+the catalog can also fall back to a `SOURCES_JSON` environment variable — which is why the
+same services work in both deployments.
 
 See [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md) for the end-to-end wizard walkthrough.
+
+---
+
+## 🖥️ The UI: public landing + deferred auth
+
+The optional SPA ([`frontend/`](../frontend/)) is the human face of the marketplace, and it
+models a real-world entry pattern: **a public landing page with deferred authentication**.
+Rather than auto-redirecting every visitor to a login wall on load, the app starts on a
+public landing page ([`frontend/src/components/Landing.jsx`](../frontend/src/components/Landing.jsx))
+showing the NASA logo, the zero-move value proposition, and two clear choices — **"Sign in
+with Microsoft"** (Entra, via the Container Apps / App Service EasyAuth endpoint
+`/.auth/login/aad`) or **"Explore the demo."** Authentication is gated by an `authEnabled`
+config flag and an `authStatus()` check, so sign-in is *offered*, not *forced* — the
+DOT-style deferred-auth pattern.
+
+```mermaid
+flowchart TD
+    VISIT["visitor lands"] --> LAND["Public landing page<br/>(AllowAnonymous · authEnabled flag)"]
+    LAND -->|"Sign in with Microsoft"| ENTRA["Entra EasyAuth<br/>/.auth/login/aad"]
+    LAND -->|"Explore the demo →"| APP
+    ENTRA --> APP["Marketplace app"]
+    APP --> CAT["catalog cards<br/>(built-in + wizard-added)"]
+    APP --> QC["query console<br/>(through the gateway)"]
+    APP --> AG["🚀 mission-agent chat<br/>(grounded · MCP)"]
+    QC -->|"click a row"| DET["drill-down modal<br/>(nested governed calls)"]
+    AG -->|"click a card"| DET
+    style LAND fill:#fff3cd
+    style AG fill:#ffe6cc
+```
+
+Once inside, the app ([`frontend/src/App.jsx`](../frontend/src/App.jsx)) presents the
+catalog of data products (built-in and wizard-added, with origin and classification chips),
+a query console that calls the gateway, the **drill-down detail modal**, and the docked
+**mission-agent chat** (the 🚀 launcher) — all wired so a click in the console *or* the chat
+opens the same governed drill-down. The synthetic-data banner is always present.
+
+> **Why this matters:** a public landing page lets a stakeholder *see the value before
+> signing in*, while keeping Entra sign-in one click away for the gated experience — the
+> same split a production data-product portal would use.
 
 ---
 
@@ -524,6 +707,7 @@ See [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md) for the end-to-end wizard walkthrough.
 |---|---|
 | Prove the zero-move guarantee yourself | [`ZERO-MOVE.md`](ZERO-MOVE.md) + [`tests/test_zero_move.py`](../tests/test_zero_move.py) |
 | Onboard a second source live | [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md) |
+| See the grounded agent + drill-down | [`services/agent/agent.py`](../services/agent/agent.py) · [`services/mcp/server.py`](../services/mcp/server.py) · [`frontend/src/components/ProductDetail.jsx`](../frontend/src/components/ProductDetail.jsx) |
 | Deploy the managed-Azure target | [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md) + [`infra/azure/`](../infra/azure/) |
 | Run the live presenter demo | [`DEMO-SCRIPT.md`](DEMO-SCRIPT.md) |
 | See the full component contracts | [`PRP.md`](../PRP.md) §2 and §6 |
