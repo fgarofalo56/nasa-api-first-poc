@@ -9,10 +9,10 @@ table delay_trend
 
 	column order_month
 		dataType: dateTime
+		formatString: General Date
 		lineageTag: a76df42c-dffb-5115-8250-b7f0dea8ac25
 		summarizeBy: none
 		sourceColumn: order_month
-		formatString: General Date
 
 	column po_count
 		dataType: int64
@@ -41,11 +41,11 @@ table delay_trend
 	partition delay_trend = m
 		mode: directQuery
 		source =
-			let
-			    Source = Databricks.Catalogs(DatabricksServerHostname, DatabricksHttpPath, [Catalog=null, Database=null, EnableAutomaticProxyDiscovery=null]),
-			    Catalog = Source{[Name=CatalogName, Kind="Database"]}[Data],
-			    Schema = Catalog{[Name="gold", Kind="Schema"]}[Data],
-			    Data = Schema{[Name="delay_trend", Kind="Table"]}[Data]
-			in
-			    Data
+				let
+				    Source = Databricks.Catalogs(DatabricksServerHostname, DatabricksHttpPath, [Catalog=null, Database=null, EnableAutomaticProxyDiscovery=null]),
+				    Catalog = Source{[Name=CatalogName, Kind="Database"]}[Data],
+				    Schema = Catalog{[Name="gold", Kind="Schema"]}[Data],
+				    Data = Schema{[Name="delay_trend", Kind="Table"]}[Data]
+				in
+				    Data
 

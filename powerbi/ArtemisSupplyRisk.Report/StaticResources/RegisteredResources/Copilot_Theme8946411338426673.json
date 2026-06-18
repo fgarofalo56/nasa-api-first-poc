@@ -1,0 +1,23 @@
+{
+  "name": "NASA Artemis",
+  "dataColors": ["#FC3D21", "#0B3D91", "#1B4F9C", "#7FA9D8", "#FF9E1B", "#3DDC97", "#E03C31", "#0A1F4D", "#50E6FF", "#CFE8FF"],
+  "background": "#FFFFFF",
+  "secondaryBackground": "#F2F6FC",
+  "foreground": "#0B3D91",
+  "foregroundNeutralSecondary": "#1B4F9C",
+  "tableAccent": "#FC3D21",
+  "good": "#3DDC97",
+  "neutral": "#FF9E1B",
+  "bad": "#FC3D21",
+  "maximum": "#FC3D21",
+  "center": "#FF9E1B",
+  "minimum": "#0B3D91",
+  "null": "#CFE8FF",
+  "hyperlink": "#0B3D91",
+  "textClasses": {
+    "title":   { "color": "#0B3D91", "fontFace": "Segoe UI Semibold" },
+    "header":  { "color": "#0B3D91", "fontFace": "Segoe UI Semibold" },
+    "callout": { "color": "#FC3D21", "fontFace": "Segoe UI Semibold" },
+    "label":   { "color": "#1B1B1B", "fontFace": "Segoe UI" }
+  }
+}

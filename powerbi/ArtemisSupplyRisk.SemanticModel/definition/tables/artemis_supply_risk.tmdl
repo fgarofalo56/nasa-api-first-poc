@@ -1,6 +1,30 @@
 table artemis_supply_risk
 	lineageTag: e26fea78-5f38-5ac1-96b8-887f53094e88
 
+	measure 'High Risk Materials' = CALCULATE(COUNTROWS('artemis_supply_risk'), 'artemis_supply_risk'[risk_tier] = "High")
+		formatString: #,##0
+		lineageTag: 154dc751-03ec-5821-be20-0cb6b88872d4
+
+	measure 'Critical Slips >30d' = CALCULATE(COUNTROWS('artemis_supply_risk'), 'artemis_supply_risk'[criticality] = "Critical", 'artemis_supply_risk'[sole_source] = TRUE, 'artemis_supply_risk'[avg_delay_days] > 30)
+		formatString: #,##0
+		lineageTag: 0f94df55-a134-5f79-9613-fd6b6f64c4ec
+
+	measure 'Sole-Source Exposure ($)' = CALCULATE(SUM('artemis_supply_risk'[total_committed_usd]), 'artemis_supply_risk'[sole_source] = TRUE)
+		formatString: \$#,##0
+		lineageTag: 9c954030-2060-573e-9092-4a8daaf6d7b6
+
+	measure 'Pad Anomalies' = SUM('artemis_supply_risk'[pad_anomalies])
+		formatString: #,##0
+		lineageTag: f5bb33f2-1631-577e-81cd-13afdf6dc008
+
+	measure 'Avg Delay (days)' = AVERAGE('artemis_supply_risk'[avg_delay_days])
+		formatString: #,##0.0
+		lineageTag: a74871b2-5b55-5111-b999-b05526f6bfe9
+
+	measure 'Material Count' = COUNTROWS('artemis_supply_risk')
+		formatString: #,##0
+		lineageTag: c19a8d1c-41fb-54b8-8231-ec999747875f
+
 	column program
 		dataType: string
 		lineageTag: 2b8376f9-6c1c-550e-adab-102acfd6c4be
@@ -85,38 +109,14 @@ table artemis_supply_risk
 		summarizeBy: none
 		sourceColumn: pad_anomalies
 
-	measure 'High Risk Materials' = CALCULATE(COUNTROWS('artemis_supply_risk'), 'artemis_supply_risk'[risk_tier] = "High")
-		formatString: #,##0
-		lineageTag: 154dc751-03ec-5821-be20-0cb6b88872d4
-
-	measure 'Critical Slips >30d' = CALCULATE(COUNTROWS('artemis_supply_risk'), 'artemis_supply_risk'[criticality] = "Critical", 'artemis_supply_risk'[sole_source] = TRUE, 'artemis_supply_risk'[avg_delay_days] > 30)
-		formatString: #,##0
-		lineageTag: 0f94df55-a134-5f79-9613-fd6b6f64c4ec
-
-	measure 'Sole-Source Exposure ($)' = CALCULATE(SUM('artemis_supply_risk'[total_committed_usd]), 'artemis_supply_risk'[sole_source] = TRUE)
-		formatString: \$#,##0
-		lineageTag: 9c954030-2060-573e-9092-4a8daaf6d7b6
-
-	measure 'Pad Anomalies' = SUM('artemis_supply_risk'[pad_anomalies])
-		formatString: #,##0
-		lineageTag: f5bb33f2-1631-577e-81cd-13afdf6dc008
-
-	measure 'Avg Delay (days)' = AVERAGE('artemis_supply_risk'[avg_delay_days])
-		formatString: #,##0.0
-		lineageTag: a74871b2-5b55-5111-b999-b05526f6bfe9
-
-	measure 'Material Count' = COUNTROWS('artemis_supply_risk')
-		formatString: #,##0
-		lineageTag: c19a8d1c-41fb-54b8-8231-ec999747875f
-
 	partition artemis_supply_risk = m
 		mode: directQuery
 		source =
-			let
-			    Source = Databricks.Catalogs(DatabricksServerHostname, DatabricksHttpPath, [Catalog=null, Database=null, EnableAutomaticProxyDiscovery=null]),
-			    Catalog = Source{[Name=CatalogName, Kind="Database"]}[Data],
-			    Schema = Catalog{[Name="gold", Kind="Schema"]}[Data],
-			    Data = Schema{[Name="artemis_supply_risk", Kind="Table"]}[Data]
-			in
-			    Data
+				let
+				    Source = Databricks.Catalogs(DatabricksServerHostname, DatabricksHttpPath, [Catalog=null, Database=null, EnableAutomaticProxyDiscovery=null]),
+				    Catalog = Source{[Name=CatalogName, Kind="Database"]}[Data],
+				    Schema = Catalog{[Name="gold", Kind="Schema"]}[Data],
+				    Data = Schema{[Name="artemis_supply_risk", Kind="Table"]}[Data]
+				in
+				    Data
 

@@ -1,8 +1,0 @@
-{
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.4.0/schema.json",
-  "name": "overview",
-  "displayName": "Artemis Supply-Chain Risk",
-  "displayOption": "FitToPage",
-  "width": 1280,
-  "height": 720
-}

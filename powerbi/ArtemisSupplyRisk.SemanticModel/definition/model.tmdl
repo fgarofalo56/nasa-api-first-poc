@@ -4,10 +4,8 @@ model Model
 	discourageImplicitMeasures
 	sourceQueryCulture: en-US
 
-	annotation PBI_QueryOrder = ["DatabricksServerHostname","DatabricksHttpPath","CatalogName","artemis_supply_risk","delay_trend"]
+annotation PBI_QueryOrder = ["DatabricksServerHostname","DatabricksHttpPath","CatalogName","artemis_supply_risk","delay_trend"]
 
 ref table artemis_supply_risk
 ref table delay_trend
-ref expression DatabricksServerHostname
-ref expression DatabricksHttpPath
-ref expression CatalogName
+
