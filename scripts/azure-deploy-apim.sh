@@ -68,6 +68,25 @@ az apim product create -g "$RG" --service-name "$APIM" --product-id artemis \
   --approval-required false -o none 2>/dev/null || true
 az apim product api add -g "$RG" --service-name "$APIM" --product-id artemis --api-id artemis-procurement -o none
 
+echo "==> publish the Developer Portal (best-effort: works once default content is provisioned)"
+# The managed developer portal needs its default content provisioned ONCE from admin mode
+# (Azure portal -> API Management -> Developer portal -> Portal overview -> Publish, which
+# both provisions and publishes). There is no pure-CLI seed for default content (see
+# https://learn.microsoft.com/azure/api-management/automate-portal-deployments). Once
+# provisioned, this call republishes it automatically on every deploy so config changes
+# (new APIs, policy, sign-in) are reflected without a manual republish.
+PORTAL_PUB="$(az rest --method put \
+  --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/portalRevisions/initial?api-version=2022-08-01" \
+  --body '{"properties":{"description":"published by deploy script","isCurrent":true}}' \
+  -o none 2>&1 || true)"
+if echo "$PORTAL_PUB" | grep -qi "PreconditionFailed\|Provision does not exist"; then
+  echo "   NOTE: developer-portal content not provisioned yet — do the ONE-TIME publish:"
+  echo "         Azure portal -> $APIM -> Developer portal -> Portal overview -> Publish."
+  echo "         After that, re-running this script keeps it republished automatically."
+else
+  echo "   developer portal (re)published."
+fi
+
 echo "==> diagnostics: stream APIM GatewayLogs + metrics to Log Analytics (if present)"
 WSID="$(az monitor log-analytics workspace show -g "$RG" -n artemis-logs --query id -o tsv 2>/dev/null || true)"
 if [ -n "$WSID" ]; then

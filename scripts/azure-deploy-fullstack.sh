@@ -178,7 +178,11 @@ git checkout -- frontend/public/config.js   # restore the local default
 FE_FQDN="$(deploy frontend frontend:latest 80)"
 
 echo "==> 7. tenant-lock the front end with Entra EasyAuth (single-tenant)"
+# --enable-id-token-issuance is REQUIRED: ACA EasyAuth uses the hybrid flow
+# (response_type=code id_token, form_post), so without ID-token issuance the user signs in
+# successfully and then gets HTTP 401 from the app. (Found in browser E2E.)
 APPID="$(az ad app create --display-name artemis-ui-easyauth --sign-in-audience AzureADMyOrg \
+  --enable-id-token-issuance true \
   --web-redirect-uris "https://$FE_FQDN/.auth/login/aad/callback" --query appId -o tsv)"
 SECRET="$(az ad app credential reset --id "$APPID" --append --display-name easyauth --query password -o tsv)"
 az containerapp auth microsoft update -g "$RG" -n frontend --client-id "$APPID" --client-secret "$SECRET" --tenant-id "$TENANT" --yes -o none

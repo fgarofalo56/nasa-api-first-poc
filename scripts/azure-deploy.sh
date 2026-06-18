@@ -65,7 +65,10 @@ DABFQDN="$(az containerapp show -g "$RG" -n "$DABAPP" --query properties.configu
 
 echo "==> Entra EasyAuth (single-tenant — must be in the tenant to use it)"
 TENANT="$(az account show --query tenantId -o tsv)"
+# --enable-id-token-issuance is REQUIRED for ACA EasyAuth's hybrid flow (code id_token /
+# form_post); without it sign-in succeeds but the app returns HTTP 401.
 APPID="$(az ad app create --display-name artemis-dab-easyauth --sign-in-audience AzureADMyOrg \
+  --enable-id-token-issuance true \
   --web-redirect-uris "https://$DABFQDN/.auth/login/aad/callback" --query appId -o tsv)"
 SECRET="$(az ad app credential reset --id "$APPID" --append --display-name easyauth --query password -o tsv)"
 az containerapp auth microsoft update -g "$RG" -n "$DABAPP" \
