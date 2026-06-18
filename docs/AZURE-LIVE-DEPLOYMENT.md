@@ -68,9 +68,19 @@ flowchart TD
   Registry `https://registry.…`, DAB `https://artemis-dab.…`, Transport `https://transportation.…`
   (same `icyocean-479340e8.centralus.azurecontainerapps.io` domain).
 
-Verified live: the gateway returns the rich Artemis headline rows and the federated `/dot`
-bridge inventory (both governed by JWT + rate-limit + correlation id), and the UI is 401
-until tenant sign-in.
+Verified live (browser E2E): after Entra sign-in the NASA UI loads, runs the headline
+supply-risk query **through Kong** (HTTP 200 + a gateway correlation id + the ranked 6-row
+high-risk table), lists both data products, and renders the add-a-source wizard — no console
+errors. The gateway also serves the federated `/dot` bridge inventory (JWT + rate-limit +
+correlation id), and the UI is 401 until tenant sign-in.
+
+> [!IMPORTANT]
+> **EasyAuth gotcha (fixed in the deploy scripts):** ACA EasyAuth uses the hybrid flow
+> (`response_type=code id_token`, `form_post`), so the Entra app registration **must** have
+> **ID-token issuance enabled** (`az ad app create --enable-id-token-issuance true`).
+> Without it, sign-in *succeeds* and then the app returns **HTTP 401** — a silent
+> misconfiguration. Both `azure-deploy.sh` and `azure-deploy-fullstack.sh` now set this by
+> default.
 
 ## 🔐 Secrets, identity & observability
 
