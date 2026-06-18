@@ -102,6 +102,36 @@ az rest --method put \
   --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/policies/policy?api-version=2022-08-01" \
   --body @temp/apim-global-cors.json -o none 2>/dev/null || true
 
+echo "==> enable Microsoft Entra sign-in on the Developer Portal (tenant accounts)"
+# App registration for portal sign-in + the APIM 'aad' identity provider, so visitors
+# sign in with tenant accounts (matching the rest of the demo's tenant-lock). The default
+# username/password identity stays available too.
+PORTAL_URL="https://$APIM.developer.azure-api.net"
+PORTAL_APPID="$(az ad app list --display-name artemis-apim-portal --query '[0].appId' -o tsv 2>/dev/null)"
+if [ -z "$PORTAL_APPID" ]; then
+  PORTAL_APPID="$(az ad app create --display-name artemis-apim-portal \
+    --sign-in-audience AzureADMyOrg --enable-id-token-issuance true \
+    --web-redirect-uris "$PORTAL_URL/signin-aad" "$PORTAL_URL/signin" --query appId -o tsv)"
+fi
+PORTAL_SECRET="$(az ad app credential reset --id "$PORTAL_APPID" --append --display-name apim-portal --query password -o tsv 2>/dev/null)"
+# APIM's dev-portal sign-in requests legacy Azure AD Graph User.Read — add it + consent,
+# else sign-in fails with AADSTS650056 (Misconfigured application).
+az ad app permission add --id "$PORTAL_APPID" \
+  --api 00000002-0000-0000-c000-000000000000 \
+  --api-permissions 311a71cc-e848-46a1-bdf8-97ff7156d8e6=Scope 2>/dev/null || true
+sleep 8
+az ad app permission admin-consent --id "$PORTAL_APPID" 2>/dev/null || \
+  echo "   NOTE: grant admin consent for app $PORTAL_APPID (needs a Privileged Role/Global admin)."
+python - "$PORTAL_APPID" "$PORTAL_SECRET" "$TENANT" > temp/apim-aad-idp.json <<'PY'
+import json, sys
+appid, secret, tenant = sys.argv[1], sys.argv[2], sys.argv[3]
+print(json.dumps({"properties": {"clientId": appid, "clientSecret": secret,
+  "authority": "login.microsoftonline.com", "signinTenant": tenant, "allowedTenants": [tenant]}}))
+PY
+az rest --method put \
+  --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/identityProviders/aad?api-version=2022-08-01" \
+  --body @temp/apim-aad-idp.json -o none 2>/dev/null || true
+
 echo "==> publish the Developer Portal (best-effort: works once default content is provisioned)"
 # The managed developer portal needs its default content provisioned ONCE from admin mode
 # (Azure portal -> API Management -> Developer portal -> Portal overview -> Publish, which

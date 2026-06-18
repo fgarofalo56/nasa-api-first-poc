@@ -36,7 +36,9 @@ def main() -> int:
     ap.add_argument("--catalog", default="adb_eastus2_sandbox")
     ap.add_argument("--source-mode", default="postgres", choices=["postgres", "gateway"])
     ap.add_argument("--pg-host", default="artemis-pg-n1.postgres.database.azure.com")
-    ap.add_argument("--gateway-url", default="")
+    ap.add_argument("--gateway-url", default="", help="gateway base URL, e.g. https://kong.<aca-domain>")
+    ap.add_argument("--identity-url", default="", help="issuer URL for gateway mode, e.g. https://identity.<aca-domain>")
+    ap.add_argument("--consumer", default="artemis-agent", help="consumer id minted by the issuer")
     ap.add_argument("--secret-scope", default="artemis")
     ap.add_argument("--node-type", default="")
     args = ap.parse_args()
@@ -57,6 +59,23 @@ def main() -> int:
             return 2
         w.secrets.put_secret(scope=args.secret_scope, key="pg_password", string_value=pw)
         print("stored pg_password secret")
+    else:  # gateway mode — mint a bearer token from the issuer and store it as a secret
+        if not args.gateway_url or not args.identity_url:
+            print("ERROR: gateway mode needs --gateway-url and --identity-url", file=sys.stderr)
+            return 2
+        import json as _json
+        import urllib.request as _u
+
+        req = _u.Request(
+            f"{args.identity_url.rstrip('/')}/token",
+            data=_json.dumps({"consumer": args.consumer}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with _u.urlopen(req, timeout=20) as r:
+            tok = _json.loads(r.read())["access_token"]
+        w.secrets.put_secret(scope=args.secret_scope, key="gateway_token", string_value=tok)
+        print(f"minted + stored gateway_token for consumer '{args.consumer}'")
 
     # 2) import the notebook
     nb_path = f"/Users/{me}/artemis/01_zero_move_medallion"
