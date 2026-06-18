@@ -15,7 +15,26 @@
 
 ---
 
-## Abstract
+## 📑 Table of Contents
+
+- [Abstract](#-abstract)
+- [1. The multi-vendor AI ecosystem problem](#-1-the-multi-vendor-ai-ecosystem-problem)
+- [2. Azure API Management as the enterprise gateway](#-2-azure-api-management-as-the-enterprise-gateway)
+- [3. Programmatic data access with the Dataverse Web API](#-3-programmatic-data-access-with-the-dataverse-web-api)
+- [4. The cross-platform integration fabric and Zero Trust](#-4-the-cross-platform-integration-fabric-and-zero-trust)
+- [5. Making mission data AI-ready — the Purview remedy](#-5-making-mission-data-ai-ready--the-purview-remedy)
+- [5A. ATO and the sensitivity-label flow](#-5a-ato-and-the-sensitivity-label-flow)
+- [6. The software-assurance scanning pipeline (Track B link)](#-6-the-software-assurance-scanning-pipeline-track-b-link)
+- [7. Compliance in regulated and government clouds](#-7-compliance-in-regulated-and-government-clouds)
+- [8. Reference architecture and worked use case](#-8-reference-architecture-and-worked-use-case)
+- [9. The onboarding factory](#-9-the-onboarding-factory)
+- [10. Per-component divestability — the demonstrated exit](#-10-per-component-divestability--the-demonstrated-exit)
+- [Appendix — the data platform at FedRAMP High](#-appendix--the-data-platform-at-fedramp-high-commercial-azure-with-the-government-boundary-noted)
+- [References](#-references)
+
+---
+
+## 📋 Abstract
 
 A distributed mission enterprise is converging on a common target: an
 **API-first, multi-model, zero-move-data ecosystem** spanning many centers and a
@@ -41,7 +60,7 @@ Gen2, Azure SQL, and Data API Builder.
 > solution store of reference patterns and accelerators for the architecture below:
 > https://fgarofalo56.github.io/csa-inabox/solution-store/
 
-## 1. The multi-vendor AI ecosystem problem
+## 🌐 1. The multi-vendor AI ecosystem problem
 
 A distributed mission enterprise rarely has the luxury — or the desire — of a
 single AI vendor. Centers run different systems of record, procure models from
@@ -79,7 +98,7 @@ today.
 
 > _Figure: Reference architecture — the shared backbone over data that stays in place — see docs/architecture.png._
 
-## 2. Azure API Management as the enterprise gateway
+## 🔌 2. Azure API Management as the enterprise gateway
 
 Azure API Management (APIM) is Microsoft's fully managed enterprise API gateway,
 composed of three planes: the **API gateway** (data plane), the **management
@@ -211,7 +230,7 @@ SLO. [53]
 > is paramount while a managed gateway handles cloud-native APIs in the same estate,
 > under one catalog. [53]
 
-## 3. Programmatic data access with the Dataverse Web API
+## 🗄️ 3. Programmatic data access with the Dataverse Web API
 
 This section answers the make-or-break questions for the API-first data strategy:
 **how is Dataverse connected via a RESTful API, and how do you discover what is in
@@ -271,7 +290,7 @@ acquiring an MSAL bearer token for the confidential-client scope
 headers. Service-protection limits return HTTP 429 with a 5-minute sliding-window
 backoff; honor `Retry-After`. [31][32][33][21]
 
-## 4. The cross-platform integration fabric and Zero Trust
+## 🔒 4. The cross-platform integration fabric and Zero Trust
 
 The fabric is six interlocking surfaces under one Zero Trust wrap. Open standards
 make it connective tissue, not a walled garden.
@@ -295,7 +314,7 @@ until expiry). For Zero Trust APIs specifically, validate bearer *access* tokens
 (not ID tokens), remove the default `User.Read` scope where unneeded, and block
 legacy authentication. [17][18]
 
-## 5. Making mission data AI-ready — the Purview remedy
+## 🗄️ 5. Making mission data AI-ready — the Purview remedy
 
 The program's stated blocker is not access control; it is that mission data is
 un-inventoried and inconsistently labeled, so a forward-deployed integration
@@ -325,7 +344,7 @@ work has five technical parts:
 > that are stalled precisely because the data was never inventoried to a standard.
 > Operationalizing the existing crawl — not restarting it — is the move. [73][74]
 
-## 5A. ATO and the sensitivity-label flow
+## 🔒 5A. ATO and the sensitivity-label flow
 
 Exposure must be governed before it is granted. The flow that keeps an API-first
 program compliant:
@@ -346,7 +365,7 @@ program compliant:
    Microsoft Sentinel ingest gateway, identity, and platform signals for continuous
    monitoring and incident response.
 
-## 6. The software-assurance scanning pipeline (Track B link)
+## 🧪 6. The software-assurance scanning pipeline (Track B link)
 
 For the code asset class, the same standards-based posture applies. Consolidated
 source control provides the inventory; **GitHub Advanced Security** provides code
@@ -372,7 +391,7 @@ vulnerability to the API and mission that depend on it. [62][63] The full pipeli
 is detailed in the Track B program; it rides the same identity, gateway, and
 telemetry backbone as Track A.
 
-## 7. Compliance in regulated and government clouds
+## 📄 7. Compliance in regulated and government clouds
 
 The governing principle is decisive for a federal review chain: **data
 classification drives the boundary; the architecture patterns do not change.** Both
@@ -407,7 +426,7 @@ ITAR / strict-CUI / DoD → Azure Government + GCC High (and DoD where IL5 is
 required). The same APIM + Dataverse Web API + OData/MCP patterns apply across
 boundaries. [47][48]
 
-## 8. Reference architecture and worked use case
+## 🏗️ 8. Reference architecture and worked use case
 
 The reference architecture (figure above) places the APIM self-hosted gateway
 adjacent to each center's systems (outbound 443 only); the managed APIM service
@@ -425,7 +444,7 @@ procurement data.
 > against live Azure list pricing; staffing and professional-services cost is a
 > capability model (see the *Resourcing Framework*), not a dollar range.
 
-## 9. The onboarding factory
+## 🔄 9. The onboarding factory
 
 The program's largest cost is not the gateway; it is building APIs on systems that
 do not yet expose one and remediating the data quality that has to precede them.
@@ -436,6 +455,21 @@ is inspectable rather than a slogan.
 **Four stations, one assembly line.** Every source moves through the same four
 stations in order; each station has a defined input, a defined output, and a clear
 automated-vs-manual split.
+
+```mermaid
+flowchart LR
+    src["Source<br/>(system of record)"] --> s1["1 — Expose<br/>API on the SoR"]
+    s1 --> s2["2 — Façade<br/>Dataverse OData v4 + Graph"]
+    s2 --> s3["3 — Catalog<br/>OpenAPI + data product"]
+    s3 --> s4["4 — Consume<br/>gateway-metered, MCP, audited"]
+    s4 --> out["Discoverable, governed,<br/>zero-move data product"]
+
+    style s1 fill:#2d6a9f,color:#fff
+    style s2 fill:#2d6a9f,color:#fff
+    style s3 fill:#2d6a9f,color:#fff
+    style s4 fill:#2d6a9f,color:#fff
+    style out fill:#2e7d32,color:#fff
+```
 
 | Station | What happens | Automated (IaC / template) | Manual (judgment) |
 |---|---|---|---|
@@ -473,7 +507,7 @@ convergence is the program's principal cost lever — it is what moves a HIGH-ba
 source toward the LOW band in the per-source cost model (see the *Resourcing
 Framework* scoring sheet).
 
-## 10. Per-component divestability — the demonstrated exit
+## 🔗 10. Per-component divestability — the demonstrated exit
 
 Lock-in avoidance is a hard requirement, so each component of the backbone has a
 concrete, documented way out. Divestability is shown as a *technical exit*, not
@@ -489,7 +523,7 @@ asserted as a promise.
 This converts the divestability *claim* into a demonstrated *exit* per component —
 the precise de-risking a lock-in-averse program requires before committing.
 
-## Appendix — the data platform at FedRAMP High (commercial Azure), with the Government boundary noted
+## 📎 Appendix — the data platform at FedRAMP High (commercial Azure), with the Government boundary noted
 
 For this program, the zero-move data platform runs in **commercial (global) Azure at
 FedRAMP High** — the boundary the agency has already accepted for Databricks. There,
@@ -536,7 +570,7 @@ Azure Government / GCC). The pattern composes as follows:
 > Catalog or Purview provides the catalog — an open item to re-verify against current
 > Microsoft and Databricks documentation before any Gov-region commitment. [43][44][54][55]
 
-## References
+## 🔗 References
 
 All sources are official Microsoft documentation; URLs were verified during
 research. Comparisons to non-Microsoft products are generic, without benchmark

@@ -1,12 +1,15 @@
 # Documentation index
 
-> ⚠️ **Illustrative reference · sample/synthetic data only · not an official NASA
+[Home](../README.md) > **Documentation**
+
+> [!WARNING]
+> **Illustrative reference · sample/synthetic data only · not an official NASA
 > document.** See **[DISCLAIMER.md](DISCLAIMER.md)** before sharing or adapting.
 
 A generic NASA-mission use case for an **API-first, zero-move, multi-source data
 marketplace** — and the runnable proof in this repo.
 
-## Start here
+## 🚀 Start here
 
 | Doc | What it covers |
 |---|---|
@@ -15,7 +18,7 @@ marketplace** — and the runnable proof in this repo.
 | [`DEMO-SCRIPT.md`](DEMO-SCRIPT.md) | ~10-minute live presenter walkthrough |
 | [`DISCLAIMER.md`](DISCLAIMER.md) | Legal notice + synthetic-data statement |
 
-## Build & run the pattern
+## 🔧 Build & run the pattern
 
 | Doc | What it covers |
 |---|---|
@@ -23,17 +26,18 @@ marketplace** — and the runnable proof in this repo.
 | [`SECURITY.md`](SECURITY.md) | Token flow + OWASP API Top 10 controls at the gateway |
 | [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md) | Publish a new source through the gateway (UI wizard + API) |
 
-## Extend to Azure & analytics
+## 🌐 Extend to Azure & analytics
 
 | Doc | What it covers |
 |---|---|
 | [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md) | Managed-target mapping + reference Bicep |
-| [`AZURE-LIVE-DEPLOYMENT.md`](AZURE-LIVE-DEPLOYMENT.md) | The live, tenant-locked Container Apps deploy |
+| [`AZURE-LIVE-DEPLOYMENT.md`](AZURE-LIVE-DEPLOYMENT.md) | The live, tenant-locked Container Apps deploy (Kong edition) |
+| [`APIM-EDITION.md`](APIM-EDITION.md) | Managed-gateway edition: APIM deploy + Developer Portal + two-version comparison |
 | [`APIM-CAPABILITIES.md`](APIM-CAPABILITIES.md) | What managed Azure API Management adds over the OSS gateway |
 | [`DATABRICKS-WALKTHROUGH.md`](DATABRICKS-WALKTHROUGH.md) | Zero-move medallion → Unity Catalog → Databricks SQL |
 | [`POWERBI-GUIDE.md`](POWERBI-GUIDE.md) | Connect Power BI to the Gold mart + report spec |
 
-## Program narrative (illustrative whitepapers)
+## 📝 Program narrative (illustrative whitepapers)
 
 Generic, de-identified papers framing the use case — **not** an official NASA deliverable;
 all scenarios use synthetic data. See [`whitepapers/`](whitepapers/):

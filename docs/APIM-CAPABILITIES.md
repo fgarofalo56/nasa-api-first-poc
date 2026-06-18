@@ -1,9 +1,23 @@
 # What Azure API Management adds over the OSS gateway
 
-> Framing (per repo constraints): **Kong OSS is the path we *built*** in this POC; **Azure
+> [!NOTE]
+> **Framing (per repo constraints):** **Kong OSS is the path we *built*** in this POC; **Azure
 > API Management (APIM) is the managed Azure equivalent** the whitepapers point to. This
 > doc is the "what does the managed gateway add?" answer for a customer conversation — no
 > third-party competitors are compared.
+
+---
+
+## 📑 Table of Contents
+
+- [Capability comparison](#-capability-comparison)
+- [What I'd show a customer (in priority order)](#-what-id-show-a-customer-in-priority-order)
+- [The honest mapping (so the demo is credible)](#-the-honest-mapping-so-the-demo-is-credible)
+- [Want it live?](#-want-it-live)
+
+---
+
+## ✨ Capability comparison
 
 The POC's Kong (DB-less) already does JWT validation, rate-limiting, per-consumer metering,
 correlation IDs, CORS, and an OWASP guard. APIM does all of that **and** adds managed
@@ -21,7 +35,7 @@ capabilities that are relevant to this program:
 | **Versioning** | route config | **API versions + revisions**, named values, certificate mgmt | Safe API evolution at scale |
 | **Operations** | self-managed | Managed scaling, multi-region, SLA, VNet integration | Run-by-Azure, FedRAMP-authorized |
 
-## What I'd show a customer (in priority order)
+## 💡 What I'd show a customer (in priority order)
 
 1. **Developer Portal** — the highest-impact visual; it's the managed twin of our catalog +
    "add a source" story (self-service discovery + try-it + subscriptions).
@@ -30,7 +44,7 @@ capabilities that are relevant to this program:
 3. **Self-hosted gateway** — the residency/zero-move enabler for Gov/ITAR boundaries.
 4. **Products/subscriptions + Entra** — consumer onboarding and tenant-grade identity.
 
-## The honest mapping (so the demo is credible)
+## 🔗 The honest mapping (so the demo is credible)
 
 - Everything the POC's Kong does has a 1:1 APIM policy (see `infra/azure/modules/apim.bicep`:
   `validate-azure-ad-token` + `rate-limit-by-key` + correlation header).
@@ -38,7 +52,7 @@ capabilities that are relevant to this program:
   **Developer Portal + product onboarding** — same idea, managed vs. self-hosted.
 - The POC's **Prometheus/Grafana** is the analogue of **Azure Monitor**.
 
-## Want it live?
+## 🚀 Want it live?
 
 A live APIM instance (Developer tier) can front the deployed DAB API and light up the
 **Developer Portal** for a real click-through. Provisioning APIM Developer takes ~30–45 min

@@ -15,7 +15,17 @@
 
 ---
 
-## The decision in front of you
+## 📑 Table of Contents
+
+- [The decision in front of you](#-the-decision-in-front-of-you)
+- [What you are actually solving](#-what-you-are-actually-solving)
+- [Two arguments no alternative can rebut](#-two-arguments-no-alternative-can-rebut)
+- [What we recommend](#-what-we-recommend)
+- [What we ask](#-what-we-ask)
+
+---
+
+## 📋 The decision in front of you
 
 The agency is mandating that mission data be exposed through governed APIs,
 discoverable in an enterprise catalog, with access controls — an enterprise
@@ -25,7 +35,7 @@ without moving the data.** Microsoft's answer is to be the **connective tissue**
 the secure interoperability, orchestration, and governance layer — on open
 standards, not a walled garden.
 
-## What you are actually solving
+## 🎯 What you are actually solving
 
 The blocker is not access control. It is that mission data is **un-inventoried and
 inconsistently labeled**, and decades of in-house code are **un-scanned**. So the
@@ -33,7 +43,7 @@ program leads with **making the data AI-ready** — inventory and classify befor
 expose anything — and with **software assurance**, not with a gateway purchase. One
 platform governs three asset classes: **data, APIs, and code.**
 
-## Two arguments no alternative can rebut
+## 🔒 Two arguments no alternative can rebut
 
 - **Identity is already Microsoft Entra ID.** The token validation under the
   gateway, the per-org metering on model usage, the agents that consume APIs, and
@@ -50,7 +60,7 @@ platform governs three asset classes: **data, APIs, and code.**
 > Lake / Delta Sharing, open-source Unity Catalog, OData export, APIs that export as
 > OpenAPI to an open-source gateway).
 
-## What we recommend
+## ✨ What we recommend
 
 - **Two parallel, contained first pilots** — a software-assurance pilot on
   consolidated source control (Track B) and the Artemis supply-chain procurement
@@ -66,7 +76,7 @@ platform governs three asset classes: **data, APIs, and code.**
   source before any external quote. Azure infrastructure is priced against live
   Azure list pricing; staffing carries no dollar figures.
 
-## What we ask
+## 🚀 What we ask
 
 1. **Confirm the framing** — one platform across data, APIs, and code; Microsoft as
    the interoperability layer, not "the one AI."

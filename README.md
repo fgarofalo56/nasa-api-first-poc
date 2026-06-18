@@ -20,7 +20,19 @@ with a documented, one-swap path to the Azure-Government managed equivalents.
 
 ---
 
-## What it demonstrates
+## 📑 Table of Contents
+
+- [What it demonstrates](#-what-it-demonstrates)
+- [Architecture at a glance (Azure → local mapping)](#️-architecture-at-a-glance-azure--local-mapping)
+- [Quickstart](#-quickstart)
+- [Repo layout](#-repo-layout)
+- [How it maps to Azure Government](#-how-it-maps-to-azure-government)
+- [Constraints](#️-constraints-enforced-see-claudemd--prpmd-9)
+- [License](#-license)
+
+---
+
+## ✨ What it demonstrates
 
 1. **Zero data movement** — the system-of-record data never leaves its database; the
    gateway brokers every call.
@@ -45,12 +57,37 @@ with a documented, one-swap path to the Azure-Government managed equivalents.
 9. **Live in Azure** — the auto-API deployed to Container Apps over Azure Postgres,
    tenant-locked with Entra (the DOT pattern). See `docs/AZURE-LIVE-DEPLOYMENT.md`.
 
-## Architecture at a glance (Azure → local mapping)
+---
+
+## 🏗️ Architecture at a glance (Azure → local mapping)
 
 The POC builds the local/open analogue of each Azure-Government target service, so
 the same architecture deploys to Azure later by swapping the gateway, catalog, and
 identity for their managed equivalents. Full table in `PRP.md` §2 and
 `docs/ARCHITECTURE.md`.
+
+```mermaid
+flowchart LR
+    CLI["Python client<br/>+ MCP agent"] -->|bearer token| KONG
+    UI["NASA-themed React UI<br/>(add-a-source wizard)"] --> KONG
+    subgraph edge["edge network"]
+        KONG["Kong gateway (OSS)<br/>JWT · rate-limit · OWASP · cache"]
+        CAT["Catalog"]
+        REG["Registry / control-plane"]
+    end
+    subgraph internal["internal network (no host ports)"]
+        DAB["Data API Builder<br/>(auto REST/GraphQL/OpenAPI)"]
+        PG[("PostgreSQL<br/>system of record")]
+        DOT["Transportation API<br/>(2nd source)"]
+    end
+    KONG -->|/api/* governed| DAB
+    KONG -->|/dot/* governed| DOT
+    DAB --> PG
+    REG -->|hot-reload config| KONG
+    KONG --> PROM["Prometheus + Grafana"]
+    style KONG fill:#cce5ff
+    style PG fill:#d4edda
+```
 
 | Azure target | POC local analogue |
 |---|---|
@@ -63,13 +100,16 @@ identity for their managed equivalents. Full table in `PRP.md` §2 and
 | Foundry/Copilot agent (MCP) | local MCP server + Python client |
 | Azure Monitor / App Insights | Prometheus + Grafana |
 
+> [!NOTE]
 > **Data platform note:** for the federal customer this POC models, the managed data
 > platform (Azure Databricks with managed Unity Catalog + Databricks SQL + Delta
 > Lake + Delta Sharing on ADLS Gen2) runs in **commercial Azure at FedRAMP High** —
 > the open-source-rooted formats keep it divestable. Microsoft Fabric / OneLake are
 > excluded (not in Azure Gov/GCC). Details in `docs/AZURE-DEPLOYMENT.md`.
 
-## Quickstart
+---
+
+## 🚀 Quickstart
 
 Requires only Docker + Python 3.11+ on the host.
 
@@ -96,11 +136,14 @@ The **catalog UI** (`make ui`, then <http://localhost:5173>) lists the data prod
 shows its OpenAPI paths + classification, and runs the supply-risk query through Kong
 from the browser — displaying the gateway correlation id with each answer.
 
+> [!TIP]
 > **Port note:** the demo publishes Kong on `:8000`, identity on `:8081`, catalog on
 > `:8080`, MCP on `:8090`, Kong Manager on `:8002`, Grafana on `:3000`. If any collide on your machine, override
 > in `.env` (e.g. `KONG_PROXY_PORT=18000`).
 
-## Repo layout
+---
+
+## 📁 Repo layout
 
 ```text
 PRP.md                  # the complete build spec — read this first
@@ -119,7 +162,9 @@ scripts/                # demo.sh, wait-for-healthy.sh, gen-architecture-diagram
 tests/                  # zero-move / gateway-auth / discovery / supply-risk / no-fabric
 ```
 
-## How it maps to Azure Government
+---
+
+## 🌐 How it maps to Azure Government
 
 The local stack is the OSS analogue of the managed Azure-Gov target; promote it by
 swapping each component (Kong → API Management, the issuer → Microsoft Entra ID, DAB →
@@ -129,7 +174,9 @@ discussion (FedRAMP High, the Azure-Gov managed-Unity-Catalog caveat) is in
 `docs/AZURE-DEPLOYMENT.md`. The complete build spec is `PRP.md`; the live demo walkthrough
 is `docs/DEMO-SCRIPT.md`.
 
-## Constraints (enforced; see `CLAUDE.md` + `PRP.md` §9)
+---
+
+## ⚠️ Constraints (enforced; see `CLAUDE.md` + `PRP.md` §9)
 
 - No Microsoft Fabric / OneLake as a component (not in Azure Gov/GCC).
 - Zero-move is real, not just claimed (Postgres/DAB network-isolated from clients).
@@ -137,6 +184,8 @@ is `docs/DEMO-SCRIPT.md`.
   source note — never hardcoded or invented. No staffing/services dollar figures.
 - All data is **synthetic** and clearly flagged. ITAR/CUI-safe.
 
-## License
+---
+
+## 📄 License
 
 MIT — see `LICENSE`.

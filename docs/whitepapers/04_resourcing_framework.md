@@ -15,7 +15,21 @@
 
 ---
 
-## Purpose and scope
+## 📑 Table of Contents
+
+- [Purpose and scope](#-purpose-and-scope)
+- [The program at a glance](#-the-program-at-a-glance)
+- [Capability model — the roles the program needs](#-capability-model--the-roles-the-program-needs)
+- [Per-source cost-range scoring sheet](#-per-source-cost-range-scoring-sheet)
+- [Staffing-pattern options](#-staffing-pattern-options)
+- [A decision framework for choosing per workstream](#-a-decision-framework-for-choosing-per-workstream)
+- [Sequencing the capability build](#️-sequencing-the-capability-build)
+- [What this framework deliberately excludes](#-what-this-framework-deliberately-excludes)
+- [Next steps](#-next-steps)
+
+---
+
+## 📋 Purpose and scope
 
 This framework answers a single planning question: **what capabilities does the
 agency need on the field, and how should it source them**, to stand up and scale
@@ -33,7 +47,7 @@ resourcing be framed as capability and pattern rather than a commercial offer.
 > here. Treating staffing as a capability model keeps this document durable as
 > those variables settle.
 
-## The program at a glance
+## 📌 The program at a glance
 
 The directive is an **enterprise entitlement**: mission organizations do not show
 up with their own undefined funding to participate; the OCIO leads, coordinates,
@@ -49,7 +63,7 @@ schedule. That model has two consequences for resourcing:
   to the gateway. This is where the bulk of the effort lives, and it must **scale**:
   the goal is a repeatable onboarding *factory*, not bespoke one-off integrations.
 
-## Capability model — the roles the program needs
+## 🤝 Capability model — the roles the program needs
 
 The program needs five core capabilities. Each is a *role family*, not a single
 hire; an organization can fill a family with civil servants, partners, or a blend.
@@ -69,7 +83,7 @@ hire; an organization can fill a family with civil servants, partners, or a blen
 > Resourcing should be sized against the **per-source onboarding** workload and the
 > repeatability of the factory that does it.
 
-## Per-source cost-range scoring sheet
+## 💡 Per-source cost-range scoring sheet
 
 The Executive Concept Paper makes the case that a single point quote for
 "connecting all the data sets" is not credible before the inventory exists — the
@@ -125,20 +139,20 @@ investment is the factory itself, not any one source.
 > professional-services cost is scoped in a follow-on engagement against the scored
 > inventory and the selected contract vehicle.
 
-## Staffing-pattern options
+## 👥 Staffing-pattern options
 
 For each capability, the agency chooses among three sourcing patterns. None is
 universally correct; the right choice differs per workstream and is expected to
 change over the program's life.
 
-### Pattern A — In-house build
+### 🏢 Pattern A — In-house build
 The agency hires and develops the capability internally. **Best when** the work is
 enduring, must retain institutional knowledge (data stewardship, governance
 standards, authorizing-official functions), or touches the most sensitive
 workloads. **Trade-off:** highest control and continuity; slowest to stand up; the
 agency must recruit and retain scarce skills.
 
-### Pattern B — Partner-led
+### 🤝 Pattern B — Partner-led
 A professional-services capability delivers the workstream against the agency's
 requirements. **Best when** the work is time-boxed, needs to scale quickly, or
 requires deep platform expertise the agency does not intend to retain permanently
@@ -146,7 +160,7 @@ requires deep platform expertise the agency does not intend to retain permanentl
 design). **Trade-off:** fastest to capability and scale; requires disciplined
 requirements, knowledge-transfer obligations, and an exit plan to avoid dependency.
 
-### Pattern C — Blended
+### 🔀 Pattern C — Blended
 A partner leads while the agency staffs alongside to absorb the capability over
 time — the partner builds the first instances and the paved path; agency engineers
 take the steady-state and the long tail. **Best when** the agency wants both speed
@@ -159,7 +173,7 @@ enterprise-wide entitlement.
 | Partner-led | Fastest | Lower (manage via requirements + KT) | Platform stand-up, first modernization wave, onboarding-factory design |
 | Blended | Fast | Grows over time | Enterprise rollout, the modernization long tail, sustained operations |
 
-## A decision framework for choosing per workstream
+## 🔧 A decision framework for choosing per workstream
 
 Apply five questions to each workstream and let the answers point to a pattern:
 
@@ -177,7 +191,7 @@ Apply five questions to each workstream and let the answers point to a pattern:
 > matures. The agency should expect the mix to shift workstream-by-workstream and
 > year-over-year.
 
-## Sequencing the capability build
+## 🗺️ Sequencing the capability build
 
 The capability is stood up in step with the program's phased path:
 
@@ -191,7 +205,7 @@ The capability is stood up in step with the program's phased path:
   function to drive center-by-center onboarding across the enterprise, with the
   factory and governance patterns established in the pilots.
 
-## What this framework deliberately excludes
+## ⚠️ What this framework deliberately excludes
 
 - **No dollar figures.** Staffing and professional-services cost is scoped in a
   follow-on engagement against the actual data-set inventory and contract vehicle.
@@ -201,7 +215,7 @@ The capability is stood up in step with the program's phased path:
   names the capabilities and the method for sizing and sourcing them, not a fixed
   org chart.
 
-## Next steps
+## 🚀 Next steps
 
 1. Adopt the capability model and confirm the five role families against the
    program's org structure.

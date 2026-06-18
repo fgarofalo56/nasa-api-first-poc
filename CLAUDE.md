@@ -5,6 +5,12 @@ first** — it is the complete, self-contained build spec (mission, success crit
 architecture, tech stack, repo structure, phased plan, per-file contracts, hard
 constraints, Definition of Done). Build exactly what it specifies.
 
+> **📐 Documentation rule (always):** run **every** Markdown change through the
+> **`doc-beautifier`** skill — icons, mermaid, tables, callouts, TOC, consistent
+> formatting — and keep docs accurate to the codebase + carrying the synthetic-data
+> disclaimer. See [`.claude/rules/documentation.md`](.claude/rules/documentation.md).
+> Never ship un-beautified docs.
+
 ## Mission (one line)
 
 A fully local, `docker compose up` demo of the API-first **zero-move** data-marketplace

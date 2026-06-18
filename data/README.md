@@ -4,7 +4,16 @@
 > and date is fabricated for demonstration only. Vendor names carry a `(SYNTHETIC)`
 > suffix. Safe for external sharing; contains no CUI/ITAR content.
 
-## What's here
+## 📑 Table of Contents
+
+- [What's here](#-whats-here)
+- [The four tables (SAP-shaped)](#️-the-four-tables-sap-shaped)
+- [The headline demo query](#-the-headline-demo-query)
+- [Regenerate](#-regenerate)
+
+---
+
+## 📁 What's here
 
 - **`synthetic_data.py`** — the deterministic, pure-stdlib generator.
   `generate_artemis_procurement(out_dir, seed=42)` writes the four CSVs + a Markdown
@@ -16,7 +25,7 @@
 - **`sample/`** — a committed reference copy of the generated dataset (seed=42), so the
   shape is inspectable without running anything.
 
-## The four tables (SAP-shaped)
+## 🗄️ The four tables (SAP-shaped)
 
 | File | Rows | SAP analogue | Purpose |
 |---|---|---|---|
@@ -25,7 +34,7 @@
 | `artemis_purchase_orders.csv` | ~10,000 | EKKO/EKPO | Orders with promised vs. actual delivery, delay days, pad-anomaly flag |
 | `artemis_supply_risk.csv` | ~600 | derived | Per-material risk score/tier from sole-source + criticality + delay history |
 
-## The headline demo query
+## 💡 The headline demo query
 
 > "Which **Critical, sole-source** materials on **Artemis-3** have an average delay
 > **> 30 days**?"
@@ -34,7 +43,7 @@ This resolves to an OData-style call through the Kong gateway against `SupplyRis
 returns the ranked high-risk parts + their suppliers — answered **without the data ever
 leaving Postgres**.
 
-## Regenerate
+## 🔄 Regenerate
 
 ```bash
 python -c "from synthetic_data import generate_artemis_procurement as g; g('sample', seed=42)"

@@ -15,7 +15,24 @@
 
 ---
 
-## Executive summary
+## 📑 Table of Contents
+
+- [Executive summary](#-executive-summary)
+- [Context — the directive, the stakes, and the real blocker](#-context--the-directive-the-stakes-and-the-real-blocker)
+- [Making mission data AI-ready — the real first move](#-making-mission-data-ai-ready--the-real-first-move)
+- [The shared backbone (vendor-neutral)](#️-the-shared-backbone-vendor-neutral)
+- [Track A — API-first data exposure](#-track-a--api-first-data-exposure)
+- [Track B — Software assurance and code modernization](#-track-b--software-assurance-and-code-modernization)
+- [The LLM gateway as the unifying runtime](#-the-llm-gateway-as-the-unifying-runtime)
+- [A cost-range model you can populate per source](#-a-cost-range-model-you-can-populate-per-source)
+- [Phased path and the two first pilots](#️-phased-path-and-the-two-first-pilots)
+- [Resourcing](#-resourcing)
+- [Next steps](#-next-steps)
+- [References](#-references)
+
+---
+
+## 📌 Executive summary
 
 The agency is building an **API-first, multi-model, zero-move data ecosystem**
 across distributed centers. The right architectural insight is already in hand:
@@ -77,7 +94,7 @@ governed, discoverable APIs.
 > at the gateway, and the code-assurance layer around it. The gateway can be
 > open-source and divestable — and Microsoft is still indispensable.
 
-## Context — the directive, the stakes, and the real blocker
+## 📋 Context — the directive, the stakes, and the real blocker
 
 An Administrator-level directive will ask every organization to expose its mission
 data through governed APIs, discoverable in an enterprise catalog, with access
@@ -100,7 +117,7 @@ gateway purchase. The gateway matters, but it is the smaller, well-understood pa
 the effort concentrates in building APIs on systems that do not yet expose one, in
 remediating data quality, and in inventorying and assuring code.
 
-## Making mission data AI-ready — the real first move
+## 🗄️ Making mission data AI-ready — the real first move
 
 The first move is not a gateway; it is making the data trustworthy enough to
 expose. A useful way to frame it: you would not open the doors of a house you
@@ -150,7 +167,45 @@ answer for each:
 
 > _Figure: The shared backbone — one platform across data, APIs, and code, with the gateway next to the data — see docs/architecture.png._
 
-## The shared backbone (vendor-neutral)
+## 🏗️ The shared backbone (vendor-neutral)
+
+```mermaid
+flowchart TD
+    subgraph consumers["Consumers"]
+        analyst["Analysts"]
+        agents["AI agents / LLMs"]
+        apps["Applications"]
+    end
+    subgraph backbone["Shared vendor-neutral backbone"]
+        gw["Gateway<br/>(Kong OSS or APIM) — runs next to the data"]
+        llmgw["LLM gateway<br/>(token limits, routing, chargeback)"]
+        cat["Federated catalog<br/>(Unity Catalog, open formats)"]
+        gov["Governance<br/>(Purview: classify, label, audit)"]
+        tel["Telemetry<br/>(Azure Monitor / OpenTelemetry)"]
+    end
+    subgraph sources["Assets in place — zero copy"]
+        data["Data (Delta Lake / SoR)"]
+        api["APIs (Dataverse, Graph, SharePoint)"]
+        code["Code (GitHub)"]
+    end
+
+    analyst --> gw
+    agents --> llmgw
+    apps --> gw
+    llmgw --> gw
+    gw --> data
+    gw --> api
+    gw --> code
+    cat -.discover.-> sources
+    gov -.label.-> sources
+    tel -.observe.-> gw
+
+    style gw fill:#2d6a9f,color:#fff
+    style llmgw fill:#2d6a9f,color:#fff
+    style data fill:#2e7d32,color:#fff
+    style api fill:#2e7d32,color:#fff
+    style code fill:#2e7d32,color:#fff
+```
 
 Both tracks ride one backbone. It is described in capability terms so it holds
 regardless of which gateway or catalog the agency ultimately selects.
@@ -182,7 +237,7 @@ hard requirement, so every layer of the backbone has a defined way out:
 This converts the divestability *claim* into a demonstrated *exit* for each
 component — which is precisely what de-risks committing to the program. [17][18][19][20][2]
 
-## Track A — API-first data exposure
+## 🔌 Track A — API-first data exposure
 
 Track A exposes mission data, in place, through governed and discoverable APIs.
 
@@ -233,7 +288,7 @@ The program's central investment should be a **repeatable onboarding factory** �
 paved path to expose, label, catalog, and govern a new source — not bespoke
 one-off integrations.
 
-## Track B — Software assurance and code modernization
+## 🔒 Track B — Software assurance and code modernization
 
 Code is where the data lives and how the missions run. Track B treats code as a
 governed asset class alongside data and APIs.
@@ -263,7 +318,7 @@ governed asset class alongside data and APIs.
   attestations, and CVE-to-API traceability close the loop from a vulnerability to
   the API and the mission that depend on it.
 
-## The LLM gateway as the unifying runtime
+## ⚡ The LLM gateway as the unifying runtime
 
 Both tracks generate model traffic — agents reading data through Track A, AI
 assistance scanning and modernizing code in Track B. Today's token-broker approach
@@ -294,7 +349,7 @@ model choice open.
 > it is presented as a capability model in the companion *Resourcing Framework*, not
 > as a dollar range here.
 
-## A cost-range model you can populate per source
+## 💡 A cost-range model you can populate per source
 
 A point quote for "connecting all the data sets" is not credible before the
 inventory exists — the spread between an easy source and a hard one is enormous.
@@ -325,7 +380,7 @@ once the inventory exists.
 > consumption is priced above against live Azure list pricing; staffing and
 > services carry no dollar figures.
 
-## Phased path and the two first pilots
+## 🗺️ Phased path and the two first pilots
 
 We recommend **two parallel, contained, measurable first pilots — one per track —**
 rather than tying the first deliverable to a single in-flight effort:
@@ -346,7 +401,7 @@ workstream — so prioritizing the two pilots does not drop that audience's
 priority; it builds the paved path that facilities and the other Ignition-Day data
 sets then ride.
 
-## Resourcing
+## 🤝 Resourcing
 
 Resourcing is presented as a **capability model** — five role families (platform
 engineering, data stewardship and governance, security engineering, modernization
@@ -354,7 +409,7 @@ engineering, and product/program management) and three staffing patterns (in-hou
 partner-led, blended) with a decision method per workstream. It carries **no vendor
 names and no dollar figures**. See the companion *Resourcing Framework*.
 
-## Next steps
+## 🚀 Next steps
 
 1. **Confirm the framing** — one platform across data, APIs, and code; Microsoft as
    the interoperability layer, not "the one AI."
@@ -364,7 +419,7 @@ names and no dollar figures**. See the companion *Resourcing Framework*.
    data), an APIM-as-LLM-gateway demonstration, and a resourcing scope against the
    prioritized data-set inventory.
 
-## References
+## 🔗 References
 
 Sources are official Microsoft documentation, except where an open-source
 component is cited to its own project site (Unity Catalog). URLs were verified

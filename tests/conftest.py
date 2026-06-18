@@ -24,6 +24,7 @@ KONG_PROXY = os.environ.get("KONG_PROXY_URL", "http://127.0.0.1:8000")
 KONG_ADMIN = os.environ.get("KONG_ADMIN_URL", "http://127.0.0.1:8001")
 IDENTITY_URL = os.environ.get("IDENTITY_URL", "http://127.0.0.1:8081")
 CATALOG_URL = os.environ.get("CATALOG_URL", "http://127.0.0.1:8080")
+REGISTRY_URL = os.environ.get("REGISTRY_URL", "http://127.0.0.1:8095")
 
 # Internal hostnames (only resolvable/reachable from inside Docker networks).
 POSTGRES_HOST = os.environ.get("POSTGRES_HOST_TEST", "localhost")

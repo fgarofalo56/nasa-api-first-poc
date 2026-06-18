@@ -1,5 +1,11 @@
 # Add a data source — through the gateway, live
 
+> [!NOTE]
+> **TL;DR** — Register a new data product's API with the gateway and it becomes governed
+> (JWT + rate-limit + correlation id) and discoverable **without changing the source, taking
+> downtime, or redeploying.** This guide federates a second source (DOT bridge inventory)
+> through the same Kong gateway, via either a UI wizard or a scriptable API.
+
 > **The 90-second story for the customer:** a new data product becomes governed and
 > discoverable by registering its API with the gateway — **no change to the source, no
 > downtime, no redeploy.** This is the Azure API Management / API Center pattern, shown
@@ -11,7 +17,17 @@ it through the same Kong gateway with the same governance (JWT, rate-limit, corr
 
 ---
 
-## How it works
+## 📑 Table of Contents
+
+- [How it works](#️-how-it-works)
+- [Option A — the onboarding wizard (UI)](#-option-a--the-onboarding-wizard-ui)
+- [Option B — the API (scriptable, same result)](#-option-b--the-api-scriptable-same-result)
+- [Federating the real published DOT DAB demo](#-federating-the-real-published-dot-dab-demo)
+- [Why this matters (whitepaper alignment)](#-why-this-matters-whitepaper-alignment)
+
+---
+
+## 🏗️ How it works
 
 ```mermaid
 sequenceDiagram
@@ -41,7 +57,7 @@ product automatically.
 
 ---
 
-## Option A — the onboarding wizard (UI)
+## 🚀 Option A — the onboarding wizard (UI)
 
 1. `make ui` → open <http://localhost:5173>.
 2. Click **“+ Add a data source.”**
@@ -56,7 +72,7 @@ product automatically.
 
 ---
 
-## Option B — the API (scriptable, same result)
+## ⌨️ Option B — the API (scriptable, same result)
 
 ```bash
 # Register the source (the registry hot-reloads Kong):
@@ -96,7 +112,7 @@ curl -s -X DELETE http://localhost:8095/sources/dot-bridges | jq .
 
 ---
 
-## Federating the **real** published DOT DAB demo
+## 🌐 Federating the **real** published DOT DAB demo
 
 The local `transportation` service stands in for the published
 [`azure-dab-fullstack-demo`](https://github.com/fgarofalo56/azure-dab-fullstack-demo)
@@ -119,6 +135,7 @@ curl -s -X POST http://localhost:8095/sources -H 'Content-Type: application/json
 Then `GET http://localhost:8000/dot-live/api/<Entity>` with a bearer token is brokered to
 the live Azure DAB API through Kong — the same governance, no change to the remote source.
 
+> [!NOTE]
 > **Notes for the live endpoint**
 > - The published demo's Container App may scale to zero or be torn down — confirm the URL
 >   resolves first (`curl -I <url>/api/openapi`).
@@ -129,7 +146,7 @@ the live Azure DAB API through Kong — the same governance, no change to the re
 
 ---
 
-## Why this matters (whitepaper alignment)
+## ✨ Why this matters (whitepaper alignment)
 
 - **API-first, not data-copy:** the new source is exposed *as an API*; its data stays put.
 - **Govern at the edge uniformly:** every source — built-in or added — gets the same JWT,

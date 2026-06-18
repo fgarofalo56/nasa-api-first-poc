@@ -3,14 +3,28 @@
 Connect Power BI to the Databricks SQL warehouse and build a supply-risk report on
 `artemis.gold.artemis_supply_risk` (built by `databricks/notebooks/01_zero_move_medallion.ipynb`).
 
+> [!NOTE]
 > **Why this is still zero-move:** use **DirectQuery** — Power BI queries the Delta mart
 > in place through the SQL warehouse; the data stays in the lakehouse. (Import mode caches
 > a copy in the PBIX; choose per governance needs.)
 
+> [!NOTE]
 > **Note on automation:** a finished `.pbix` is a GUI artifact and isn't generated
 > headlessly — this is the build spec (connection + model + measures + visuals) a
 > presenter follows in Power BI Desktop. Everything upstream (Delta, Unity Catalog, the
 > SQL queries) is fully built in this repo.
+
+---
+
+## 📑 Table of Contents
+
+- [1. Connect](#1-connect)
+- [2. Measures (DAX)](#2-measures-dax)
+- [3. Report layout (one page)](#3-report-layout-one-page-artemis-supply-chain-risk)
+- [4. Publish (optional)](#4-publish-optional)
+- [5. The narrative for the customer](#5-the-narrative-for-the-customer)
+
+---
 
 ## 1. Connect
 

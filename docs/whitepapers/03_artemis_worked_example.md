@@ -21,7 +21,18 @@
 > `(SYNTHETIC)` suffix). It is safe for external sharing and contains no CUI or
 > ITAR content. The point is to prove the *pattern* end to end on realistic data.
 
-## What this example proves
+## 📑 Table of Contents
+
+- [What this example proves](#-what-this-example-proves)
+- [The synthetic dataset](#-the-synthetic-dataset)
+- [The pattern, step by step](#-the-pattern-step-by-step)
+- [Why this is the right first pilot](#-why-this-is-the-right-first-pilot)
+- [Reproducing the dataset](#-reproducing-the-dataset)
+- [References](#-references)
+
+---
+
+## 📋 What this example proves
 
 The agency's first Track-A pilot is the **Artemis supply-chain (procurement)**
 workstream — already in flight, with data owners identified, on an Ignition-Day
@@ -37,7 +48,7 @@ agents can use, while the data never leaves its system of record?*
 
 > _Figure: Artemis supply-chain — zero-move API pattern over an SAP procurement source — see docs/architecture.png._
 
-## The synthetic dataset
+## 🗄️ The synthetic dataset
 
 The generator produces four SAP-shaped tables and a data dictionary. Representative
 scale and shape:
@@ -66,7 +77,23 @@ tier. Representative derived risk rows:
 This is exactly the question an Administrator wants answered before a launch
 window: *which critical, single-supplier parts on this program are slipping?*
 
-## The pattern, step by step
+## 🔄 The pattern, step by step
+
+```mermaid
+sequenceDiagram
+    participant C as Consumer<br/>(analyst / agent)
+    participant GW as Gateway<br/>(Kong / APIM)
+    participant DV as Dataverse<br/>OData v4 façade
+    participant SAP as SAP procurement<br/>(stays put)
+
+    C->>GW: OData query + OAuth 2.0 bearer token
+    GW->>GW: Validate identity, throttle, meter, IP-filter
+    GW->>DV: Forward governed call
+    DV->>SAP: Read via SAP connector (no copy)
+    SAP-->>DV: Procurement records in place
+    DV-->>GW: OData response (+ M365 context via Graph)
+    GW-->>C: Ranked supply-risk rows (audited, metered)
+```
 
 ### 1 — Expose: the gateway fronts SAP in place
 
@@ -152,7 +179,7 @@ joining `materials × supply_risk × vendors` **through the gateway** — never
 touching SAP directly, never copying the data. Token usage is metered per consumer
 at the LLM gateway; access is enforced by Microsoft Entra ID; every call is audited.
 
-## Why this is the right first pilot
+## ✨ Why this is the right first pilot
 
 - **Zero-move proof point.** The SAP source never moves; the gateway brokers,
   meters, and secures, and Dataverse enriches via API. The agency adopts the
@@ -165,7 +192,7 @@ at the LLM gateway; access is enforced by Microsoft Entra ID; every call is audi
 - **Governance-first.** Classification and labeling happen *before* exposure, which
   is exactly the discipline the broader program depends on.
 
-## Reproducing the dataset
+## 🔧 Reproducing the dataset
 
 The synthetic dataset is generated deterministically (seeded) so the worked example
 is reproducible and verifiable, and regenerates identically on any machine:
@@ -179,7 +206,7 @@ result = generate_artemis_procurement("output/nasa_api_first/artemis_data", seed
 # -> vendors/materials/purchase_orders/supply_risk CSVs + a Markdown data dictionary
 ```
 
-## References
+## 🔗 References
 
 1. Self-hosted gateway overview (Azure API Management)  https://learn.microsoft.com/azure/api-management/self-hosted-gateway-overview
 2. API Management policy reference  https://learn.microsoft.com/azure/api-management/api-management-policies

@@ -60,7 +60,9 @@ def _load_or_create_keys() -> tuple[rsa.RSAPrivateKey, str]:
         log.info("loaded RSA key from JWT_PRIVATE_KEY_PEM env")
         public_pem = (
             private_key.public_key()
-            .public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+            .public_bytes(
+                serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo
+            )
             .decode()
         )
         return private_key, public_pem

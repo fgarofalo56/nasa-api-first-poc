@@ -1,10 +1,41 @@
 # Architecture
 
+[Home](../README.md) > [Documentation](README.md) > **Architecture**
+
 The POC builds the **local / open-source analogue** of each Azure-Government target
 service, so the same architecture promotes to Azure later by swapping the gateway,
 catalog, and identity for their managed equivalents — the *pattern* is identical.
 
-## The zero-move flow
+## 📑 Table of Contents
+
+- [The zero-move flow](#️-the-zero-move-flow)
+- [Azure ↔ OSS/local mapping](#-azure--osslocal-mapping)
+- [Networks (docker-compose)](#-networks-docker-compose)
+- [Multi-source federation + control-plane](#-multi-source-federation--control-plane)
+
+---
+
+## 🏗️ The zero-move flow
+
+```mermaid
+flowchart TD
+    CLI["client / MCP agent<br/>(bearer token from local issuer)"]
+    KONG["Kong gateway (OSS)<br/>JWT · rate-limit · meter · correlation-id<br/>(only path to data)"]
+    DAB["Data API Builder (DAB)<br/>auto REST + GraphQL + OpenAPI"]
+    PG[("PostgreSQL — system of record<br/>data NEVER leaves here<br/>(synthetic SAP Artemis procurement)")]
+    CAT["Catalog service<br/>publishes OpenAPI · owner · classification · request path"]
+    OBS["Prometheus / Grafana<br/>per-consumer call + latency metrics"]
+    CLI --> KONG
+    KONG -->|REST / OData| DAB
+    DAB -->|internal network only<br/>unreachable from clients| PG
+    KONG -.-> CAT
+    KONG -.-> OBS
+    style KONG fill:#cce5ff
+    style PG fill:#d4edda
+```
+
+<details>
+<summary>ASCII version of the same flow</summary>
 
 ```text
    client / MCP agent
@@ -30,11 +61,13 @@ catalog, and identity for their managed equivalents — the *pattern* is identic
    prometheus/grafana ── per-consumer call + latency metrics
 ```
 
+</details>
+
 Postgres and DAB attach **only** to an internal Docker network; the sole path to the
 data for any client is **through Kong**. That is the zero-move proof (see
 `ZERO-MOVE.md` + `tests/test_zero_move.py`).
 
-## Azure ↔ OSS/local mapping
+## 🌐 Azure ↔ OSS/local mapping
 
 | White-paper component (Azure target) | POC local analogue (built here) | Why faithful |
 |---|---|---|
@@ -49,14 +82,14 @@ data for any client is **through Kong**. That is the zero-move proof (see
 | Azure Monitor / App Insights | **Prometheus + Grafana** | Per-consumer metering + latency dashboard |
 | Azure data platform (Databricks/Delta/UC) | documented only — see `AZURE-DEPLOYMENT.md` | Managed UC + Databricks SQL at FedRAMP High in commercial Azure |
 
-## Networks (docker-compose)
+## 🌐 Networks (docker-compose)
 
 - `internal` — `postgres` ↔ `dab` ↔ `transportation` ↔ kong-upstream only. The sources
   attach here (no host ports).
 - `edge` — `kong` ↔ consumers / UI / catalog / mcp / registry. Consumers reach any
   source only via Kong.
 
-## Multi-source federation + control-plane
+## ✨ Multi-source federation + control-plane
 
 The gateway fronts **multiple** sources. Beyond the built-in Artemis system of record,
 an **onboarding wizard** publishes additional existing APIs (e.g. the DOT transportation

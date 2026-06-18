@@ -1,5 +1,12 @@
 # Databricks zero-move walkthrough — gateway → medallion (Unity Catalog) → Databricks SQL → Power BI
 
+> [!NOTE]
+> **TL;DR** — Azure Databricks reads the data product *through the gateway* (authenticated,
+> metered, auditable), builds a Bronze → Silver → Gold medallion as Delta in Unity Catalog,
+> and serves the Gold mart via a Databricks SQL warehouse for Power BI. Use your existing
+> `dbw-btfabric-dev` workspace; run the medallion notebook in `postgres` (today) or
+> `gateway` (zero-move) mode. The system of record never moves.
+
 > **The story:** the marketplace already serves governed data products through the
 > gateway. **Azure Databricks** is just another **governed consumer** — it reads the
 > data product *through the gateway* (authenticated, metered, auditable), builds a
@@ -35,11 +42,25 @@ Artifacts in this repo:
 
 ---
 
+## 📑 Table of Contents
+
+- [0. Use your existing workspace (no provisioning needed)](#0-use-your-existing-workspace-no-provisioning-needed)
+- [1. Two ways to run — pick one](#1-two-ways-to-run--pick-one)
+- [2. SQL warehouse](#2-sql-warehouse)
+- [3. Secrets](#3-secrets)
+- [4. Import + run the notebook](#4-import--run-the-notebook)
+- [5. Verify in Unity Catalog + Databricks SQL](#5-verify-in-unity-catalog--databricks-sql)
+- [6. Connect Power BI](#6-connect-power-bi)
+- [7. (Optional) Delta Sharing — zero-copy to external consumers](#7-optional-delta-sharing--zero-copy-to-external-consumers)
+- [8. Teardown (stop billing)](#8-teardown-stop-billing)
+
+---
+
 ## 0. Use your existing workspace (no provisioning needed)
 
 You already have a Unity-Catalog-enabled workspace — use it directly:
 
-| | |
+| Property | Value |
 |---|---|
 | Workspace | `dbw-btfabric-dev` (premium / Unity Catalog) |
 | URL | `https://adb-7405607213468698.18.azuredatabricks.net` |
@@ -62,6 +83,7 @@ databricks unity-catalog catalogs list             # confirm your UC catalogs
 Pick a catalog you can write to (or create one if you have `CREATE CATALOG`) and use it
 as the `catalog` widget below (the notebook defaults to `artemis`).
 
+> [!TIP]
 > The reference IaC to stand up a *new* workspace is still in
 > `infra/azure/modules/databricks.bicep` if you ever need it — not required here.
 

@@ -15,7 +15,19 @@
 
 ---
 
-## Why you're reading this
+## 📑 Table of Contents
+
+- [Why you're reading this](#-why-youre-reading-this)
+- [What we heard, in your words](#-what-we-heard-in-your-words)
+- [What Microsoft proposes](#-what-microsoft-proposes)
+- [The two first pilots](#-the-two-first-pilots)
+- [Who's at the table, and what each gets from this](#-whos-at-the-table-and-what-each-gets-from-this)
+- [Recommended next steps](#-recommended-next-steps)
+- [Where the detail lives](#-where-the-detail-lives)
+
+---
+
+## 📋 Why you're reading this
 
 The agency is preparing an Administrator-level directive that will ask every
 organization to expose its mission data through governed APIs, discoverable in an
@@ -33,7 +45,7 @@ and a **Technical API-First Companion**. This page is the orientation.
 > makes that ecosystem work, on open standards, with the least possible burden on
 > the systems you already run.
 
-## What we heard, in your words
+## 👂 What we heard, in your words
 
 - **Zero copy.** Petabytes of data; no medallion rebuild. Catalog the metadata,
   connect compute where it's needed, and keep data in its system of record.
@@ -53,7 +65,7 @@ and a **Technical API-First Companion**. This page is the orientation.
   too expensive as coding usage grows; a gateway pattern for token governance,
   multi-model routing, and per-org chargeback is of direct interest.
 
-## What Microsoft proposes
+## ✨ What Microsoft proposes
 
 **One platform that catalogs and governs three asset classes — data, APIs, and
 code — over a shared, vendor-neutral backbone**, with LLMs as both the scaling
@@ -83,7 +95,7 @@ nothing moves to be exposed or governed.
 > the surfaces the agency already owns, the LLM economics at the gateway, and the
 > code-assurance layer around it.
 
-## The two first pilots
+## 🗺️ The two first pilots
 
 We propose **two parallel, contained, measurable first pilots** — one per track —
 rather than tying the first deliverable to a single in-flight effort:
@@ -98,7 +110,7 @@ asset-management (Maximo-style) use case — so prioritizing the two pilots does
 drop that audience's priority; it builds the paved path that facilities and the
 other enterprise use cases then ride.
 
-## Who's at the table, and what each gets from this
+## 🤝 Who's at the table, and what each gets from this
 
 | Stakeholder | What this program offers you |
 |---|---|
@@ -108,7 +120,7 @@ other enterprise use cases then ride.
 | **Policy & metadata standards** | A federated-catalog discipline and a data-stewardship capability that put governance and correct labeling first — the actual blocker. |
 | **Power Platform / Dataverse owner** | Dataverse as a first-class API-first surface: an open OData v4 Web API with `$metadata` discovery, governed through the same gateway as everything else. |
 
-## Recommended next steps
+## 🚀 Recommended next steps
 
 1. **Confirm the framing** — one platform across data, APIs, and code; Microsoft as
    the interoperability layer, not "the one AI."
@@ -118,7 +130,7 @@ other enterprise use cases then ride.
    procurement data), an APIM-as-LLM-gateway demonstration, and a follow-on
    resourcing scope.
 
-## Where the detail lives
+## 🔗 Where the detail lives
 
 - **Executive Concept Paper** — the unifying executive summary across data, APIs,
   and code; the two tracks; the LLM gateway; the phased path; the resourcing frame.

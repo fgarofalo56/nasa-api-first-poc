@@ -6,9 +6,35 @@ the DOT transportation source, and the DAB auto-API over a managed Postgres — 
 **front end tenant-locked by Microsoft Entra**. Reproduce with
 `scripts/azure-deploy-fullstack.sh` (`PG_ADMIN_PASSWORD` from the env; no secrets committed).
 
+> [!WARNING]
 > Sample/synthetic data only — see [`DISCLAIMER.md`](DISCLAIMER.md).
 
-## What is deployed
+---
+
+## 📑 Table of Contents
+
+- [What is deployed](#-what-is-deployed)
+- [Access](#-access)
+- [Honest deltas vs. the local stack](#-honest-deltas-vs-the-local-stack)
+- [Teardown (stop billing)](#-teardown-stop-billing)
+
+---
+
+## 🏗️ What is deployed
+
+```mermaid
+flowchart TD
+    UI["Front end (NASA UI)<br/>tenant-locked Entra EasyAuth"] --> Kong[Gateway: Kong OSS]
+    Kong --> ID[Identity: RS256 issuer]
+    Kong --> Cat[Catalog]
+    Kong --> Reg[Registry control-plane]
+    Kong --> DAB["DAB auto-API<br/>(REST + GraphQL + OpenAPI)"]
+    Kong --> DOT[DOT transportation source]
+    DAB --> PG[("PostgreSQL Flexible Server<br/>artemis-pg-n1")]
+    style UI fill:#0b3d91,color:#fff
+    style Kong fill:#1168bd,color:#fff
+```
+
 
 | Resource | Name | Notes |
 |---|---|---|
@@ -25,10 +51,11 @@ the DOT transportation source, and the DAB auto-API over a managed Postgres — 
 | DAB auto-API | `artemis-dab` | REST+GraphQL+OpenAPI over the SoR |
 | Entra app registrations | `artemis-ui-easyauth`, `artemis-dab-easyauth` | single-tenant |
 
-**Region note:** `eastus`/`eastus2` are policy-restricted for these resources in this
-subscription; **Central US** is used. The subscription also enforces an `owner` tag.
+> [!NOTE]
+> **Region note:** `eastus`/`eastus2` are policy-restricted for these resources in this
+> subscription; **Central US** is used. The subscription also enforces an `owner` tag.
 
-## Access
+## 🌐 Access
 
 - **NASA UI (tenant-locked):**
   `https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`
@@ -41,7 +68,7 @@ Verified live: the gateway returns the rich Artemis headline rows and the federa
 bridge inventory (both governed by JWT + rate-limit + correlation id), and the UI is 401
 until tenant sign-in.
 
-## Honest deltas vs. the local stack
+## ⚠️ Honest deltas vs. the local stack
 
 - **Live "add a source" wizard** needs Kong's admin port, which ACA doesn't cleanly expose,
   so both sources are **pre-registered**; the one-click wizard stays the local showpiece
@@ -51,7 +78,7 @@ until tenant sign-in.
   governs every data call). True zero-move in Azure = VNet + private endpoints so the SoR has
   no public path — the production-hardening step (reference Bicep in `infra/azure/`).
 
-## Teardown (stop billing)
+## 🔧 Teardown (stop billing)
 
 ```bash
 ./scripts/azure-teardown.sh            # deletes the RG + EasyAuth app regs (prompts)
