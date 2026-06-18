@@ -29,6 +29,13 @@ done
 
 echo "Deleting resource group '$RG' (async)..."
 az group delete -n "$RG" --yes --no-wait
+
+# Key Vault soft-delete would block a same-name redeploy — purge it so the name frees up.
+KV="${KV:-artemis-kv-n1}"
+if az keyvault list-deleted --query "[?name=='$KV']" -o tsv 2>/dev/null | grep -q "$KV"; then
+  az keyvault purge -n "$KV" 2>/dev/null && echo "purged soft-deleted Key Vault $KV" || true
+fi
+
 echo "Done. Resources are being deleted; billing stops as they are removed."
 echo "Note: the Databricks notebook artifacts live in your dbw-btfabric-dev workspace —"
 echo "drop them with: DROP SCHEMA adb_eastus2_sandbox.bronze CASCADE; (silver/gold too)."

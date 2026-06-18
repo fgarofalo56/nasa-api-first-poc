@@ -70,6 +70,33 @@ echo "==> 2. DAB: drop EasyAuth so the gateway can front it"
 az containerapp auth update -g "$RG" -n artemis-dab --action AllowAnonymous -o none 2>/dev/null || true
 DAB_FQDN="$(az containerapp show -g "$RG" -n artemis-dab --query properties.configuration.ingress.fqdn -o tsv)"
 
+echo "==> 2b. Key Vault: store the DB connection string + back the DAB secret with it (managed identity)"
+# Production-hardening: the DAB connection string lives in Key Vault, and the DAB app
+# reads it at runtime via its system-assigned managed identity + a Key Vault reference —
+# so the secret value is never inlined in the app's config. Idempotent.
+KV="${KV:-artemis-kv-n1}"
+SUBID="$(az account show --query id -o tsv)"
+az keyvault show -n "$KV" -g "$RG" >/dev/null 2>&1 || \
+  az keyvault create -n "$KV" -g "$RG" -l "$LOC" --enable-rbac-authorization true --tags "${TAGS[@]}" -o none
+KVID="/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.KeyVault/vaults/$KV"
+ME="$(az ad signed-in-user show --query id -o tsv)"
+az role assignment create --assignee-object-id "$ME" --assignee-principal-type User \
+  --role "Key Vault Secrets Officer" --scope "$KVID" -o none 2>/dev/null || true
+sleep 20  # RBAC propagation before the data-plane secret write
+DAB_CONN="Host=$PG_FQDN;Port=5432;Database=procurement;Username=artemis;Password=$PG_ADMIN_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
+az keyvault secret set --vault-name "$KV" --name dab-conn --value "$DAB_CONN" -o none
+# give the DAB app a managed identity + read access, then point its secret at the vault
+DAB_PID="$(az containerapp identity assign -g "$RG" -n artemis-dab --system-assigned -o none 2>/dev/null; \
+           az containerapp show -g "$RG" -n artemis-dab --query identity.principalId -o tsv)"
+az role assignment create --assignee-object-id "$DAB_PID" --assignee-principal-type ServicePrincipal \
+  --role "Key Vault Secrets User" --scope "$KVID" -o none 2>/dev/null || true
+sleep 60  # RBAC propagation before the app resolves the reference
+az containerapp secret set -g "$RG" -n artemis-dab \
+  --secrets "dab-conn=keyvaultref:https://$KV.vault.azure.net/secrets/dab-conn,identityref:system" -o none
+# ensure the DAB env var consumes the (now KV-backed) secret, then restart to pick it up
+az containerapp update -g "$RG" -n artemis-dab \
+  --set-env-vars "DAB_CONNECTION_STRING=secretref:dab-conn" -o none 2>/dev/null || true
+
 echo "==> 3. backends: transportation, identity, catalog, registry"
 TRANSPORT_FQDN="$(deploy transportation transportation:latest 8200 \
   --env-vars TRANSPORT_PORT=8200)"

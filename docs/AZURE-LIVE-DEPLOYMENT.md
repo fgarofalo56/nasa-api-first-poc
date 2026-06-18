@@ -15,6 +15,7 @@ the DOT transportation source, and the DAB auto-API over a managed Postgres — 
 
 - [What is deployed](#-what-is-deployed)
 - [Access](#-access)
+- [Secrets, identity & observability](#-secrets-identity--observability)
 - [Honest deltas vs. the local stack](#-honest-deltas-vs-the-local-stack)
 - [Teardown (stop billing)](#-teardown-stop-billing)
 
@@ -48,7 +49,10 @@ flowchart TD
 | Catalog | `catalog` | lists both sources |
 | Registry | `registry` | control-plane (live add is a local feature — see below) |
 | DOT transportation | `transportation` | the federated 2nd source |
-| DAB auto-API | `artemis-dab` | REST+GraphQL+OpenAPI over the SoR |
+| DAB auto-API | `artemis-dab` | REST+GraphQL+OpenAPI; conn string from **Key Vault** |
+| MCP server | `mcp` | agent path (`query_supply_risk` through the gateway) |
+| Key Vault | `artemis-kv-n1` | RBAC; holds the DB connection string (`dab-conn`) |
+| Log Analytics | `artemis-logs` | Container Apps env logs + APIM diagnostics |
 | Entra app registrations | `artemis-ui-easyauth`, `artemis-dab-easyauth` | single-tenant |
 
 > [!NOTE]
@@ -67,6 +71,22 @@ flowchart TD
 Verified live: the gateway returns the rich Artemis headline rows and the federated `/dot`
 bridge inventory (both governed by JWT + rate-limit + correlation id), and the UI is 401
 until tenant sign-in.
+
+## 🔐 Secrets, identity & observability
+
+- **No connection string in app config.** The DAB Postgres connection string is stored in
+  **Azure Key Vault** (`artemis-kv-n1`, RBAC-authorized) as secret `dab-conn`. The DAB
+  Container App has a **system-assigned managed identity** with the *Key Vault Secrets User*
+  role, and its `DAB_CONNECTION_STRING` env var resolves a **Key Vault reference**
+  (`keyvaultref:…/secrets/dab-conn,identityref:system`) at runtime — the secret value is
+  never inlined into the revision template. Verified: DAB serves `/api/openapi` (200) and
+  the headline query through Kong (200) with the secret resolved from the vault.
+- **Tenant lock.** The front end uses Entra **EasyAuth** (single-tenant) — anonymous
+  callers are redirected to sign-in; only `limitlessdata` accounts can use the UI.
+- **Observability.** A **Log Analytics** workspace (`artemis-logs`) collects Container Apps
+  env logs (and, in the APIM edition, APIM `GatewayLogs` + metrics). This is the foundation
+  for **Microsoft Sentinel** (SIEM) — enable the SecurityInsights solution on the same
+  workspace; see [`SECURITY.md`](SECURITY.md).
 
 ## ⚠️ Honest deltas vs. the local stack
 
