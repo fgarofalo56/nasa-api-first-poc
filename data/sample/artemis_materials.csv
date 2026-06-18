@@ -1,61 +1,601 @@
 MATNR,MAKTX,MATKL,PROGRAM,CRITICALITY,STD_LEAD_TIME_DAYS,STD_UNIT_COST_USD,UOM
-NSN-9479-573417,Mobile launcher umbilical,GSE,EGS-Ground,Critical,235,4154612.15,LOT
-NSN-1117-174441,Ablative TPS tile,Thermal,Artemis-3,Routine,11,53184.82,EA
-NSN-8953-324643,Solar array wing,Power,Gateway,Essential,166,476146.22,EA
-NSN-6804-544154,Ground command toolkit,Software,Artemis-3,Essential,70,2001511.19,EA
-NSN-4139-299448,MLI blanket set,Thermal,Gateway,Essential,153,624628.65,EA
-NSN-2604-153045,Mobile launcher umbilical,GSE,Moon-Base,Routine,12,304837.25,SET
-NSN-7570-161483,MLI blanket set,Thermal,Artemis-3,Critical,121,3172815.79,LOT
-NSN-3536-299122,Cryo transfer line,GSE,SR1-Freedom,Essential,60,125498.32,SET
-NSN-1931-632496,Composite interstage panel,Structures,Moon-Base,Critical,215,3028584.94,LOT
-NSN-1651-749468,MLI blanket set,Thermal,Moon-Base,Critical,418,5023093.43,EA
-NSN-5351-515011,Ablative TPS tile,Thermal,SR1-Freedom,Critical,273,3437385.19,LOT
-NSN-2200-663750,Turbopump impeller,Propulsion,Moon-Base,Critical,255,2771736.88,EA
-NSN-9900-837715,Pad water deluge nozzle,GSE,Artemis-3,Essential,47,2329400.34,EA
-NSN-5333-221035,Titanium thrust bracket,Structures,EGS-Ground,Routine,24,158007.76,EA
-NSN-5325-629959,MLI blanket set,Thermal,Artemis-3,Essential,68,110360.29,EA
-NSN-5291-269430,Composite interstage panel,Structures,SR1-Freedom,Routine,42,56474.51,EA
-NSN-7049-710805,Inertial measurement unit,Avionics,Artemis-3,Essential,77,2247468.87,EA
-NSN-4441-815198,Connector backshell,EEE,Gateway,Critical,172,7303789.44,EA
-NSN-3662-938742,Heat-pipe radiator panel,Thermal,Artemis-3,Routine,18,586799.66,SET
-NSN-5371-266931,MLI blanket set,Thermal,Moon-Base,Routine,9,149715.64,SET
-NSN-6000-960394,Connector backshell,EEE,Moon-Base,Routine,8,298876.55,EA
-NSN-5573-468203,Turbopump impeller,Propulsion,Artemis-3,Essential,129,446542.76,EA
-NSN-2776-725550,RAD-hard FPGA board,Avionics,SR1-Freedom,Essential,156,963080.8,LOT
-NSN-5173-146542,Heat-pipe radiator panel,Thermal,Moon-Base,Routine,58,273194.71,EA
-NSN-6143-795612,Connector backshell,EEE,Gateway,Routine,26,244667.5,EA
-NSN-4143-540869,Al-Li dome gore,Structures,Artemis-3,Routine,46,304583.1,EA
-NSN-5700-320392,Solar array wing,Power,Gateway,Essential,127,1689116.74,LOT
-NSN-3780-790855,Mobile launcher umbilical,GSE,Artemis-3,Critical,383,1685153.91,EA
-NSN-1400-148458,Titanium thrust bracket,Structures,EGS-Ground,Critical,363,1458626.78,SET
-NSN-7547-355836,Cryo transfer line,GSE,Moon-Base,Critical,122,1319520.96,LOT
-NSN-1822-684482,Cryo transfer line,GSE,EGS-Ground,Critical,182,7409198.85,LOT
-NSN-8251-742412,Connector backshell,EEE,Gateway,Routine,60,672910.7,SET
-NSN-5246-888295,Pad water deluge nozzle,GSE,Moon-Base,Critical,261,2059807.28,EA
-NSN-4841-384913,Li-ion battery module,Power,Moon-Base,Essential,65,957680.78,EA
-NSN-2052-535020,Ablative TPS tile,Thermal,Moon-Base,Essential,164,2082252.99,SET
-NSN-7232-600149,Inertial measurement unit,Avionics,Gateway,Critical,300,4036862.06,LOT
-NSN-8999-330080,MLI blanket set,Thermal,Gateway,Essential,52,1810494.82,SET
-NSN-9751-128276,Al-Li dome gore,Structures,Gateway,Routine,12,101813.51,SET
-NSN-1823-372793,Titanium thrust bracket,Structures,Gateway,Essential,161,695749.8,SET
-NSN-2341-593152,Li-ion battery module,Power,SR1-Freedom,Critical,396,5859346.32,EA
-NSN-5051-309044,Inertial measurement unit,Avionics,SR1-Freedom,Routine,15,422996.81,EA
-NSN-5198-904150,Mobile launcher umbilical,GSE,EGS-Ground,Essential,86,64342.21,EA
-NSN-7498-849747,Ground command toolkit,Software,EGS-Ground,Critical,244,6041547.24,LOT
-NSN-6688-658623,RAD-hard FPGA board,Avionics,Artemis-3,Essential,62,31778.48,SET
-NSN-2729-554582,Mobile launcher umbilical,GSE,EGS-Ground,Routine,34,724106.85,EA
-NSN-8616-556732,Mobile launcher umbilical,GSE,Artemis-3,Routine,22,661228.71,EA
-NSN-7209-452737,Mobile launcher umbilical,GSE,Artemis-3,Critical,286,5983833.65,EA
-NSN-5526-682789,Power distribution unit,Power,Gateway,Critical,217,3664563.99,EA
-NSN-9041-569945,Cryo transfer line,GSE,Moon-Base,Routine,21,229685.74,LOT
-NSN-8753-680358,Connector backshell,EEE,Gateway,Essential,129,677400.43,EA
-NSN-2976-856321,Ablative TPS tile,Thermal,Gateway,Critical,181,2074072.78,LOT
-NSN-2647-973074,Solar array wing,Power,SR1-Freedom,Critical,236,5310270.03,EA
-NSN-1745-157174,Li-ion battery module,Power,EGS-Ground,Essential,170,710955.67,SET
-NSN-6582-293319,Mobile launcher umbilical,GSE,Gateway,Routine,14,368832.79,LOT
-NSN-3485-256445,Flight computer module,Avionics,EGS-Ground,Routine,22,573343.18,LOT
-NSN-9561-498855,MLI blanket set,Thermal,Artemis-3,Essential,121,1421638.38,EA
-NSN-4404-755900,Turbopump impeller,Propulsion,EGS-Ground,Critical,161,563402.74,EA
-NSN-8381-822858,Ground command toolkit,Software,Artemis-3,Essential,53,1757513.45,SET
-NSN-4824-377405,Cryo valve assembly,Propulsion,Moon-Base,Routine,14,485741.9,EA
+NSN-5334-926097,Heat-pipe radiator panel,Thermal,Moon-Base,Routine,14,485741.9,EA
 NSN-2169-162535,Composite interstage panel,Structures,Gateway,Critical,277,5165225.03,SET
+NSN-9199-666211,Power distribution unit,Power,Artemis-3,Essential,55,1509343.55,EA
+NSN-4750-807053,Cryo valve assembly,Propulsion,Artemis-3,Routine,55,432204.31,EA
+NSN-9502-783157,Cryo transfer line,GSE,Gateway,Essential,91,2422642.73,SET
+NSN-7690-449499,Rad-hard memory array,EEE,Gateway,Essential,86,720651.26,SET
+NSN-8451-192337,Inertial measurement unit,Avionics,EGS-Ground,Essential,74,2062344.27,EA
+NSN-7770-156837,Cryo transfer line,GSE,SR1-Freedom,Critical,305,1527045.19,LOT
+NSN-5719-559398,Al-Li dome gore,Structures,EGS-Ground,Routine,8,599494.33,EA
+NSN-1224-679077,Li-ion battery module,Power,Moon-Base,Essential,74,1246014.01,EA
+NSN-7807-975271,Power distribution unit,Power,Moon-Base,Essential,107,959057.5,LOT
+NSN-2143-389666,Al-Li dome gore,Structures,Artemis-3,Routine,57,615420.18,EA
+NSN-9022-255813,Power distribution unit,Power,EGS-Ground,Essential,133,943118.55,EA
+NSN-4912-699573,Heat-pipe radiator panel,Thermal,Gateway,Essential,56,1763113.92,SET
+NSN-3492-619389,Ground command toolkit,Software,SR1-Freedom,Routine,44,655648.44,SET
+NSN-9617-579123,Turbopump impeller,Propulsion,SR1-Freedom,Critical,193,3521418.24,EA
+NSN-7512-781403,Connector backshell,EEE,Gateway,Critical,288,6542930.06,EA
+NSN-4846-761820,Turbopump impeller,Propulsion,Gateway,Routine,54,733754.27,EA
+NSN-3725-827712,Mobile launcher umbilical,GSE,Artemis-3,Essential,56,896254.59,SET
+NSN-5000-656968,Composite interstage panel,Structures,EGS-Ground,Essential,88,2177118.37,LOT
+NSN-9153-711484,MLI blanket set,Thermal,SR1-Freedom,Critical,356,6741859.48,SET
+NSN-9955-265649,Solar array wing,Power,Artemis-3,Critical,296,3426513.02,EA
+NSN-7302-994787,MLI blanket set,Thermal,EGS-Ground,Essential,142,739786.59,EA
+NSN-7484-387813,Inertial measurement unit,Avionics,Moon-Base,Critical,145,4553164.31,EA
+NSN-4115-751051,Heat-pipe radiator panel,Thermal,SR1-Freedom,Essential,69,772435.87,SET
+NSN-6977-867934,Inertial measurement unit,Avionics,Moon-Base,Critical,271,1506320.6,LOT
+NSN-9697-626169,Rad-hard memory array,EEE,Artemis-3,Routine,59,559930.92,EA
+NSN-8673-178957,Cryo valve assembly,Propulsion,Artemis-3,Critical,235,677680.93,SET
+NSN-5332-662636,Inertial measurement unit,Avionics,Artemis-3,Critical,308,812997.01,EA
+NSN-1410-749641,Mobile launcher umbilical,GSE,SR1-Freedom,Routine,46,476569.35,SET
+NSN-7689-222343,Li-ion battery module,Power,SR1-Freedom,Critical,139,1761344.58,LOT
+NSN-7367-575679,Al-Li dome gore,Structures,Moon-Base,Essential,152,2213551.65,EA
+NSN-7686-393328,Cryo transfer line,GSE,Moon-Base,Critical,309,6415941.5,EA
+NSN-9920-776149,Space-grade DC-DC converter,EEE,Gateway,Essential,115,229319.81,EA
+NSN-1828-925013,RAD-hard FPGA board,Avionics,Moon-Base,Essential,97,1466019.75,EA
+NSN-3417-926952,Space-grade DC-DC converter,EEE,EGS-Ground,Routine,16,188024.37,EA
+NSN-1422-238205,Turbopump impeller,Propulsion,Artemis-3,Critical,241,393419.05,SET
+NSN-2041-599380,Turbopump impeller,Propulsion,Gateway,Essential,176,1259671.15,LOT
+NSN-9543-416282,Inertial measurement unit,Avionics,Gateway,Essential,60,1715290.83,SET
+NSN-2204-184714,Cryo transfer line,GSE,EGS-Ground,Essential,61,1582746.85,LOT
+NSN-7240-726410,Rad-hard memory array,EEE,SR1-Freedom,Essential,174,1982771.27,EA
+NSN-8046-573489,MLI blanket set,Thermal,Gateway,Routine,59,312018.52,EA
+NSN-7992-427704,Rad-hard memory array,EEE,SR1-Freedom,Routine,50,68459.49,EA
+NSN-8075-201255,Turbopump impeller,Propulsion,EGS-Ground,Routine,42,717470.42,LOT
+NSN-3002-530764,Connector backshell,EEE,Artemis-3,Essential,58,879212.72,LOT
+NSN-3535-788637,MLI blanket set,Thermal,SR1-Freedom,Essential,134,1906549.69,LOT
+NSN-8030-986209,Heat-pipe radiator panel,Thermal,Artemis-3,Essential,51,72528.61,EA
+NSN-6567-468074,Li-ion battery module,Power,SR1-Freedom,Critical,193,688591.33,LOT
+NSN-7163-540226,Heat-pipe radiator panel,Thermal,Artemis-3,Essential,139,1942122.52,LOT
+NSN-1861-263137,Combustion chamber liner,Propulsion,Gateway,Critical,145,3642694.24,SET
+NSN-5475-326040,Flight software license,Software,Artemis-3,Routine,34,508677.9,LOT
+NSN-9633-799539,Mobile launcher umbilical,GSE,SR1-Freedom,Essential,146,511177.15,EA
+NSN-5186-403507,Titanium thrust bracket,Structures,Moon-Base,Essential,172,323094.88,LOT
+NSN-9196-685864,Heat-pipe radiator panel,Thermal,SR1-Freedom,Routine,32,327190.07,SET
+NSN-6129-703727,Turbopump impeller,Propulsion,Gateway,Essential,151,52288.27,EA
+NSN-8538-972442,Composite interstage panel,Structures,Moon-Base,Routine,34,326782.79,SET
+NSN-7484-425346,Turbopump impeller,Propulsion,SR1-Freedom,Routine,56,382884.49,EA
+NSN-6724-468154,Ablative TPS tile,Thermal,Artemis-3,Routine,13,147989.97,LOT
+NSN-2234-285751,Al-Li dome gore,Structures,EGS-Ground,Routine,55,336703.74,LOT
+NSN-6179-258290,Rad-hard memory array,EEE,Artemis-3,Essential,158,1478610.68,EA
+NSN-6085-584172,Combustion chamber liner,Propulsion,SR1-Freedom,Essential,139,1611719.47,EA
+NSN-8581-708519,Telemetry decoder,Software,Moon-Base,Essential,160,803918.68,SET
+NSN-2013-572407,Al-Li dome gore,Structures,Moon-Base,Critical,295,293998.33,SET
+NSN-9586-648141,Cryo transfer line,GSE,Gateway,Essential,140,1936195.8,LOT
+NSN-6482-169113,Inertial measurement unit,Avionics,EGS-Ground,Essential,143,2183218.16,EA
+NSN-3317-466813,Cryo valve assembly,Propulsion,SR1-Freedom,Essential,78,774058.28,SET
+NSN-3093-802667,Connector backshell,EEE,Gateway,Routine,48,381388.48,EA
+NSN-6060-289019,Space-grade DC-DC converter,EEE,Moon-Base,Routine,19,116246.91,EA
+NSN-9317-908320,Combustion chamber liner,Propulsion,EGS-Ground,Essential,54,327752.95,SET
+NSN-3658-289630,Titanium thrust bracket,Structures,Artemis-3,Routine,9,507286.76,EA
+NSN-5668-888939,Mobile launcher umbilical,GSE,Artemis-3,Routine,41,724199.03,SET
+NSN-7026-811256,MLI blanket set,Thermal,Gateway,Routine,56,377202.39,SET
+NSN-4271-940181,Titanium thrust bracket,Structures,Artemis-3,Essential,58,1386418.68,EA
+NSN-5670-187949,Turbopump impeller,Propulsion,Gateway,Routine,39,68826.05,EA
+NSN-6727-127965,Mobile launcher umbilical,GSE,Gateway,Essential,173,2486314.2,EA
+NSN-1461-434165,Ablative TPS tile,Thermal,Artemis-3,Routine,15,688050.85,SET
+NSN-8685-570392,Composite interstage panel,Structures,Moon-Base,Essential,49,1372078.29,LOT
+NSN-2821-913875,Flight software license,Software,Gateway,Essential,76,1597433.49,LOT
+NSN-2029-216242,Pad water deluge nozzle,GSE,EGS-Ground,Routine,47,181487.71,EA
+NSN-8032-101640,Power distribution unit,Power,SR1-Freedom,Essential,151,1308782.87,EA
+NSN-9618-670511,Combustion chamber liner,Propulsion,SR1-Freedom,Essential,50,1589231.63,EA
+NSN-1266-474440,Power distribution unit,Power,SR1-Freedom,Routine,53,578636.31,EA
+NSN-1726-469412,Titanium thrust bracket,Structures,Moon-Base,Essential,163,2028772.48,EA
+NSN-1605-407696,Cryo transfer line,GSE,EGS-Ground,Critical,222,2986951.22,LOT
+NSN-5150-138399,Mobile launcher umbilical,GSE,Artemis-3,Routine,29,204945.16,EA
+NSN-7553-879414,Ground command toolkit,Software,Gateway,Essential,131,918462.22,LOT
+NSN-2353-862400,Solar array wing,Power,Artemis-3,Essential,91,256629.38,EA
+NSN-6021-567576,Solar array wing,Power,Artemis-3,Essential,87,1117907.08,EA
+NSN-5498-770532,Telemetry decoder,Software,Gateway,Routine,49,272512.0,EA
+NSN-3339-989894,Flight computer module,Avionics,Moon-Base,Essential,53,1946321.66,EA
+NSN-7272-694799,Rad-hard memory array,EEE,Gateway,Critical,198,5723240.15,LOT
+NSN-9674-484774,Composite interstage panel,Structures,Moon-Base,Essential,108,1247685.04,SET
+NSN-5288-912609,Combustion chamber liner,Propulsion,Gateway,Essential,99,500565.83,EA
+NSN-8406-281043,Cryo valve assembly,Propulsion,Artemis-3,Routine,58,500894.79,EA
+NSN-5914-992717,Li-ion battery module,Power,SR1-Freedom,Critical,209,7388500.79,EA
+NSN-9094-127560,Heat-pipe radiator panel,Thermal,Moon-Base,Essential,139,1529929.11,EA
+NSN-6067-517500,Combustion chamber liner,Propulsion,EGS-Ground,Routine,33,55354.72,EA
+NSN-8372-588461,Cryo valve assembly,Propulsion,EGS-Ground,Routine,60,136509.16,EA
+NSN-9238-158104,Flight software license,Software,Moon-Base,Routine,26,242026.04,EA
+NSN-9501-397846,Connector backshell,EEE,Artemis-3,Routine,47,93917.09,EA
+NSN-9234-772124,Cryo valve assembly,Propulsion,EGS-Ground,Critical,417,5404871.48,LOT
+NSN-1674-965322,Connector backshell,EEE,Artemis-3,Routine,48,488363.18,LOT
+NSN-1496-622230,Ground command toolkit,Software,Gateway,Routine,48,183692.41,SET
+NSN-8430-176517,Solar array wing,Power,Gateway,Routine,33,153053.08,LOT
+NSN-6121-853258,Titanium thrust bracket,Structures,EGS-Ground,Essential,147,1404193.79,EA
+NSN-8642-228473,Ablative TPS tile,Thermal,Artemis-3,Essential,81,2363470.42,LOT
+NSN-5067-267457,Flight software license,Software,Gateway,Routine,19,746977.24,SET
+NSN-6055-621530,Mobile launcher umbilical,GSE,Moon-Base,Critical,321,4375268.34,EA
+NSN-5609-618934,Flight computer module,Avionics,SR1-Freedom,Essential,118,1077404.78,EA
+NSN-7606-483713,Connector backshell,EEE,Artemis-3,Critical,146,551905.03,LOT
+NSN-5582-965401,Cryo transfer line,GSE,Artemis-3,Routine,13,596182.15,EA
+NSN-3363-308727,Space-grade DC-DC converter,EEE,SR1-Freedom,Essential,173,342720.38,EA
+NSN-9508-579187,Pad water deluge nozzle,GSE,Artemis-3,Critical,383,1219142.22,LOT
+NSN-6511-631958,Power distribution unit,Power,Artemis-3,Routine,52,356193.08,EA
+NSN-6427-806537,Connector backshell,EEE,SR1-Freedom,Critical,333,4477003.51,EA
+NSN-1841-711868,Heat-pipe radiator panel,Thermal,Moon-Base,Essential,142,79071.55,EA
+NSN-1310-562462,Ablative TPS tile,Thermal,Gateway,Essential,150,1254623.49,LOT
+NSN-2020-840058,Cryo transfer line,GSE,EGS-Ground,Critical,226,2826466.25,EA
+NSN-9734-458955,Mobile launcher umbilical,GSE,Artemis-3,Essential,168,1395282.91,EA
+NSN-5735-839142,Solar array wing,Power,EGS-Ground,Critical,370,7002782.65,EA
+NSN-2996-701334,Solar array wing,Power,Moon-Base,Routine,59,217871.42,EA
+NSN-6674-563864,Cryo valve assembly,Propulsion,Artemis-3,Routine,19,699770.96,EA
+NSN-2789-745584,Al-Li dome gore,Structures,EGS-Ground,Routine,10,169288.58,EA
+NSN-2641-533377,Flight computer module,Avionics,SR1-Freedom,Essential,70,2411302.24,EA
+NSN-8793-600641,Telemetry decoder,Software,SR1-Freedom,Routine,25,680956.86,EA
+NSN-9767-874568,Ablative TPS tile,Thermal,SR1-Freedom,Routine,33,747878.98,SET
+NSN-4052-885386,Cryo transfer line,GSE,EGS-Ground,Routine,7,452105.1,EA
+NSN-8444-772464,Solar array wing,Power,Artemis-3,Essential,79,482149.57,EA
+NSN-3662-866634,Connector backshell,EEE,Artemis-3,Essential,92,1976950.55,LOT
+NSN-3875-740632,MLI blanket set,Thermal,SR1-Freedom,Routine,39,300651.9,EA
+NSN-3303-600646,Titanium thrust bracket,Structures,Moon-Base,Essential,46,1116921.79,EA
+NSN-5947-710754,Rad-hard memory array,EEE,Moon-Base,Routine,48,46635.45,EA
+NSN-6026-267475,Mobile launcher umbilical,GSE,Artemis-3,Essential,124,918954.63,EA
+NSN-3188-601410,Heat-pipe radiator panel,Thermal,Gateway,Critical,311,5680238.12,EA
+NSN-2341-651033,Ablative TPS tile,Thermal,SR1-Freedom,Essential,64,2071960.82,LOT
+NSN-9792-257131,Heat-pipe radiator panel,Thermal,Moon-Base,Critical,386,5377012.13,SET
+NSN-9361-567122,Combustion chamber liner,Propulsion,Gateway,Routine,39,422953.01,LOT
+NSN-6049-858414,Mobile launcher umbilical,GSE,EGS-Ground,Critical,250,548138.58,SET
+NSN-2044-667451,Rad-hard memory array,EEE,Gateway,Routine,9,135022.9,EA
+NSN-7135-501058,Telemetry decoder,Software,EGS-Ground,Essential,141,332604.57,EA
+NSN-3924-663356,Turbopump impeller,Propulsion,SR1-Freedom,Essential,102,2446229.93,SET
+NSN-9715-497700,Flight software license,Software,Artemis-3,Routine,29,141396.86,EA
+NSN-7868-744793,Flight computer module,Avionics,SR1-Freedom,Routine,20,445476.38,SET
+NSN-5009-876513,Flight computer module,Avionics,SR1-Freedom,Critical,344,1051403.75,EA
+NSN-6224-705526,Ablative TPS tile,Thermal,EGS-Ground,Essential,105,552723.69,EA
+NSN-1998-683761,Solar array wing,Power,SR1-Freedom,Routine,42,729218.92,SET
+NSN-7821-528090,Connector backshell,EEE,Gateway,Critical,312,1807602.98,EA
+NSN-3365-944917,Power distribution unit,Power,EGS-Ground,Essential,150,335361.76,EA
+NSN-4331-446305,Power distribution unit,Power,Moon-Base,Essential,139,128983.84,SET
+NSN-2192-297303,Flight computer module,Avionics,Artemis-3,Routine,37,227422.38,EA
+NSN-4113-877493,Heat-pipe radiator panel,Thermal,Moon-Base,Critical,365,2975011.96,EA
+NSN-5637-499152,Rad-hard memory array,EEE,EGS-Ground,Essential,123,2207047.46,SET
+NSN-8692-898625,Combustion chamber liner,Propulsion,SR1-Freedom,Routine,27,421913.23,EA
+NSN-1265-373441,Composite interstage panel,Structures,Moon-Base,Essential,151,824763.74,SET
+NSN-9180-677390,MLI blanket set,Thermal,Gateway,Routine,55,345646.01,EA
+NSN-3293-855303,Composite interstage panel,Structures,SR1-Freedom,Essential,60,2362978.5,EA
+NSN-7756-244170,Flight computer module,Avionics,SR1-Freedom,Routine,52,164074.91,SET
+NSN-1990-747847,Space-grade DC-DC converter,EEE,EGS-Ground,Essential,169,1379176.16,EA
+NSN-9673-857273,RAD-hard FPGA board,Avionics,Gateway,Essential,49,2015448.32,EA
+NSN-2578-649857,Combustion chamber liner,Propulsion,Artemis-3,Critical,218,5962114.77,EA
+NSN-7652-581294,Space-grade DC-DC converter,EEE,SR1-Freedom,Essential,121,233887.24,SET
+NSN-8798-158840,Ground command toolkit,Software,Artemis-3,Essential,66,1414706.69,EA
+NSN-4764-321686,Flight computer module,Avionics,SR1-Freedom,Routine,24,513335.76,EA
+NSN-3938-991737,RAD-hard FPGA board,Avionics,Gateway,Essential,81,2322198.02,EA
+NSN-4939-694223,Al-Li dome gore,Structures,Moon-Base,Routine,31,592882.99,EA
+NSN-1879-202430,Connector backshell,EEE,EGS-Ground,Essential,132,991848.12,EA
+NSN-5478-921609,RAD-hard FPGA board,Avionics,Gateway,Routine,29,323911.53,LOT
+NSN-2404-909676,Ground command toolkit,Software,Moon-Base,Essential,63,950092.98,EA
+NSN-6188-478221,Ground command toolkit,Software,Artemis-3,Critical,122,767139.6,EA
+NSN-8061-570646,Composite interstage panel,Structures,SR1-Freedom,Essential,149,884882.63,EA
+NSN-7311-112940,Connector backshell,EEE,Moon-Base,Essential,66,1429965.28,EA
+NSN-3777-245584,Flight software license,Software,Moon-Base,Essential,171,1086775.47,SET
+NSN-8933-920685,Power distribution unit,Power,Gateway,Critical,248,4453730.77,EA
+NSN-2752-242071,Pad water deluge nozzle,GSE,Gateway,Essential,130,2010220.54,EA
+NSN-6484-551533,Pad water deluge nozzle,GSE,Moon-Base,Routine,27,359280.75,EA
+NSN-6228-405605,Ground command toolkit,Software,Artemis-3,Routine,27,612379.14,SET
+NSN-2865-691240,Connector backshell,EEE,SR1-Freedom,Critical,399,7147555.73,SET
+NSN-8183-936433,MLI blanket set,Thermal,Moon-Base,Essential,149,1583395.1,EA
+NSN-3525-849979,Power distribution unit,Power,Gateway,Essential,63,1455672.71,LOT
+NSN-9907-138551,Flight software license,Software,Artemis-3,Routine,13,124791.38,LOT
+NSN-7547-889245,Flight computer module,Avionics,Artemis-3,Essential,72,555119.4,LOT
+NSN-8303-492292,Ablative TPS tile,Thermal,Gateway,Essential,83,261507.71,SET
+NSN-2901-971699,Combustion chamber liner,Propulsion,Gateway,Routine,26,588212.21,LOT
+NSN-6706-599292,Cryo transfer line,GSE,SR1-Freedom,Critical,351,6076479.94,EA
+NSN-6620-779445,Flight computer module,Avionics,EGS-Ground,Critical,204,1201395.77,LOT
+NSN-8570-343118,Telemetry decoder,Software,Gateway,Routine,47,296713.98,LOT
+NSN-8365-720970,MLI blanket set,Thermal,SR1-Freedom,Essential,99,1443433.16,LOT
+NSN-6993-441819,Titanium thrust bracket,Structures,EGS-Ground,Critical,178,7244388.34,EA
+NSN-7431-715519,Flight software license,Software,Artemis-3,Critical,300,6890155.94,LOT
+NSN-3194-428399,Combustion chamber liner,Propulsion,Moon-Base,Critical,276,3831406.65,SET
+NSN-7286-543588,Composite interstage panel,Structures,Gateway,Critical,395,2166580.83,EA
+NSN-8389-749498,Space-grade DC-DC converter,EEE,Moon-Base,Critical,303,6114202.71,LOT
+NSN-7703-817956,Mobile launcher umbilical,GSE,EGS-Ground,Essential,170,77297.14,EA
+NSN-1535-388204,Solar array wing,Power,EGS-Ground,Critical,267,5569002.76,SET
+NSN-2871-380901,Cryo valve assembly,Propulsion,Gateway,Routine,55,409785.37,SET
+NSN-5055-412170,Combustion chamber liner,Propulsion,SR1-Freedom,Routine,23,329327.67,EA
+NSN-4438-950083,Heat-pipe radiator panel,Thermal,Moon-Base,Routine,17,588646.66,EA
+NSN-6747-658136,RAD-hard FPGA board,Avionics,Artemis-3,Essential,88,723439.71,EA
+NSN-3221-886530,Turbopump impeller,Propulsion,Moon-Base,Routine,48,187291.7,EA
+NSN-7434-613234,MLI blanket set,Thermal,SR1-Freedom,Critical,257,4752373.09,EA
+NSN-9447-886224,Ground command toolkit,Software,EGS-Ground,Essential,161,6332.34,EA
+NSN-6869-991401,Cryo transfer line,GSE,Moon-Base,Critical,393,3710589.48,EA
+NSN-6533-673896,Solar array wing,Power,SR1-Freedom,Essential,169,115000.42,SET
+NSN-3035-999312,Flight computer module,Avionics,Moon-Base,Critical,353,6616161.26,EA
+NSN-5489-197874,Al-Li dome gore,Structures,Moon-Base,Routine,30,38883.13,EA
+NSN-8032-787326,MLI blanket set,Thermal,SR1-Freedom,Critical,168,995638.73,EA
+NSN-1152-108454,Mobile launcher umbilical,GSE,Gateway,Routine,51,53163.04,SET
+NSN-2678-208214,Turbopump impeller,Propulsion,Moon-Base,Essential,80,171168.76,LOT
+NSN-3688-561477,RAD-hard FPGA board,Avionics,Gateway,Essential,83,2149927.32,EA
+NSN-3293-888996,Combustion chamber liner,Propulsion,Moon-Base,Critical,316,1858736.31,EA
+NSN-5668-916808,Heat-pipe radiator panel,Thermal,EGS-Ground,Routine,20,382164.0,SET
+NSN-1894-921875,Li-ion battery module,Power,Moon-Base,Routine,31,374709.42,LOT
+NSN-9655-112653,Cryo valve assembly,Propulsion,Gateway,Routine,31,274087.9,EA
+NSN-2195-117500,Mobile launcher umbilical,GSE,SR1-Freedom,Essential,112,2371707.69,SET
+NSN-9209-904373,Power distribution unit,Power,EGS-Ground,Essential,66,1540175.23,EA
+NSN-6077-182860,Combustion chamber liner,Propulsion,Gateway,Essential,84,1466154.94,EA
+NSN-8167-865416,Li-ion battery module,Power,Gateway,Routine,22,87029.72,LOT
+NSN-6067-798435,RAD-hard FPGA board,Avionics,Moon-Base,Routine,7,526138.14,EA
+NSN-6680-648410,Mobile launcher umbilical,GSE,Artemis-3,Essential,87,1832379.65,EA
+NSN-6488-946313,RAD-hard FPGA board,Avionics,EGS-Ground,Essential,61,1568887.95,SET
+NSN-9368-477617,Mobile launcher umbilical,GSE,Artemis-3,Critical,410,5800069.15,LOT
+NSN-4742-876764,Turbopump impeller,Propulsion,Gateway,Essential,48,910036.64,EA
+NSN-1579-679720,Composite interstage panel,Structures,Gateway,Routine,27,686894.86,EA
+NSN-2276-699298,Li-ion battery module,Power,EGS-Ground,Essential,58,2453537.45,SET
+NSN-8620-396020,Cryo valve assembly,Propulsion,Gateway,Routine,12,6021.52,EA
+NSN-5979-875501,Solar array wing,Power,Moon-Base,Essential,139,1831198.47,LOT
+NSN-3466-106687,MLI blanket set,Thermal,SR1-Freedom,Routine,41,713244.9,EA
+NSN-6038-208998,Flight software license,Software,Moon-Base,Critical,241,5337523.32,EA
+NSN-4792-986575,Flight computer module,Avionics,EGS-Ground,Essential,162,239078.18,EA
+NSN-2226-720647,Ground command toolkit,Software,Artemis-3,Essential,78,2127306.63,SET
+NSN-6211-574751,Connector backshell,EEE,SR1-Freedom,Essential,96,388653.07,EA
+NSN-8635-429287,Mobile launcher umbilical,GSE,Gateway,Essential,136,770873.05,EA
+NSN-2481-265271,Combustion chamber liner,Propulsion,Moon-Base,Routine,20,68450.57,EA
+NSN-7492-638401,Space-grade DC-DC converter,EEE,SR1-Freedom,Critical,273,7140746.11,SET
+NSN-2551-584487,Ablative TPS tile,Thermal,Moon-Base,Critical,191,980755.46,SET
+NSN-2376-710610,Space-grade DC-DC converter,EEE,Gateway,Essential,50,2023275.27,EA
+NSN-3007-144770,Rad-hard memory array,EEE,Gateway,Routine,43,372117.47,SET
+NSN-3831-471136,Ground command toolkit,Software,Moon-Base,Critical,215,260305.24,LOT
+NSN-5835-623125,Ablative TPS tile,Thermal,Artemis-3,Essential,167,957630.74,SET
+NSN-9614-361250,Heat-pipe radiator panel,Thermal,Artemis-3,Essential,49,1199289.14,SET
+NSN-9231-437226,Connector backshell,EEE,Moon-Base,Essential,51,73404.26,EA
+NSN-8728-655149,Flight computer module,Avionics,Moon-Base,Essential,104,1642212.52,EA
+NSN-4594-703656,Flight computer module,Avionics,Moon-Base,Routine,60,177447.7,EA
+NSN-1462-837623,Space-grade DC-DC converter,EEE,Gateway,Routine,43,406614.06,EA
+NSN-1621-194641,Cryo transfer line,GSE,SR1-Freedom,Critical,232,2488305.67,LOT
+NSN-3137-457311,Ablative TPS tile,Thermal,EGS-Ground,Routine,8,528535.54,EA
+NSN-9622-482614,Turbopump impeller,Propulsion,Artemis-3,Routine,44,226355.29,EA
+NSN-8157-930307,Al-Li dome gore,Structures,EGS-Ground,Essential,126,1733946.96,LOT
+NSN-4657-797860,Connector backshell,EEE,Artemis-3,Essential,141,318501.81,EA
+NSN-1530-290926,Flight software license,Software,Artemis-3,Essential,71,1863396.52,EA
+NSN-6234-276042,Space-grade DC-DC converter,EEE,Artemis-3,Essential,130,524329.26,EA
+NSN-5205-925250,Rad-hard memory array,EEE,Gateway,Critical,120,7268277.59,SET
+NSN-7204-468292,Pad water deluge nozzle,GSE,Moon-Base,Essential,167,406766.88,EA
+NSN-5831-121053,Flight computer module,Avionics,Gateway,Essential,63,402387.1,EA
+NSN-6536-722886,Cryo valve assembly,Propulsion,Moon-Base,Routine,34,455505.89,SET
+NSN-1877-206176,Al-Li dome gore,Structures,EGS-Ground,Essential,149,663272.13,EA
+NSN-4891-200575,Li-ion battery module,Power,Artemis-3,Critical,412,29065.07,EA
+NSN-8869-309374,Solar array wing,Power,SR1-Freedom,Critical,225,3552016.78,EA
+NSN-7512-593821,Power distribution unit,Power,Gateway,Essential,68,462325.32,SET
+NSN-4056-567429,Space-grade DC-DC converter,EEE,Artemis-3,Critical,345,4232045.5,EA
+NSN-2404-800596,Cryo valve assembly,Propulsion,Moon-Base,Essential,150,1384071.73,SET
+NSN-9773-820442,Ground command toolkit,Software,SR1-Freedom,Routine,37,296130.51,EA
+NSN-2970-893969,Composite interstage panel,Structures,Moon-Base,Essential,99,106833.35,EA
+NSN-4308-962520,Flight software license,Software,SR1-Freedom,Essential,126,970339.67,SET
+NSN-5525-644932,Rad-hard memory array,EEE,SR1-Freedom,Essential,178,1036193.83,EA
+NSN-2730-690016,Combustion chamber liner,Propulsion,Gateway,Routine,33,491106.29,LOT
+NSN-1613-280564,Cryo transfer line,GSE,Artemis-3,Essential,147,1726330.81,EA
+NSN-5400-490532,Cryo transfer line,GSE,SR1-Freedom,Critical,275,7293737.2,EA
+NSN-5923-879850,Titanium thrust bracket,Structures,EGS-Ground,Essential,113,1613940.2,EA
+NSN-4463-963994,Mobile launcher umbilical,GSE,EGS-Ground,Essential,177,1978757.26,EA
+NSN-9303-522979,Li-ion battery module,Power,Moon-Base,Critical,388,6277398.44,EA
+NSN-8478-153015,Inertial measurement unit,Avionics,EGS-Ground,Routine,30,297733.85,EA
+NSN-4963-490559,RAD-hard FPGA board,Avionics,EGS-Ground,Essential,90,874497.29,EA
+NSN-2480-398916,Li-ion battery module,Power,Moon-Base,Critical,145,4855507.87,EA
+NSN-7709-638214,Power distribution unit,Power,Moon-Base,Critical,124,4508744.11,EA
+NSN-5135-737894,MLI blanket set,Thermal,Artemis-3,Routine,34,344272.86,EA
+NSN-5950-810091,Pad water deluge nozzle,GSE,Artemis-3,Essential,71,1403708.57,LOT
+NSN-5890-817659,Power distribution unit,Power,Artemis-3,Critical,152,6461249.33,EA
+NSN-4086-257212,Power distribution unit,Power,Gateway,Essential,59,1651376.73,EA
+NSN-9148-409963,RAD-hard FPGA board,Avionics,SR1-Freedom,Essential,148,1457621.8,LOT
+NSN-6622-861842,MLI blanket set,Thermal,EGS-Ground,Routine,49,225177.61,EA
+NSN-5813-202344,Titanium thrust bracket,Structures,SR1-Freedom,Essential,91,555750.44,EA
+NSN-7889-926372,Solar array wing,Power,Gateway,Routine,44,638417.11,SET
+NSN-2166-595158,Inertial measurement unit,Avionics,EGS-Ground,Routine,50,223798.39,EA
+NSN-3250-310026,Titanium thrust bracket,Structures,Moon-Base,Essential,162,1947386.1,SET
+NSN-3897-428638,Space-grade DC-DC converter,EEE,Moon-Base,Essential,160,1440760.85,EA
+NSN-2442-235691,Cryo transfer line,GSE,Gateway,Essential,148,11822.14,LOT
+NSN-7112-114760,Heat-pipe radiator panel,Thermal,SR1-Freedom,Routine,8,470032.0,EA
+NSN-6641-427252,MLI blanket set,Thermal,Moon-Base,Critical,316,490073.29,EA
+NSN-5764-578073,Power distribution unit,Power,Moon-Base,Routine,34,257079.21,SET
+NSN-4087-272892,Space-grade DC-DC converter,EEE,Moon-Base,Routine,21,158428.17,EA
+NSN-3017-484398,Titanium thrust bracket,Structures,EGS-Ground,Routine,47,467368.04,LOT
+NSN-2771-785315,Inertial measurement unit,Avionics,Gateway,Routine,33,92735.74,EA
+NSN-3508-315477,Pad water deluge nozzle,GSE,SR1-Freedom,Routine,33,496877.41,EA
+NSN-7862-971002,Composite interstage panel,Structures,SR1-Freedom,Routine,25,373326.9,LOT
+NSN-5308-971889,MLI blanket set,Thermal,Artemis-3,Essential,136,401059.94,LOT
+NSN-4402-821634,Mobile launcher umbilical,GSE,SR1-Freedom,Routine,7,680164.22,LOT
+NSN-3443-194458,Pad water deluge nozzle,GSE,Moon-Base,Routine,23,342587.87,EA
+NSN-8606-152512,Solar array wing,Power,Artemis-3,Critical,209,3195222.35,EA
+NSN-1751-110142,Combustion chamber liner,Propulsion,EGS-Ground,Routine,29,201264.98,EA
+NSN-6615-291752,Rad-hard memory array,EEE,Gateway,Critical,324,5999333.27,EA
+NSN-3171-829987,Cryo valve assembly,Propulsion,Gateway,Routine,33,601707.49,SET
+NSN-7221-917012,Titanium thrust bracket,Structures,SR1-Freedom,Essential,78,2219001.68,SET
+NSN-2037-374320,RAD-hard FPGA board,Avionics,EGS-Ground,Routine,56,542842.59,EA
+NSN-9504-648513,Connector backshell,EEE,Moon-Base,Routine,49,361470.57,SET
+NSN-1894-112210,Titanium thrust bracket,Structures,Moon-Base,Essential,174,187301.88,SET
+NSN-4946-446968,Connector backshell,EEE,Gateway,Routine,21,302484.6,EA
+NSN-8521-565765,Combustion chamber liner,Propulsion,Artemis-3,Routine,38,89069.8,SET
+NSN-2681-523037,Flight computer module,Avionics,EGS-Ground,Essential,45,2407933.65,EA
+NSN-8474-457411,MLI blanket set,Thermal,EGS-Ground,Essential,102,1918575.89,LOT
+NSN-6952-850689,Cryo transfer line,GSE,Artemis-3,Essential,101,2074735.23,EA
+NSN-2741-148001,Connector backshell,EEE,Gateway,Routine,59,80261.32,LOT
+NSN-4072-226611,Ablative TPS tile,Thermal,Artemis-3,Routine,36,80864.46,SET
+NSN-3018-909652,Inertial measurement unit,Avionics,SR1-Freedom,Routine,15,397794.39,EA
+NSN-8912-633025,Flight software license,Software,SR1-Freedom,Routine,53,290581.75,LOT
+NSN-9259-503348,Rad-hard memory array,EEE,Artemis-3,Essential,115,1132196.34,EA
+NSN-7762-731792,Al-Li dome gore,Structures,EGS-Ground,Routine,60,645536.93,LOT
+NSN-4291-319899,Ablative TPS tile,Thermal,Moon-Base,Essential,133,1259808.01,EA
+NSN-6771-689593,Cryo valve assembly,Propulsion,EGS-Ground,Essential,151,714927.06,SET
+NSN-9564-211642,Flight computer module,Avionics,Moon-Base,Critical,194,2002666.88,EA
+NSN-5105-253541,Power distribution unit,Power,SR1-Freedom,Routine,55,269040.69,SET
+NSN-4675-878476,Cryo valve assembly,Propulsion,Artemis-3,Essential,105,1732386.25,EA
+NSN-7349-536801,Telemetry decoder,Software,Artemis-3,Routine,7,152351.28,SET
+NSN-7025-891787,MLI blanket set,Thermal,Moon-Base,Essential,94,2458635.79,EA
+NSN-3847-870786,Titanium thrust bracket,Structures,EGS-Ground,Essential,55,660709.35,EA
+NSN-1092-446620,Solar array wing,Power,EGS-Ground,Essential,55,127280.97,LOT
+NSN-9037-928278,Power distribution unit,Power,Artemis-3,Essential,63,1313558.86,EA
+NSN-9276-267112,Combustion chamber liner,Propulsion,Moon-Base,Essential,148,2208509.34,EA
+NSN-6911-407835,Connector backshell,EEE,SR1-Freedom,Critical,391,860813.01,EA
+NSN-4937-773462,Cryo transfer line,GSE,Gateway,Essential,55,2289843.69,EA
+NSN-5203-666479,Ground command toolkit,Software,EGS-Ground,Routine,59,602121.43,SET
+NSN-1718-410833,Mobile launcher umbilical,GSE,SR1-Freedom,Routine,39,125583.57,LOT
+NSN-2072-321020,Flight computer module,Avionics,Moon-Base,Routine,60,403336.46,SET
+NSN-3519-124906,Turbopump impeller,Propulsion,SR1-Freedom,Essential,54,445103.71,EA
+NSN-4729-371212,Combustion chamber liner,Propulsion,SR1-Freedom,Essential,148,973846.24,EA
+NSN-2036-892682,RAD-hard FPGA board,Avionics,SR1-Freedom,Routine,29,217409.41,EA
+NSN-5612-902448,Cryo valve assembly,Propulsion,SR1-Freedom,Routine,59,355514.43,LOT
+NSN-3234-883028,Ablative TPS tile,Thermal,Artemis-3,Essential,120,1693271.02,EA
+NSN-3316-229221,RAD-hard FPGA board,Avionics,SR1-Freedom,Critical,413,2285496.53,EA
+NSN-7760-777308,Ablative TPS tile,Thermal,EGS-Ground,Routine,18,626068.71,EA
+NSN-3971-803571,Cryo valve assembly,Propulsion,SR1-Freedom,Routine,48,218021.42,EA
+NSN-2608-307007,Li-ion battery module,Power,Moon-Base,Routine,29,75074.29,LOT
+NSN-4170-433222,Cryo valve assembly,Propulsion,Moon-Base,Essential,123,1413945.19,EA
+NSN-8017-276831,Connector backshell,EEE,Gateway,Critical,246,2075424.26,EA
+NSN-6432-603268,Al-Li dome gore,Structures,SR1-Freedom,Essential,123,439549.04,LOT
+NSN-5597-966589,Cryo valve assembly,Propulsion,SR1-Freedom,Critical,395,5455812.91,EA
+NSN-7637-906564,RAD-hard FPGA board,Avionics,Gateway,Essential,111,1634822.26,EA
+NSN-7430-334153,Connector backshell,EEE,EGS-Ground,Routine,36,67956.44,EA
+NSN-4913-989173,Inertial measurement unit,Avionics,Moon-Base,Routine,15,134395.83,LOT
+NSN-8921-476224,Titanium thrust bracket,Structures,Artemis-3,Critical,369,1755484.71,EA
+NSN-7358-592489,Rad-hard memory array,EEE,SR1-Freedom,Routine,48,527815.52,LOT
+NSN-5314-706739,Solar array wing,Power,Artemis-3,Essential,141,1469258.91,EA
+NSN-7165-333726,Solar array wing,Power,EGS-Ground,Essential,133,16643.23,EA
+NSN-3713-341162,Mobile launcher umbilical,GSE,Moon-Base,Critical,263,2716959.08,EA
+NSN-7793-950576,MLI blanket set,Thermal,Gateway,Essential,168,526878.27,EA
+NSN-1367-355506,Telemetry decoder,Software,EGS-Ground,Critical,413,294363.85,LOT
+NSN-1916-274421,Al-Li dome gore,Structures,EGS-Ground,Essential,177,1594111.12,EA
+NSN-4548-571023,Turbopump impeller,Propulsion,Gateway,Essential,168,1502156.66,LOT
+NSN-9369-377370,Al-Li dome gore,Structures,SR1-Freedom,Critical,295,1723949.99,SET
+NSN-2778-117367,Composite interstage panel,Structures,EGS-Ground,Critical,378,722645.99,SET
+NSN-9706-627778,Flight computer module,Avionics,EGS-Ground,Routine,49,404485.22,EA
+NSN-9553-541119,Flight software license,Software,Gateway,Essential,180,1973920.53,SET
+NSN-2600-546157,Rad-hard memory array,EEE,EGS-Ground,Critical,364,6575802.8,SET
+NSN-4096-105735,Power distribution unit,Power,SR1-Freedom,Routine,14,281300.53,EA
+NSN-7698-479867,Connector backshell,EEE,Gateway,Critical,338,4235222.68,LOT
+NSN-7511-891645,Solar array wing,Power,EGS-Ground,Critical,402,4162035.46,EA
+NSN-6641-911801,Li-ion battery module,Power,Gateway,Routine,54,587341.71,EA
+NSN-4513-633036,Combustion chamber liner,Propulsion,SR1-Freedom,Essential,58,2010952.75,EA
+NSN-8133-192422,Pad water deluge nozzle,GSE,SR1-Freedom,Critical,233,5433834.33,SET
+NSN-1941-911187,Li-ion battery module,Power,EGS-Ground,Routine,7,214537.01,EA
+NSN-3776-806765,Ablative TPS tile,Thermal,Artemis-3,Critical,242,5847645.74,EA
+NSN-7642-714549,Telemetry decoder,Software,Artemis-3,Critical,127,5446163.56,LOT
+NSN-6693-955129,Connector backshell,EEE,SR1-Freedom,Essential,161,652879.6,SET
+NSN-2185-627611,Cryo valve assembly,Propulsion,EGS-Ground,Essential,176,625466.21,SET
+NSN-8923-907369,Ground command toolkit,Software,EGS-Ground,Critical,293,6465236.68,SET
+NSN-5224-170835,Combustion chamber liner,Propulsion,Gateway,Essential,103,2388620.9,LOT
+NSN-5314-360316,RAD-hard FPGA board,Avionics,Moon-Base,Essential,132,1191467.15,EA
+NSN-5408-291663,Ablative TPS tile,Thermal,Moon-Base,Routine,54,551583.7,EA
+NSN-4755-312616,Ablative TPS tile,Thermal,SR1-Freedom,Routine,56,690144.69,SET
+NSN-9871-144316,RAD-hard FPGA board,Avionics,Artemis-3,Routine,38,368126.93,LOT
+NSN-7518-332881,Solar array wing,Power,Gateway,Routine,40,704743.53,EA
+NSN-7450-819678,Connector backshell,EEE,Gateway,Routine,51,236769.24,EA
+NSN-4452-497859,Inertial measurement unit,Avionics,Moon-Base,Essential,137,1371476.22,EA
+NSN-8722-742865,Li-ion battery module,Power,Gateway,Essential,172,1751826.46,EA
+NSN-7563-393212,Connector backshell,EEE,Moon-Base,Essential,78,2035504.53,EA
+NSN-8081-997904,Ablative TPS tile,Thermal,Moon-Base,Essential,83,1053888.44,EA
+NSN-8972-414608,Space-grade DC-DC converter,EEE,Moon-Base,Essential,57,150231.94,EA
+NSN-2577-571706,Pad water deluge nozzle,GSE,EGS-Ground,Routine,30,698886.5,EA
+NSN-1324-531762,Rad-hard memory array,EEE,Artemis-3,Critical,221,2438480.86,LOT
+NSN-8322-182216,Mobile launcher umbilical,GSE,Moon-Base,Essential,163,1601505.54,EA
+NSN-7631-990136,Flight software license,Software,Artemis-3,Routine,28,237689.42,EA
+NSN-7479-384424,Solar array wing,Power,Moon-Base,Routine,35,137951.37,EA
+NSN-4844-794180,Titanium thrust bracket,Structures,SR1-Freedom,Essential,98,239019.96,SET
+NSN-1431-908382,RAD-hard FPGA board,Avionics,Moon-Base,Essential,71,210915.52,SET
+NSN-4757-359414,Power distribution unit,Power,Moon-Base,Routine,15,21472.18,EA
+NSN-8801-589887,Rad-hard memory array,EEE,Moon-Base,Routine,42,727158.07,LOT
+NSN-8480-761701,Al-Li dome gore,Structures,EGS-Ground,Routine,40,232277.06,EA
+NSN-9841-338161,Cryo transfer line,GSE,Artemis-3,Routine,30,116826.15,EA
+NSN-9574-954987,Inertial measurement unit,Avionics,EGS-Ground,Routine,25,6282.46,SET
+NSN-5908-109576,Mobile launcher umbilical,GSE,EGS-Ground,Routine,57,280261.09,SET
+NSN-7467-362035,Ground command toolkit,Software,SR1-Freedom,Critical,319,3167055.36,EA
+NSN-5664-779956,Li-ion battery module,Power,Moon-Base,Routine,19,102506.88,EA
+NSN-8418-385353,Mobile launcher umbilical,GSE,Moon-Base,Routine,27,37266.82,LOT
+NSN-4046-207241,Flight computer module,Avionics,Moon-Base,Essential,157,225628.93,EA
+NSN-4558-458521,Pad water deluge nozzle,GSE,SR1-Freedom,Essential,140,825722.08,EA
+NSN-5366-913331,Flight computer module,Avionics,Artemis-3,Essential,165,2043154.22,EA
+NSN-5078-503489,Turbopump impeller,Propulsion,Moon-Base,Routine,54,345650.24,EA
+NSN-8746-508024,Heat-pipe radiator panel,Thermal,SR1-Freedom,Routine,17,558554.92,LOT
+NSN-5150-604605,Cryo valve assembly,Propulsion,Moon-Base,Essential,137,2433189.16,EA
+NSN-6316-115799,Flight software license,Software,SR1-Freedom,Critical,261,7266276.0,LOT
+NSN-3539-489439,Mobile launcher umbilical,GSE,EGS-Ground,Routine,38,253846.34,EA
+NSN-6824-775885,Inertial measurement unit,Avionics,Moon-Base,Critical,394,2375854.16,LOT
+NSN-8187-868804,Space-grade DC-DC converter,EEE,Artemis-3,Critical,313,6740018.43,SET
+NSN-5828-669097,Cryo transfer line,GSE,Artemis-3,Routine,41,549313.85,EA
+NSN-2128-656937,Titanium thrust bracket,Structures,Gateway,Critical,271,5848.39,LOT
+NSN-4039-119629,Telemetry decoder,Software,SR1-Freedom,Essential,106,1645774.8,LOT
+NSN-4110-649526,Ground command toolkit,Software,Artemis-3,Routine,46,307379.95,EA
+NSN-2577-648615,Turbopump impeller,Propulsion,Moon-Base,Routine,18,80331.56,EA
+NSN-1521-698749,Cryo valve assembly,Propulsion,EGS-Ground,Essential,170,639957.94,EA
+NSN-2161-113721,Ablative TPS tile,Thermal,Gateway,Routine,60,600773.92,EA
+NSN-7814-961957,Space-grade DC-DC converter,EEE,SR1-Freedom,Essential,113,2086166.08,EA
+NSN-9511-201836,Ablative TPS tile,Thermal,EGS-Ground,Critical,238,4926728.26,LOT
+NSN-7802-882351,Titanium thrust bracket,Structures,Gateway,Critical,415,6621232.87,EA
+NSN-7579-629208,Titanium thrust bracket,Structures,EGS-Ground,Essential,158,2478658.76,EA
+NSN-7755-901305,Connector backshell,EEE,Moon-Base,Essential,106,937751.43,LOT
+NSN-6898-574379,Li-ion battery module,Power,Artemis-3,Essential,45,1489467.7,LOT
+NSN-5945-106887,Composite interstage panel,Structures,Artemis-3,Essential,99,2297792.34,LOT
+NSN-2544-139569,Titanium thrust bracket,Structures,EGS-Ground,Essential,80,624754.79,EA
+NSN-2505-698199,Solar array wing,Power,Gateway,Essential,64,432380.29,LOT
+NSN-5921-139186,Turbopump impeller,Propulsion,Artemis-3,Routine,12,260977.0,SET
+NSN-2974-907812,Ground command toolkit,Software,EGS-Ground,Critical,125,309298.36,LOT
+NSN-6354-626806,Al-Li dome gore,Structures,Gateway,Routine,50,728281.49,LOT
+NSN-4638-552917,Combustion chamber liner,Propulsion,SR1-Freedom,Essential,82,1189715.26,EA
+NSN-5301-189211,Flight software license,Software,Gateway,Essential,78,1398306.55,SET
+NSN-4212-688426,Flight software license,Software,Artemis-3,Essential,108,1941963.23,EA
+NSN-2843-804378,Combustion chamber liner,Propulsion,Artemis-3,Essential,134,1484753.79,EA
+NSN-3773-466704,Li-ion battery module,Power,Moon-Base,Essential,82,499333.08,EA
+NSN-2405-217830,Titanium thrust bracket,Structures,SR1-Freedom,Routine,60,257483.08,EA
+NSN-8373-594078,Power distribution unit,Power,EGS-Ground,Critical,227,5627775.96,LOT
+NSN-3315-828834,Pad water deluge nozzle,GSE,EGS-Ground,Routine,44,32654.55,EA
+NSN-5653-310445,RAD-hard FPGA board,Avionics,SR1-Freedom,Routine,36,49990.35,EA
+NSN-2767-120005,Connector backshell,EEE,SR1-Freedom,Essential,104,2259694.57,SET
+NSN-4054-308535,Turbopump impeller,Propulsion,EGS-Ground,Essential,50,762423.07,SET
+NSN-3572-119264,Ground command toolkit,Software,Moon-Base,Essential,135,2489986.63,LOT
+NSN-2015-756190,Solar array wing,Power,Moon-Base,Essential,52,379397.7,SET
+NSN-2438-865344,Al-Li dome gore,Structures,Moon-Base,Essential,151,1066248.52,EA
+NSN-8359-668573,Rad-hard memory array,EEE,EGS-Ground,Critical,190,6821761.06,SET
+NSN-3589-432918,Titanium thrust bracket,Structures,Moon-Base,Critical,392,5453219.31,EA
+NSN-7737-418083,Flight software license,Software,SR1-Freedom,Essential,83,328994.97,EA
+NSN-4783-725329,Power distribution unit,Power,Gateway,Critical,133,1006039.37,LOT
+NSN-7126-292913,Mobile launcher umbilical,GSE,Moon-Base,Routine,15,169739.61,SET
+NSN-5421-533108,Flight computer module,Avionics,Gateway,Critical,223,6503527.31,SET
+NSN-8496-358771,Rad-hard memory array,EEE,Gateway,Essential,142,1528820.46,LOT
+NSN-9530-214626,RAD-hard FPGA board,Avionics,Gateway,Essential,107,2459579.03,EA
+NSN-9456-902328,Ground command toolkit,Software,Gateway,Essential,93,2211011.28,EA
+NSN-3727-542983,Cryo transfer line,GSE,Gateway,Essential,177,226238.45,LOT
+NSN-3945-916558,Combustion chamber liner,Propulsion,Artemis-3,Essential,79,1127297.0,EA
+NSN-4308-576769,Pad water deluge nozzle,GSE,SR1-Freedom,Critical,285,684343.27,SET
+NSN-2397-649262,Connector backshell,EEE,Gateway,Routine,31,32972.59,EA
+NSN-3459-269999,Rad-hard memory array,EEE,Artemis-3,Routine,33,547633.45,SET
+NSN-3960-223264,Solar array wing,Power,SR1-Freedom,Routine,46,344006.35,SET
+NSN-9084-349433,Inertial measurement unit,Avionics,SR1-Freedom,Critical,363,4509303.7,EA
+NSN-9967-391622,Ablative TPS tile,Thermal,Moon-Base,Essential,98,137801.59,EA
+NSN-3381-995304,Flight computer module,Avionics,SR1-Freedom,Critical,415,817058.34,EA
+NSN-5659-740774,Al-Li dome gore,Structures,EGS-Ground,Routine,36,270170.28,EA
+NSN-5903-438503,Combustion chamber liner,Propulsion,EGS-Ground,Essential,62,162454.93,SET
+NSN-2999-828361,Al-Li dome gore,Structures,Moon-Base,Routine,33,521885.81,LOT
+NSN-2790-699121,RAD-hard FPGA board,Avionics,EGS-Ground,Routine,37,700421.73,EA
+NSN-6185-372273,Telemetry decoder,Software,Gateway,Essential,78,1299336.54,SET
+NSN-3947-739008,Mobile launcher umbilical,GSE,SR1-Freedom,Critical,268,3486883.06,EA
+NSN-7793-534153,Heat-pipe radiator panel,Thermal,Moon-Base,Critical,299,5175267.45,EA
+NSN-6042-414870,Cryo valve assembly,Propulsion,Artemis-3,Essential,46,853502.76,LOT
+NSN-3877-303440,Flight computer module,Avionics,Moon-Base,Essential,167,1203816.58,SET
+NSN-8577-922072,Connector backshell,EEE,Artemis-3,Routine,26,416402.92,EA
+NSN-6434-938373,MLI blanket set,Thermal,SR1-Freedom,Routine,16,254394.05,SET
+NSN-7382-296481,Composite interstage panel,Structures,Artemis-3,Essential,125,1034761.84,SET
+NSN-7088-573858,MLI blanket set,Thermal,Moon-Base,Routine,40,84213.4,EA
+NSN-2517-565330,Ablative TPS tile,Thermal,Artemis-3,Essential,173,2309103.37,LOT
+NSN-6363-250255,Li-ion battery module,Power,Moon-Base,Routine,50,543440.37,SET
+NSN-9558-221462,Ground command toolkit,Software,SR1-Freedom,Critical,142,773674.82,EA
+NSN-6114-769883,Inertial measurement unit,Avionics,Artemis-3,Routine,19,399227.9,SET
+NSN-5467-256574,Cryo valve assembly,Propulsion,EGS-Ground,Critical,178,768218.63,LOT
+NSN-6218-384218,Space-grade DC-DC converter,EEE,Artemis-3,Critical,265,4599645.66,EA
+NSN-1831-236392,Mobile launcher umbilical,GSE,SR1-Freedom,Critical,145,3198751.18,EA
+NSN-6826-427617,Cryo transfer line,GSE,EGS-Ground,Essential,65,329618.43,SET
+NSN-8464-425469,Turbopump impeller,Propulsion,Moon-Base,Routine,21,645828.46,LOT
+NSN-6954-511122,Solar array wing,Power,SR1-Freedom,Critical,289,490659.58,EA
+NSN-8842-583646,Connector backshell,EEE,Moon-Base,Routine,45,380984.39,SET
+NSN-6339-683165,Cryo valve assembly,Propulsion,Gateway,Essential,163,596552.44,EA
+NSN-8903-502460,Titanium thrust bracket,Structures,EGS-Ground,Critical,226,5905046.48,LOT
+NSN-3835-794799,Heat-pipe radiator panel,Thermal,EGS-Ground,Routine,14,347205.49,LOT
+NSN-8294-284731,Turbopump impeller,Propulsion,EGS-Ground,Essential,62,1928392.75,SET
+NSN-9098-776320,Space-grade DC-DC converter,EEE,EGS-Ground,Routine,59,677446.36,EA
+NSN-3444-574978,Composite interstage panel,Structures,Artemis-3,Essential,159,749443.38,EA
+NSN-6640-193624,Ground command toolkit,Software,SR1-Freedom,Essential,148,923151.85,LOT
+NSN-1013-837520,Flight computer module,Avionics,Moon-Base,Essential,73,1079374.0,LOT
+NSN-6212-846348,Flight software license,Software,Moon-Base,Essential,156,1187257.3,EA
+NSN-6902-980764,Flight software license,Software,SR1-Freedom,Essential,77,1621025.85,EA
+NSN-8155-242371,Pad water deluge nozzle,GSE,EGS-Ground,Critical,332,6977363.95,LOT
+NSN-8444-634160,Composite interstage panel,Structures,Moon-Base,Essential,143,1062015.93,EA
+NSN-4878-846722,Mobile launcher umbilical,GSE,EGS-Ground,Essential,138,1208247.84,EA
+NSN-8889-824038,Cryo valve assembly,Propulsion,SR1-Freedom,Critical,389,3925390.45,LOT
+NSN-5017-595401,Turbopump impeller,Propulsion,Artemis-3,Essential,124,1337652.9,EA
+NSN-8438-637566,Cryo transfer line,GSE,Artemis-3,Routine,33,216938.32,EA
+NSN-5267-164401,Li-ion battery module,Power,Artemis-3,Essential,88,2022268.11,LOT
+NSN-5699-608307,Inertial measurement unit,Avionics,Artemis-3,Critical,378,994431.08,EA
+NSN-5209-114892,Solar array wing,Power,Artemis-3,Routine,49,605889.17,EA
+NSN-8944-289592,Ablative TPS tile,Thermal,EGS-Ground,Routine,12,700459.36,EA
+NSN-7765-907789,Pad water deluge nozzle,GSE,Artemis-3,Essential,87,135956.32,EA
+NSN-1860-275741,Cryo valve assembly,Propulsion,EGS-Ground,Essential,122,584268.23,SET
+NSN-5302-252200,Cryo transfer line,GSE,Gateway,Essential,48,1696281.74,LOT
+NSN-2595-657101,Inertial measurement unit,Avionics,Artemis-3,Essential,114,2005820.55,EA
+NSN-8554-910707,Ground command toolkit,Software,Moon-Base,Routine,40,234983.27,EA
+NSN-2113-112542,Inertial measurement unit,Avionics,Artemis-3,Essential,71,548657.9,EA
+NSN-4163-135695,Power distribution unit,Power,Moon-Base,Critical,167,7128689.47,EA
+NSN-2415-998043,Cryo valve assembly,Propulsion,Moon-Base,Essential,92,633451.35,SET
+NSN-8429-389809,Turbopump impeller,Propulsion,Artemis-3,Routine,17,582839.49,SET
+NSN-6450-162976,Flight software license,Software,Gateway,Essential,90,2448558.04,EA
+NSN-3923-776838,Telemetry decoder,Software,SR1-Freedom,Essential,155,2281536.17,EA
+NSN-1571-176461,Combustion chamber liner,Propulsion,Moon-Base,Critical,248,4896646.21,EA
+NSN-7397-379378,Flight computer module,Avionics,EGS-Ground,Critical,288,5307173.97,SET
+NSN-8144-523533,Cryo transfer line,GSE,Gateway,Routine,7,90942.28,LOT
+NSN-6463-814956,Connector backshell,EEE,Artemis-3,Essential,68,201279.89,SET
+NSN-4327-285197,Power distribution unit,Power,Gateway,Essential,93,2241167.28,EA
+NSN-2390-763529,Mobile launcher umbilical,GSE,SR1-Freedom,Essential,80,1799389.63,LOT
+NSN-9015-507652,Heat-pipe radiator panel,Thermal,Gateway,Critical,396,7249321.09,EA
+NSN-6558-158777,Flight computer module,Avionics,EGS-Ground,Essential,148,1146007.16,LOT
+NSN-4817-175532,Composite interstage panel,Structures,Gateway,Critical,192,6803883.36,LOT
+NSN-4976-835363,Flight computer module,Avionics,Artemis-3,Essential,89,2051874.95,EA
+NSN-3796-975930,Pad water deluge nozzle,GSE,EGS-Ground,Essential,74,551548.22,EA
+NSN-6527-950941,Telemetry decoder,Software,EGS-Ground,Routine,14,409434.03,EA
+NSN-1746-721894,Ablative TPS tile,Thermal,Gateway,Critical,152,1260755.78,EA
+NSN-8187-355479,Al-Li dome gore,Structures,EGS-Ground,Routine,13,282126.37,EA
+NSN-8978-184643,RAD-hard FPGA board,Avionics,EGS-Ground,Critical,211,6651914.45,SET
+NSN-3079-316174,Cryo transfer line,GSE,Moon-Base,Critical,258,7035699.94,LOT
+NSN-3949-852037,Inertial measurement unit,Avionics,SR1-Freedom,Essential,122,1394342.35,EA
+NSN-9686-200331,Combustion chamber liner,Propulsion,Moon-Base,Essential,174,691175.0,EA
+NSN-3444-818530,Turbopump impeller,Propulsion,SR1-Freedom,Routine,18,40563.28,EA
+NSN-4433-555786,Power distribution unit,Power,SR1-Freedom,Essential,56,2312164.64,EA
+NSN-1476-608623,Titanium thrust bracket,Structures,EGS-Ground,Essential,105,1449467.48,SET
+NSN-6336-341238,Ablative TPS tile,Thermal,Gateway,Routine,13,652420.58,SET
+NSN-2204-593869,Ablative TPS tile,Thermal,EGS-Ground,Essential,156,1137558.93,SET
+NSN-3234-579975,Rad-hard memory array,EEE,Moon-Base,Routine,19,24114.5,LOT
+NSN-5597-243132,Flight computer module,Avionics,Artemis-3,Critical,358,1649252.8,EA
+NSN-3784-706204,Al-Li dome gore,Structures,Gateway,Routine,33,646655.49,EA
+NSN-8581-392731,Cryo transfer line,GSE,Gateway,Critical,339,4346191.97,LOT
+NSN-1083-538065,Al-Li dome gore,Structures,SR1-Freedom,Routine,53,319299.08,SET
+NSN-2605-574419,Pad water deluge nozzle,GSE,Gateway,Essential,48,2374842.25,EA
+NSN-5846-350675,Connector backshell,EEE,Artemis-3,Essential,49,404632.81,SET
+NSN-8452-586288,Inertial measurement unit,Avionics,Gateway,Routine,57,527939.87,EA
+NSN-7305-824304,Combustion chamber liner,Propulsion,EGS-Ground,Essential,120,1356156.4,EA
+NSN-6500-871501,Turbopump impeller,Propulsion,Gateway,Routine,10,274221.69,LOT
+NSN-6989-484232,RAD-hard FPGA board,Avionics,Moon-Base,Critical,406,1038431.27,EA
+NSN-9841-219073,Heat-pipe radiator panel,Thermal,Moon-Base,Essential,98,801261.47,EA
+NSN-5540-157105,Telemetry decoder,Software,EGS-Ground,Critical,296,6221775.4,SET
+NSN-8405-751114,Li-ion battery module,Power,SR1-Freedom,Essential,93,976797.65,EA
+NSN-2260-214677,Li-ion battery module,Power,Moon-Base,Critical,177,3905372.99,EA
+NSN-7824-815551,Solar array wing,Power,Gateway,Essential,166,1844312.45,EA
+NSN-4097-166007,Solar array wing,Power,Gateway,Critical,238,4340474.12,EA
+NSN-9686-982804,Mobile launcher umbilical,GSE,Artemis-3,Essential,122,429467.05,EA
+NSN-8933-489967,MLI blanket set,Thermal,Gateway,Routine,29,717162.36,LOT
+NSN-9770-399102,Composite interstage panel,Structures,SR1-Freedom,Critical,209,309067.41,EA
+NSN-8223-373056,Titanium thrust bracket,Structures,Artemis-3,Essential,53,369988.35,SET
+NSN-9743-416208,Composite interstage panel,Structures,Gateway,Critical,132,6958617.16,EA
+NSN-9948-632056,RAD-hard FPGA board,Avionics,Moon-Base,Essential,166,1998970.5,SET
+NSN-2840-867180,Connector backshell,EEE,SR1-Freedom,Essential,80,770309.29,SET
+NSN-8306-474754,Heat-pipe radiator panel,Thermal,Moon-Base,Critical,148,5859723.59,EA
+NSN-1369-187649,MLI blanket set,Thermal,Moon-Base,Essential,67,1226239.83,LOT
+NSN-6915-516869,Inertial measurement unit,Avionics,SR1-Freedom,Critical,338,2135199.65,EA
+NSN-8300-688285,Solar array wing,Power,Artemis-3,Critical,347,1228803.87,SET
+NSN-3286-976097,Ground command toolkit,Software,Gateway,Essential,81,2470957.81,LOT
+NSN-2083-719371,Connector backshell,EEE,Artemis-3,Routine,33,310911.86,LOT
+NSN-3243-308936,Cryo transfer line,GSE,SR1-Freedom,Critical,315,6171073.89,EA
+NSN-9095-686448,Li-ion battery module,Power,Moon-Base,Routine,57,197040.95,SET
+NSN-5713-537420,Combustion chamber liner,Propulsion,Gateway,Critical,245,7457499.71,EA
+NSN-8872-693047,Space-grade DC-DC converter,EEE,Artemis-3,Essential,166,1281387.79,LOT
+NSN-5252-270757,RAD-hard FPGA board,Avionics,Moon-Base,Essential,126,893560.06,EA
+NSN-6917-539892,Solar array wing,Power,EGS-Ground,Essential,57,1597420.47,EA
+NSN-4002-901834,Heat-pipe radiator panel,Thermal,Artemis-3,Critical,205,2036270.15,EA
+NSN-9755-708222,Cryo valve assembly,Propulsion,Artemis-3,Essential,48,932629.54,SET
+NSN-6575-270948,Flight software license,Software,EGS-Ground,Critical,199,4600886.65,LOT
+NSN-7837-582860,Combustion chamber liner,Propulsion,Artemis-3,Routine,8,233711.08,EA
+NSN-8240-726680,Titanium thrust bracket,Structures,SR1-Freedom,Essential,89,1861188.87,EA
+NSN-3108-998435,Ablative TPS tile,Thermal,Moon-Base,Routine,15,735833.03,SET
+NSN-2273-119719,Turbopump impeller,Propulsion,SR1-Freedom,Routine,19,594800.7,LOT
+NSN-8685-224698,RAD-hard FPGA board,Avionics,SR1-Freedom,Routine,26,565923.75,EA
+NSN-4277-293757,Heat-pipe radiator panel,Thermal,Artemis-3,Routine,16,711596.01,EA
+NSN-3630-996677,Space-grade DC-DC converter,EEE,SR1-Freedom,Essential,174,2048993.32,EA
+NSN-4138-395548,Ablative TPS tile,Thermal,Moon-Base,Critical,395,6903614.62,SET
+NSN-4033-561023,Rad-hard memory array,EEE,Gateway,Routine,60,318094.8,LOT
+NSN-7677-218327,Ablative TPS tile,Thermal,EGS-Ground,Routine,36,101973.16,EA
+NSN-1665-186243,Solar array wing,Power,EGS-Ground,Essential,143,1840475.63,SET
+NSN-7672-404704,MLI blanket set,Thermal,Artemis-3,Routine,11,134509.89,SET
+NSN-7494-559337,Combustion chamber liner,Propulsion,Gateway,Essential,75,1737638.53,EA
+NSN-2060-481377,Titanium thrust bracket,Structures,SR1-Freedom,Routine,45,174686.75,SET
+NSN-5563-901968,Pad water deluge nozzle,GSE,Gateway,Routine,55,267101.96,LOT
+NSN-8938-636256,Ground command toolkit,Software,Gateway,Essential,72,1243259.86,EA
+NSN-2631-873637,Flight computer module,Avionics,Moon-Base,Critical,154,2870025.19,EA
+NSN-5960-752179,Titanium thrust bracket,Structures,Gateway,Essential,178,504949.1,SET
+NSN-9270-374375,Mobile launcher umbilical,GSE,Gateway,Essential,49,2200332.16,EA

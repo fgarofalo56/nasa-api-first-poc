@@ -20,10 +20,10 @@
 
 | File | Rows | SAP analogue | Purpose |
 |---|---|---|---|
-| `artemis_vendors.csv` | 26 | LFA1 | Suppliers, CAGE codes, sole-source + small-business flags, past performance |
-| `artemis_materials.csv` | 60 | MARA | Parts by family / program / criticality, lead time + unit cost |
-| `artemis_purchase_orders.csv` | 240 | EKKO/EKPO | Orders with promised vs. actual delivery, delay days, pad-anomaly flag |
-| `artemis_supply_risk.csv` | 59 | derived | Per-material risk score/tier from sole-source + criticality + delay history |
+| `artemis_vendors.csv` | ~120 | LFA1 | Suppliers, CAGE codes, sole-source + small-business flags, past performance |
+| `artemis_materials.csv` | ~600 | MARA | Parts by family / program / criticality, lead time + unit cost |
+| `artemis_purchase_orders.csv` | ~10,000 | EKKO/EKPO | Orders with promised vs. actual delivery, delay days, pad-anomaly flag |
+| `artemis_supply_risk.csv` | ~600 | derived | Per-material risk score/tier from sole-source + criticality + delay history |
 
 ## The headline demo query
 

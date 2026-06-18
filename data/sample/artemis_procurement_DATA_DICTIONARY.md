@@ -13,10 +13,10 @@ for the Artemis "Ignition Day" programs.
 ## Files
 | File | Rows | SAP analogue | Purpose |
 |------|------|--------------|---------|
-| `artemis_vendors.csv` | 26 | LFA1 (vendor master) | Suppliers, CAGE codes, sole-source + small-business flags, past performance |
-| `artemis_materials.csv` | 60 | MARA (material master) | Parts by family/program/criticality, standard lead time + unit cost |
-| `artemis_purchase_orders.csv` | 240 | EKKO/EKPO (PO header/line) | Orders with promised vs actual delivery, delay days, pad-anomaly flag |
-| `artemis_supply_risk.csv` | 59 | derived | Per-material risk score/tier from sole-source + criticality + delay history |
+| `artemis_vendors.csv` | 120 | LFA1 (vendor master) | Suppliers, CAGE codes, sole-source + small-business flags, past performance |
+| `artemis_materials.csv` | 600 | MARA (material master) | Parts by family/program/criticality, standard lead time + unit cost |
+| `artemis_purchase_orders.csv` | 10000 | EKKO/EKPO (PO header/line) | Orders with promised vs actual delivery, delay days, pad-anomaly flag |
+| `artemis_supply_risk.csv` | 600 | derived | Per-material risk score/tier from sole-source + criticality + delay history |
 
 ## Key fields (SAP names)
 - **EBELN / EBELP** — purchase order number / line item

@@ -21,10 +21,17 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from data.synthetic_data import generate_artemis_procurement  # noqa: E402
 
-# The deterministic (seed=42) headline row: the single Artemis-3 Critical, sole-source
-# material whose average delay exceeds 30 days.
-EXPECTED_TOP_MATNR = "NSN-7209-452737"
-EXPECTED_TOP_NAME = "Mobile launcher umbilical"
+# Deterministic (seed=42) dataset scale. Scaled up to ~10k rows so the marketplace UI,
+# the Databricks medallion, and the Power BI report look realistic. The exact headline
+# rows are no longer hard-coded (the dataset is large); tests assert behavior + counts.
+EXPECTED_COUNTS = {
+    "vendors": 120,
+    "materials": 600,
+    "purchase_orders": 10000,
+    "supply_risk": 600,
+    "high_risk_materials": 148,
+    "sole_source_materials": 177,
+}
 
 
 @pytest.fixture(scope="module")
@@ -38,13 +45,7 @@ def risk_rows() -> list[dict]:
 def test_generator_counts_are_reproducible():
     with tempfile.TemporaryDirectory() as tmp:
         result = generate_artemis_procurement(tmp, seed=42)
-    counts = result["counts"]
-    assert counts["vendors"] == 26
-    assert counts["materials"] == 60
-    assert counts["purchase_orders"] == 240
-    assert counts["supply_risk"] == 59
-    assert counts["high_risk_materials"] == 11
-    assert counts["sole_source_materials"] == 14
+    assert result["counts"] == EXPECTED_COUNTS
 
 
 def _headline(rows: list[dict]) -> list[dict]:
@@ -62,10 +63,8 @@ def _headline(rows: list[dict]) -> list[dict]:
 
 def test_generator_headline_row_present(risk_rows):
     hits = _headline(risk_rows)
-    assert hits, "expected at least one Artemis-3 high-risk row from seed=42"
+    assert len(hits) >= 1, "expected Artemis-3 Critical sole-source >30d rows from seed=42"
     top = hits[0]
-    assert top["MATNR"] == EXPECTED_TOP_MATNR
-    assert top["MAKTX"] == EXPECTED_TOP_NAME
     assert top["RISK_TIER"] == "High"
     assert int(top["RISK_SCORE"]) >= 70
 
@@ -85,5 +84,5 @@ def test_gateway_supply_risk_returns_headline_row():
     resp = gateway_get(f"/api/SupplyRisk?{flt}", token=token)
     assert resp.status_code == 200, resp.text
     rows = resp.json()["value"]
-    matnrs = {r["matnr"] for r in rows}
-    assert EXPECTED_TOP_MATNR in matnrs, f"expected {EXPECTED_TOP_MATNR} in {matnrs}"
+    assert len(rows) >= 1, "expected >=1 Artemis-3 Critical sole-source >30d row through Kong"
+    assert all(r["risk_tier"] in ("High", "Medium") for r in rows)

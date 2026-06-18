@@ -76,9 +76,9 @@ def generate_artemis_procurement(
     out_dir: str | Path,
     *,
     seed: int = 42,
-    n_vendors: int = 26,
-    n_materials: int = 60,
-    n_pos: int = 240,
+    n_vendors: int = 120,
+    n_materials: int = 600,
+    n_pos: int = 10000,
 ) -> dict:
     """Write vendors/materials/purchase_orders/supply_risk CSVs + a data dictionary.
 
