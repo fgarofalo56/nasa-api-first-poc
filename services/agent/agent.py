@@ -42,7 +42,7 @@ ON_TOPIC = re.compile(
     r"\b(artemis|supply|risk|materi|part|vendor|supplier|deliver|delay|slip|late|"
     r"program|sole.?source|procure|purchase|po\b|gateway|nsn|batter|panel|valve|"
     r"pump|avionic|propuls|radiator|telemetr|converter|critical|essential|routine|"
-    r"moon|egs|mission|data product|marketplace|catalog|who (makes|supplies|builds))\w*",
+    r"moon.?base|egs|mission|data product|marketplace|catalog|who (makes|supplies|builds))\w*",
     re.I,
 )
 HELP = re.compile(r"\b(help|what can you|capabilit|who are you|what are you|how do you work)\w*", re.I)
