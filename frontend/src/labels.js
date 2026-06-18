@@ -42,6 +42,20 @@ export const labelFor = (col) =>
   FIELD_LABELS[col] ||
   col.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 
+// Slugify a material NAME to its blueprint filename. MUST match the slug() in
+// tools/make_product_blueprints.py (lowercase, non-alphanumerics -> '-', collapsed,
+// trimmed) so /img/products/<slug>.svg resolves. We key by NAME, not the random NSN
+// matnr, because there are only ~24 distinct part names but every matnr is unique.
+export const slug = (name) =>
+  String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+// Blueprint render URL for a material name (empty string if no name → caller shows the
+// inline glyph fallback). The <img onError> fallback covers any missing file.
+export const productImageSrc = (maktx) => (maktx ? `/img/products/${slug(maktx)}.svg` : "");
+
 // Columns worth showing first in the results table (others follow, _ingested_at hidden).
 export const PRIMARY_COLS = [
   "maktx",

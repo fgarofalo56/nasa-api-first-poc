@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { materialDetail } from "../api.js";
-import { labelFor } from "../labels.js";
+import { labelFor, productImageSrc } from "../labels.js";
 
 // Drill-down detail for one material. Opening it fires SEVERAL governed gateway calls
 // (material -> risk -> purchase orders -> supplier) and shows the assembled product
@@ -41,7 +41,8 @@ export default function ProductDetail({ row, consumer, onClose }) {
   const v = state.vendor;
   const pos = state.pos || [];
   const corr = state.correlationIds || [];
-  const imgSrc = `/img/products/${encodeURIComponent(matnr)}.png`;
+  // Blueprint is keyed by the material NAME (24 distinct), not the unique NSN matnr.
+  const imgSrc = productImageSrc(m.maktx || row?.maktx);
 
   return (
     <div className="detail-backdrop" onClick={onClose}>
@@ -69,7 +70,7 @@ export default function ProductDetail({ row, consumer, onClose }) {
           {!state.loading && !state.error && (
             <div className="detail-body">
               <figure className="blueprint">
-                {!imgFailed ? (
+                {!imgFailed && imgSrc ? (
                   <img
                     src={imgSrc}
                     alt={`Engineering render of ${m.maktx || matnr}`}
@@ -167,8 +168,8 @@ function Facts({ obj, keys }) {
   );
 }
 
-// Lightweight inline "blueprint" glyph keyed off the material family — a visual stand-in
-// until a real render/photo exists at /img/products/{matnr}.png.
+// Lightweight inline "blueprint" glyph keyed off the material family — the ultimate
+// fallback when /img/products/<name-slug>.svg is missing or fails to load.
 function BlueprintGlyph({ family }) {
   return (
     <svg viewBox="0 0 120 90" width="160" height="120" role="img" aria-label={`${family || "component"} schematic`}>

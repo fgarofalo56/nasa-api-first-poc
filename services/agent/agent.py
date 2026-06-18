@@ -87,6 +87,12 @@ async def _call_tool(tool: str, args: dict) -> dict:
             return payload or {}
 
 
+def _img_slug(name: str) -> str:
+    """Material NAME -> blueprint filename. Must match slug() in
+    tools/make_product_blueprints.py and frontend/src/labels.js."""
+    return re.sub(r"[^a-z0-9]+", "-", (name or "").lower()).strip("-")
+
+
 def _parse_params(q: str) -> dict:
     ql = q.lower()
     program = next((v for k, v in PROGRAMS.items() if k in ql), "Artemis-3")
@@ -181,7 +187,7 @@ async def ask(req: Ask):
                         "sole_source": d.get("sole_source"), "supplier": d.get("supplier"),
                         "cage_code": d.get("cage_code"),
                     },
-                    "image": f"/img/products/{d['material_id']}.png",
+                    "image": f"/img/products/{_img_slug(d['material_name'])}.svg",
                     "recent_pos": d.get("recent_pos", []),
                 },
                 "sources": [{"tool": "material_detail", "product": "SupplyRisk→PurchaseOrder→Vendor",
