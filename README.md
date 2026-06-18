@@ -39,6 +39,11 @@ with a documented, one-swap path to the Azure-Government managed equivalents.
    an "add a data source" wizard that publishes an existing API (e.g. a DOT
    Data API Builder endpoint) through the same gateway **live, with no restart** — the
    API-Management / API-Center pattern. See `docs/ADD-A-SOURCE.md`.
+8. **Lakehouse path (Databricks)** — a zero-move medallion notebook consumes a data
+   product, lands Bronze→Silver→Gold **Delta in Unity Catalog**, and serves a Databricks
+   SQL → **Power BI** report. See `docs/DATABRICKS-WALKTHROUGH.md` + `docs/POWERBI-GUIDE.md`.
+9. **Live in Azure** — the auto-API deployed to Container Apps over Azure Postgres,
+   tenant-locked with Entra (the DOT pattern). See `docs/AZURE-LIVE-DEPLOYMENT.md`.
 
 ## Architecture at a glance (Azure → local mapping)
 
@@ -105,6 +110,7 @@ data/                   # synthetic Artemis generator + classification manifest
 docs/                   # ARCHITECTURE / DEMO-SCRIPT / ZERO-MOVE / SECURITY / ADD-A-SOURCE / AZURE-DEPLOYMENT + whitepapers/
 services/               # seeder · dab · gateway(kong) · identity · catalog · mcp · transportation · registry
 frontend/               # NASA-themed marketplace UI + onboarding wizard (Vite/React)
+databricks/             # zero-move medallion notebook + Databricks SQL (Unity Catalog → Power BI)
 client/                 # Python CLI that queries the gateway
 tools/                  # azure_pricing.py (live Azure Retail Prices helper)
 observability/          # prometheus + grafana
