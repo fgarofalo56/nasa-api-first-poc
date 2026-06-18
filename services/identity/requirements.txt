@@ -1,4 +1,4 @@
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
-pyjwt[crypto]==2.10.1
-cryptography==43.0.3
+pyjwt[crypto]==2.13.0
+cryptography==48.0.1
