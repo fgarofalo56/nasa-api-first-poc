@@ -54,7 +54,10 @@ def m_flight_computer() -> str:
         f'fill="none" stroke="{STROKE}" stroke-width="2"/>'
         for i in range(6)
     )
-    pins = "".join(f'<line x1="{140 + i * 18}" y1="200" x2="{140 + i * 18}" y2="214" stroke="{ACCENT}" stroke-width="2"/>' for i in range(12))
+    pins = "".join(
+        f'<line x1="{140 + i * 18}" y1="200" x2="{140 + i * 18}" y2="214" stroke="{ACCENT}" stroke-width="2"/>'
+        for i in range(12)
+    )
     return (
         f'<rect x="120" y="50" width="240" height="160" rx="6" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'{chips}<circle cx="335" cy="78" r="6" fill="none" stroke="{ACCENT}" stroke-width="2"/>{pins}'
@@ -97,7 +100,10 @@ def m_combustion() -> str:
     return (
         f'<path d="M195 60 L285 60 L300 130 Q240 230 180 130 Z" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'<path d="M210 70 L270 70 L283 128 Q240 200 197 128 Z" fill="none" stroke="{GRID}" stroke-width="1.5"/>'
-        + "".join(f'<line x1="{200 + i * 16}" y1="62" x2="{200 + i * 16}" y2="120" stroke="{ACCENT}" stroke-width="1.2" opacity="0.7"/>' for i in range(6))
+        + "".join(
+            f'<line x1="{200 + i * 16}" y1="62" x2="{200 + i * 16}" y2="120" stroke="{ACCENT}" stroke-width="1.2" opacity="0.7"/>'
+            for i in range(6)
+        )
     )
 
 
@@ -113,7 +119,10 @@ def m_cryo_valve() -> str:
 
 
 def m_interstage() -> str:
-    stringers = "".join(f'<line x1="{150 + i * 30}" y1="70" x2="{150 + i * 30}" y2="200" stroke="{STROKE}" stroke-width="1.6"/>' for i in range(7))
+    stringers = "".join(
+        f'<line x1="{150 + i * 30}" y1="70" x2="{150 + i * 30}" y2="200" stroke="{STROKE}" stroke-width="1.6"/>'
+        for i in range(7)
+    )
     return (
         f'<rect x="140" y="70" width="200" height="130" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'<ellipse cx="240" cy="70" rx="100" ry="16" fill="none" stroke="{ACCENT}" stroke-width="2"/>'
@@ -122,7 +131,10 @@ def m_interstage() -> str:
 
 
 def m_bracket() -> str:
-    holes = "".join(f'<circle cx="{cx}" cy="{cy}" r="7" fill="none" stroke="{ACCENT}" stroke-width="2"/>' for cx, cy in [(175, 95), (305, 95), (175, 185)])
+    holes = "".join(
+        f'<circle cx="{cx}" cy="{cy}" r="7" fill="none" stroke="{ACCENT}" stroke-width="2"/>'
+        for cx, cy in [(175, 95), (305, 95), (175, 185)]
+    )
     return (
         f'<path d="M160 80 L320 80 L320 110 L195 110 L195 200 L160 200 Z" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'<path d="M200 115 L300 115 L205 195 Z" fill="none" stroke="{GRID}" stroke-width="1.5"/>{holes}'
@@ -133,7 +145,10 @@ def m_dome_gore() -> str:
     return (
         f'<path d="M240 60 Q330 135 240 210 Q150 135 240 60 Z" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'<path d="M240 60 L240 210" stroke="{ACCENT}" stroke-width="1.5"/>'
-        + "".join(f'<path d="M{240 - d} {135 - 0} Q240 {72 + i*3} {240 + d} {135}" fill="none" stroke="{GRID}" stroke-width="1.2"/>' for i, d in enumerate([60, 40, 20]))
+        + "".join(
+            f'<path d="M{240 - d} {135 - 0} Q240 {72 + i * 3} {240 + d} {135}" fill="none" stroke="{GRID}" stroke-width="1.2"/>'
+            for i, d in enumerate([60, 40, 20])
+        )
     )
 
 
@@ -146,14 +161,20 @@ def m_tps_tile() -> str:
 
 
 def m_mli() -> str:
-    return "".join(
-        f'<path d="M150 {80 + i * 18} q 45 -12 90 0 t 90 0" fill="none" stroke="{STROKE if i % 2 else GRID}" stroke-width="2"/>'
-        for i in range(7)
-    ) + f'<line x1="150" y1="80" x2="150" y2="188" stroke="{ACCENT}" stroke-width="2"/><line x1="330" y1="80" x2="330" y2="188" stroke="{ACCENT}" stroke-width="2"/>'
+    return (
+        "".join(
+            f'<path d="M150 {80 + i * 18} q 45 -12 90 0 t 90 0" fill="none" stroke="{STROKE if i % 2 else GRID}" stroke-width="2"/>'
+            for i in range(7)
+        )
+        + f'<line x1="150" y1="80" x2="150" y2="188" stroke="{ACCENT}" stroke-width="2"/><line x1="330" y1="80" x2="330" y2="188" stroke="{ACCENT}" stroke-width="2"/>'
+    )
 
 
 def m_radiator() -> str:
-    tubes = "".join(f'<line x1="150" y1="{82 + i * 14}" x2="330" y2="{82 + i * 14}" stroke="{STROKE}" stroke-width="2"/>' for i in range(9))
+    tubes = "".join(
+        f'<line x1="150" y1="{82 + i * 14}" x2="330" y2="{82 + i * 14}" stroke="{STROKE}" stroke-width="2"/>'
+        for i in range(9)
+    )
     return (
         f'<rect x="140" y="72" width="200" height="128" fill="none" stroke="{ACCENT}" stroke-width="2.5"/>{tubes}'
         f'<line x1="140" y1="72" x2="140" y2="200" stroke="{STROKE}" stroke-width="5"/>'
@@ -178,7 +199,10 @@ def m_solar() -> str:
 
 
 def m_pdu() -> str:
-    bars = "".join(f'<rect x="{165 + i * 40}" y="100" width="20" height="70" fill="none" stroke="{STROKE}" stroke-width="2"/>' for i in range(4))
+    bars = "".join(
+        f'<rect x="{165 + i * 40}" y="100" width="20" height="70" fill="none" stroke="{STROKE}" stroke-width="2"/>'
+        for i in range(4)
+    )
     return (
         f'<rect x="140" y="80" width="200" height="110" rx="5" fill="none" stroke="{ACCENT}" stroke-width="2.5"/>{bars}'
         f'<line x1="150" y1="92" x2="330" y2="92" stroke="{STROKE}" stroke-width="3"/>'
@@ -186,8 +210,14 @@ def m_pdu() -> str:
 
 
 def m_dcdc() -> str:
-    coil = "".join(f'<circle cx="{280 + (i % 2) * 0}" cy="{110 + i * 12}" r="9" fill="none" stroke="{STROKE}" stroke-width="2"/>' for i in range(5))
-    caps = "".join(f'<rect x="{165 + i * 22}" y="105" width="14" height="34" rx="6" fill="none" stroke="{ACCENT}" stroke-width="2"/>' for i in range(3))
+    coil = "".join(
+        f'<circle cx="{280 + (i % 2) * 0}" cy="{110 + i * 12}" r="9" fill="none" stroke="{STROKE}" stroke-width="2"/>'
+        for i in range(5)
+    )
+    caps = "".join(
+        f'<rect x="{165 + i * 22}" y="105" width="14" height="34" rx="6" fill="none" stroke="{ACCENT}" stroke-width="2"/>'
+        for i in range(3)
+    )
     return f'<rect x="140" y="80" width="200" height="120" rx="5" fill="none" stroke="{STROKE}" stroke-width="2.5"/>{coil}{caps}'
 
 
@@ -200,7 +230,10 @@ def m_memory() -> str:
 
 
 def m_backshell() -> str:
-    pins = "".join(f'<circle cx="{240 + 34 * __import__("math").cos(a)}" cy="{135 + 34 * __import__("math").sin(a)}" r="4" fill="{STROKE}"/>' for a in [i * 0.5236 for i in range(12)])
+    pins = "".join(
+        f'<circle cx="{240 + 34 * __import__("math").cos(a)}" cy="{135 + 34 * __import__("math").sin(a)}" r="4" fill="{STROKE}"/>'
+        for a in [i * 0.5236 for i in range(12)]
+    )
     return (
         f'<circle cx="240" cy="135" r="62" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'<circle cx="240" cy="135" r="48" fill="none" stroke="{ACCENT}" stroke-width="2"/>{pins}'
@@ -212,7 +245,10 @@ def m_backshell() -> str:
 def m_fsw_license() -> str:
     return (
         f'<rect x="170" y="70" width="140" height="170" rx="6" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
-        + "".join(f'<line x1="190" y1="{100 + i * 20}" x2="290" y2="{100 + i * 20}" stroke="{GRID}" stroke-width="2"/>' for i in range(5))
+        + "".join(
+            f'<line x1="190" y1="{100 + i * 20}" x2="290" y2="{100 + i * 20}" stroke="{GRID}" stroke-width="2"/>'
+            for i in range(5)
+        )
         + f'<text x="240" y="160" font-family="monospace" font-size="34" fill="{ACCENT}" text-anchor="middle">{{ }}</text>'
         + f'<circle cx="290" cy="225" r="16" fill="none" stroke="{ACCENT}" stroke-width="2"/>'
     )
@@ -224,12 +260,18 @@ def m_ground_toolkit() -> str:
         f'<line x1="135" y1="98" x2="345" y2="98" stroke="{STROKE}" stroke-width="2"/>'
         f'<circle cx="148" cy="87" r="3" fill="{ACCENT}"/><circle cx="160" cy="87" r="3" fill="{STROKE}"/>'
         f'<text x="150" y="135" font-family="monospace" font-size="20" fill="{ACCENT}">&gt;_</text>'
-        + "".join(f'<line x1="180" y1="{130 + i * 18}" x2="{300 - i * 20}" y2="{130 + i * 18}" stroke="{GRID}" stroke-width="2"/>' for i in range(4))
+        + "".join(
+            f'<line x1="180" y1="{130 + i * 18}" x2="{300 - i * 20}" y2="{130 + i * 18}" stroke="{GRID}" stroke-width="2"/>'
+            for i in range(4)
+        )
     )
 
 
 def m_telemetry() -> str:
-    pts = " ".join(f"{150 + i * 12},{135 + (28 if i % 4 in (1, 2) else -22) * ((-1) ** (i // 2))}" for i in range(16))
+    pts = " ".join(
+        f"{150 + i * 12},{135 + (28 if i % 4 in (1, 2) else -22) * ((-1) ** (i // 2))}"
+        for i in range(16)
+    )
     return (
         f'<polyline points="{pts}" fill="none" stroke="{ACCENT}" stroke-width="2.5"/>'
         f'<line x1="140" y1="135" x2="345" y2="135" stroke="{GRID}" stroke-width="1.5"/>'
@@ -244,12 +286,18 @@ def m_umbilical() -> str:
         f'<rect x="155" y="60" width="30" height="170" fill="none" stroke="{GRID}" stroke-width="1.5"/>'
         f'<line x1="170" y1="100" x2="300" y2="100" stroke="{STROKE}" stroke-width="3"/>'
         f'<rect x="300" y="86" width="40" height="30" rx="4" fill="none" stroke="{ACCENT}" stroke-width="2.5"/>'
-        + "".join(f'<path d="M185 {100 + i*2} Q260 {120 + i*8} 300 {104}" fill="none" stroke="{ACCENT}" stroke-width="1.4" opacity="0.7"/>' for i in range(3))
+        + "".join(
+            f'<path d="M185 {100 + i * 2} Q260 {120 + i * 8} 300 {104}" fill="none" stroke="{ACCENT}" stroke-width="1.4" opacity="0.7"/>'
+            for i in range(3)
+        )
     )
 
 
 def m_cryo_line() -> str:
-    bellows = "".join(f'<line x1="{205 + i * 12}" y1="115" x2="{205 + i * 12}" y2="155" stroke="{STROKE}" stroke-width="2"/>' for i in range(6))
+    bellows = "".join(
+        f'<line x1="{205 + i * 12}" y1="115" x2="{205 + i * 12}" y2="155" stroke="{STROKE}" stroke-width="2"/>'
+        for i in range(6)
+    )
     return (
         f'<rect x="140" y="118" width="60" height="34" rx="6" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'<rect x="280" y="118" width="60" height="34" rx="6" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
@@ -259,7 +307,10 @@ def m_cryo_line() -> str:
 
 
 def m_deluge() -> str:
-    arcs = "".join(f'<path d="M240 150 Q{200 + i * 20} {210}, {160 + i * 30} 250" fill="none" stroke="{STROKE}" stroke-width="1.6" opacity="0.8"/>' for i in range(5))
+    arcs = "".join(
+        f'<path d="M240 150 Q{200 + i * 20} {210}, {160 + i * 30} 250" fill="none" stroke="{STROKE}" stroke-width="1.6" opacity="0.8"/>'
+        for i in range(5)
+    )
     return (
         f'<rect x="225" y="70" width="30" height="60" fill="none" stroke="{STROKE}" stroke-width="2.5"/>'
         f'<path d="M215 130 L265 130 L245 150 L235 150 Z" fill="none" stroke="{ACCENT}" stroke-width="2.5"/>{arcs}'
@@ -296,8 +347,12 @@ MOTIFS = {
 
 
 def frame(name: str, family: str, motif: str) -> str:
-    vlines = "".join(f'<line x1="{i * 20}" y1="0" x2="{i * 20}" y2="{H}" />' for i in range(W // 20 + 1))
-    hlines = "".join(f'<line x1="0" y1="{i * 20}" x2="{W}" y2="{i * 20}" />' for i in range(H // 20 + 1))
+    vlines = "".join(
+        f'<line x1="{i * 20}" y1="0" x2="{i * 20}" y2="{H}" />' for i in range(W // 20 + 1)
+    )
+    hlines = "".join(
+        f'<line x1="0" y1="{i * 20}" x2="{W}" y2="{i * 20}" />' for i in range(H // 20 + 1)
+    )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-label="Blueprint schematic of {name} ({family}) — synthetic">
   <rect width="{W}" height="{H}" fill="{BG}"/>
   <g stroke="{GRID}" stroke-width="0.5" opacity="0.28">{vlines}{hlines}</g>

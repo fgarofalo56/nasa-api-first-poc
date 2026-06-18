@@ -76,16 +76,22 @@ COLS = {
 
 # (name, DAX, formatString)
 MEASURES = [
-    ("High Risk Materials",
-     'CALCULATE(COUNTROWS(\'artemis_supply_risk\'), \'artemis_supply_risk\'[risk_tier] = "High")',
-     "#,##0"),
-    ("Critical Slips >30d",
-     'CALCULATE(COUNTROWS(\'artemis_supply_risk\'), \'artemis_supply_risk\'[criticality] = "Critical", '
-     "'artemis_supply_risk'[sole_source] = TRUE, 'artemis_supply_risk'[avg_delay_days] > 30)",
-     "#,##0"),
-    ("Sole-Source Exposure ($)",
-     "CALCULATE(SUM('artemis_supply_risk'[total_committed_usd]), 'artemis_supply_risk'[sole_source] = TRUE)",
-     "\\$#,##0"),
+    (
+        "High Risk Materials",
+        "CALCULATE(COUNTROWS('artemis_supply_risk'), 'artemis_supply_risk'[risk_tier] = \"High\")",
+        "#,##0",
+    ),
+    (
+        "Critical Slips >30d",
+        "CALCULATE(COUNTROWS('artemis_supply_risk'), 'artemis_supply_risk'[criticality] = \"Critical\", "
+        "'artemis_supply_risk'[sole_source] = TRUE, 'artemis_supply_risk'[avg_delay_days] > 30)",
+        "#,##0",
+    ),
+    (
+        "Sole-Source Exposure ($)",
+        "CALCULATE(SUM('artemis_supply_risk'[total_committed_usd]), 'artemis_supply_risk'[sole_source] = TRUE)",
+        "\\$#,##0",
+    ),
     ("Pad Anomalies", "SUM('artemis_supply_risk'[pad_anomalies])", "#,##0"),
     ("Avg Delay (days)", "AVERAGE('artemis_supply_risk'[avg_delay_days])", "#,##0.0"),
     ("Material Count", "COUNTROWS('artemis_supply_risk')", "#,##0"),
@@ -119,7 +125,7 @@ def table_tmdl(table: str) -> str:
             "",
         ]
         if dtype == "dateTime":
-            out.insert(len(out) - 1, '\t\tformatString: General Date')
+            out.insert(len(out) - 1, "\t\tformatString: General Date")
     if table == "artemis_supply_risk":
         for mname, dax, fmt in MEASURES:
             out += [
@@ -146,11 +152,13 @@ def expressions_tmdl() -> str:
             f"\tannotation PBI_ResultType = Text\n"
         )
 
-    return "\n".join([
-        param("DatabricksServerHostname", HOST_DEFAULT),
-        param("DatabricksHttpPath", HTTP_PATH_DEFAULT),
-        param("CatalogName", CATALOG_DEFAULT),
-    ])
+    return "\n".join(
+        [
+            param("DatabricksServerHostname", HOST_DEFAULT),
+            param("DatabricksHttpPath", HTTP_PATH_DEFAULT),
+            param("CatalogName", CATALOG_DEFAULT),
+        ]
+    )
 
 
 def model_tmdl() -> str:
@@ -171,16 +179,26 @@ def model_tmdl() -> str:
 
 
 def emit_semantic_model() -> None:
-    write(MODEL_DIR / ".platform", json.dumps({
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
-        "metadata": {"type": "SemanticModel", "displayName": "ArtemisSupplyRisk"},
-        "config": {"version": "2.0", "logicalId": guid("logical:model")},
-    }, indent=2) + "\n")
-    write_json(MODEL_DIR / "definition.pbism", {
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/definitionProperties/1.0.0/schema.json",
-        "version": "4.2",
-        "settings": {},
-    })
+    write(
+        MODEL_DIR / ".platform",
+        json.dumps(
+            {
+                "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+                "metadata": {"type": "SemanticModel", "displayName": "ArtemisSupplyRisk"},
+                "config": {"version": "2.0", "logicalId": guid("logical:model")},
+            },
+            indent=2,
+        )
+        + "\n",
+    )
+    write_json(
+        MODEL_DIR / "definition.pbism",
+        {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/definitionProperties/1.0.0/schema.json",
+            "version": "4.2",
+            "settings": {},
+        },
+    )
     write(MODEL_DIR / "definition" / "database.tmdl", "database\n\tcompatibilityLevel: 1567\n")
     write(MODEL_DIR / "definition" / "model.tmdl", model_tmdl())
     write(MODEL_DIR / "definition" / "expressions.tmdl", expressions_tmdl())
@@ -208,7 +226,11 @@ def visual(name: str, vtype: str, x: int, y: int, w: int, h: int, roles: dict, z
         "$schema": f"{SC}/visualContainer/1.4.0/schema.json",
         "name": name,
         "position": {"x": x, "y": y, "width": w, "height": h, "z": z, "tabOrder": z},
-        "visual": {"visualType": vtype, "query": {"queryState": query_state}, "drillFilterOtherVisuals": True},
+        "visual": {
+            "visualType": vtype,
+            "query": {"queryState": query_state},
+            "drillFilterOtherVisuals": True,
+        },
     }
 
 
@@ -217,41 +239,162 @@ TREND = "delay_trend"
 
 # page 1 visuals: (folder, dict)
 PAGE1 = [
-    ("kpi_high_risk", visual("kpi_high_risk", "card", 16, 16, 290, 120,
-        {"Values": [proj(T, "High Risk Materials", "measure")]}, z=0)),
-    ("kpi_crit_slips", visual("kpi_crit_slips", "card", 322, 16, 290, 120,
-        {"Values": [proj(T, "Critical Slips >30d", "measure")]}, z=1)),
-    ("kpi_sole_exposure", visual("kpi_sole_exposure", "card", 628, 16, 290, 120,
-        {"Values": [proj(T, "Sole-Source Exposure ($)", "measure")]}, z=2)),
-    ("kpi_pad_anomalies", visual("kpi_pad_anomalies", "card", 934, 16, 290, 120,
-        {"Values": [proj(T, "Pad Anomalies", "measure")]}, z=3)),
-    ("slicer_program", visual("slicer_program", "slicer", 934, 152, 290, 160,
-        {"Values": [proj(T, "program", "column")]}, z=4)),
-    ("bar_risk_by_program", visual("bar_risk_by_program", "stackedColumnChart", 16, 152, 590, 264,
-        {"Category": [proj(T, "program", "column")],
-         "Series": [proj(T, "risk_tier", "column")],
-         "Y": [proj(T, "Material Count", "measure")]}, z=5)),
-    ("treemap_vendor_exposure", visual("treemap_vendor_exposure", "treemap", 620, 152, 298, 264,
-        {"Group": [proj(T, "vendor_name", "column")],
-         "Values": [proj(T, "Sole-Source Exposure ($)", "measure")]}, z=6)),
-    ("table_ranked_parts", visual("table_ranked_parts", "tableEx", 16, 428, 1208, 276,
-        {"Values": [
-            proj(T, "material_name", "column"),
-            proj(T, "vendor_name", "column"),
-            proj(T, "risk_tier", "column"),
-            proj(T, "risk_score", "column"),
-            proj(T, "avg_delay_days", "column"),
-            proj(T, "total_committed_usd", "column"),
-        ]}, z=7)),
+    (
+        "kpi_high_risk",
+        visual(
+            "kpi_high_risk",
+            "card",
+            16,
+            16,
+            290,
+            120,
+            {"Values": [proj(T, "High Risk Materials", "measure")]},
+            z=0,
+        ),
+    ),
+    (
+        "kpi_crit_slips",
+        visual(
+            "kpi_crit_slips",
+            "card",
+            322,
+            16,
+            290,
+            120,
+            {"Values": [proj(T, "Critical Slips >30d", "measure")]},
+            z=1,
+        ),
+    ),
+    (
+        "kpi_sole_exposure",
+        visual(
+            "kpi_sole_exposure",
+            "card",
+            628,
+            16,
+            290,
+            120,
+            {"Values": [proj(T, "Sole-Source Exposure ($)", "measure")]},
+            z=2,
+        ),
+    ),
+    (
+        "kpi_pad_anomalies",
+        visual(
+            "kpi_pad_anomalies",
+            "card",
+            934,
+            16,
+            290,
+            120,
+            {"Values": [proj(T, "Pad Anomalies", "measure")]},
+            z=3,
+        ),
+    ),
+    (
+        "slicer_program",
+        visual(
+            "slicer_program",
+            "slicer",
+            934,
+            152,
+            290,
+            160,
+            {"Values": [proj(T, "program", "column")]},
+            z=4,
+        ),
+    ),
+    (
+        "bar_risk_by_program",
+        visual(
+            "bar_risk_by_program",
+            "stackedColumnChart",
+            16,
+            152,
+            590,
+            264,
+            {
+                "Category": [proj(T, "program", "column")],
+                "Series": [proj(T, "risk_tier", "column")],
+                "Y": [proj(T, "Material Count", "measure")],
+            },
+            z=5,
+        ),
+    ),
+    (
+        "treemap_vendor_exposure",
+        visual(
+            "treemap_vendor_exposure",
+            "treemap",
+            620,
+            152,
+            298,
+            264,
+            {
+                "Group": [proj(T, "vendor_name", "column")],
+                "Values": [proj(T, "Sole-Source Exposure ($)", "measure")],
+            },
+            z=6,
+        ),
+    ),
+    (
+        "table_ranked_parts",
+        visual(
+            "table_ranked_parts",
+            "tableEx",
+            16,
+            428,
+            1208,
+            276,
+            {
+                "Values": [
+                    proj(T, "material_name", "column"),
+                    proj(T, "vendor_name", "column"),
+                    proj(T, "risk_tier", "column"),
+                    proj(T, "risk_score", "column"),
+                    proj(T, "avg_delay_days", "column"),
+                    proj(T, "total_committed_usd", "column"),
+                ]
+            },
+            z=7,
+        ),
+    ),
 ]
 
 PAGE2 = [
-    ("slicer_program_trend", visual("slicer_program_trend", "slicer", 16, 16, 290, 150,
-        {"Values": [proj(TREND, "program", "column")]}, z=0)),
-    ("line_delay_trend", visual("line_delay_trend", "lineChart", 16, 180, 1208, 520,
-        {"Category": [proj(TREND, "order_month", "column")],
-         "Series": [proj(TREND, "program", "column")],
-         "Y": [proj(TREND, "avg_delay_days", "column"), proj(TREND, "slipped_pos", "column")]}, z=1)),
+    (
+        "slicer_program_trend",
+        visual(
+            "slicer_program_trend",
+            "slicer",
+            16,
+            16,
+            290,
+            150,
+            {"Values": [proj(TREND, "program", "column")]},
+            z=0,
+        ),
+    ),
+    (
+        "line_delay_trend",
+        visual(
+            "line_delay_trend",
+            "lineChart",
+            16,
+            180,
+            1208,
+            520,
+            {
+                "Category": [proj(TREND, "order_month", "column")],
+                "Series": [proj(TREND, "program", "column")],
+                "Y": [
+                    proj(TREND, "avg_delay_days", "column"),
+                    proj(TREND, "slipped_pos", "column"),
+                ],
+            },
+            z=1,
+        ),
+    ),
 ]
 
 PAGES = [
@@ -261,48 +404,79 @@ PAGES = [
 
 
 def emit_report() -> None:
-    write(REPORT_DIR / ".platform", json.dumps({
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
-        "metadata": {"type": "Report", "displayName": "ArtemisSupplyRisk"},
-        "config": {"version": "2.0", "logicalId": guid("logical:report")},
-    }, indent=2) + "\n")
-    write_json(REPORT_DIR / "definition.pbir", {
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
-        "version": "4.0",
-        "datasetReference": {"byPath": {"path": "../ArtemisSupplyRisk.SemanticModel"}},
-    })
+    write(
+        REPORT_DIR / ".platform",
+        json.dumps(
+            {
+                "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+                "metadata": {"type": "Report", "displayName": "ArtemisSupplyRisk"},
+                "config": {"version": "2.0", "logicalId": guid("logical:report")},
+            },
+            indent=2,
+        )
+        + "\n",
+    )
+    write_json(
+        REPORT_DIR / "definition.pbir",
+        {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+            "version": "4.0",
+            "datasetReference": {"byPath": {"path": "../ArtemisSupplyRisk.SemanticModel"}},
+        },
+    )
     d = REPORT_DIR / "definition"
-    write_json(d / "version.json", {"$schema": f"{SC}/versionMetadata/1.0.0/schema.json", "version": "1.0.0"})
-    write_json(d / "report.json", {
-        "$schema": f"{SC}/report/1.0.0/schema.json",
-        "layoutOptimization": "None",
-        "themeCollection": {"baseTheme": {"name": "CY24SU10", "reportVersionAtImport": "5.61", "type": "SharedResources"}},
-    })
-    write_json(d / "pages" / "pages.json", {
-        "$schema": f"{SC}/pagesMetadata/1.0.0/schema.json",
-        "pageOrder": [p[0] for p in PAGES],
-        "activePageName": PAGES[0][0],
-    })
+    write_json(
+        d / "version.json",
+        {"$schema": f"{SC}/versionMetadata/1.0.0/schema.json", "version": "1.0.0"},
+    )
+    write_json(
+        d / "report.json",
+        {
+            "$schema": f"{SC}/report/1.0.0/schema.json",
+            "layoutOptimization": "None",
+            "themeCollection": {
+                "baseTheme": {
+                    "name": "CY24SU10",
+                    "reportVersionAtImport": "5.61",
+                    "type": "SharedResources",
+                }
+            },
+        },
+    )
+    write_json(
+        d / "pages" / "pages.json",
+        {
+            "$schema": f"{SC}/pagesMetadata/1.0.0/schema.json",
+            "pageOrder": [p[0] for p in PAGES],
+            "activePageName": PAGES[0][0],
+        },
+    )
     for pname, disp, visuals in PAGES:
-        write_json(d / "pages" / pname / "page.json", {
-            "$schema": f"{SC}/page/1.4.0/schema.json",
-            "name": pname,
-            "displayName": disp,
-            "displayOption": "FitToPage",
-            "width": 1280,
-            "height": 720,
-        })
+        write_json(
+            d / "pages" / pname / "page.json",
+            {
+                "$schema": f"{SC}/page/1.4.0/schema.json",
+                "name": pname,
+                "displayName": disp,
+                "displayOption": "FitToPage",
+                "width": 1280,
+                "height": 720,
+            },
+        )
         for vname, vobj in visuals:
             write_json(d / "pages" / pname / "visuals" / vname / "visual.json", vobj)
 
 
 def emit_pbip() -> None:
-    write_json(ROOT / "ArtemisSupplyRisk.pbip", {
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/pbip/definitionProperties/1.0.0/schema.json",
-        "version": "1.0",
-        "artifacts": [{"report": {"path": "ArtemisSupplyRisk.Report"}}],
-        "settings": {"enableAutoRecovery": True},
-    })
+    write_json(
+        ROOT / "ArtemisSupplyRisk.pbip",
+        {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/pbip/definitionProperties/1.0.0/schema.json",
+            "version": "1.0",
+            "artifacts": [{"report": {"path": "ArtemisSupplyRisk.Report"}}],
+            "settings": {"enableAutoRecovery": True},
+        },
+    )
 
 
 def main() -> None:

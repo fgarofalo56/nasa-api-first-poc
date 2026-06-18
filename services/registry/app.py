@@ -253,7 +253,12 @@ def add_source(spec: SourceSpec):
     _save_sources(sources)  # persist first — the catalog reads the registry as truth
     reloaded = _try_apply(sources)  # best-effort hot-reload (no-op in Azure; route pre-baked)
     log.info("registered source %s -> %s at %s", spec.id, spec.upstream_url, spec.base_path)
-    return {"status": "registered", "source": src, "gateway_path": spec.base_path, "gateway_reloaded": reloaded}
+    return {
+        "status": "registered",
+        "source": src,
+        "gateway_path": spec.base_path,
+        "gateway_reloaded": reloaded,
+    }
 
 
 @app.delete("/sources/{source_id}")

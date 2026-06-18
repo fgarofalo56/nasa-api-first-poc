@@ -110,15 +110,22 @@ def material_detail(material: str) -> dict:
             rk.raise_for_status()
             corr = rk.headers.get("X-Correlation-ID")
             term = material.strip().lower()
-            risk_rows = [r for r in rk.json().get("value", []) if term in str(r.get("maktx", "")).lower()]
+            risk_rows = [
+                r for r in rk.json().get("value", []) if term in str(r.get("maktx", "")).lower()
+            ]
         if not risk_rows:
-            return {"found": False, "query": material, "gateway_correlation_id": corr,
-                    "note": "No matching material in the governed supply-risk product."}
+            return {
+                "found": False,
+                "query": material,
+                "gateway_correlation_id": corr,
+                "note": "No matching material in the governed supply-risk product.",
+            }
         risk = risk_rows[0]
         matnr = risk["matnr"]
         pos = client.get(
             f"{KONG_URL}/api/PurchaseOrder?$filter=matnr eq '{matnr}'&$orderby=delay_days desc&$first=5",
-            headers=hdr, timeout=20,
+            headers=hdr,
+            timeout=20,
         )
         po_rows = pos.json().get("value", []) if pos.status_code == 200 else []
         vendor = None

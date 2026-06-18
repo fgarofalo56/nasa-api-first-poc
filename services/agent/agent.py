@@ -33,9 +33,15 @@ app = FastAPI(title="Artemis Mission Agent", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 PROGRAMS = {
-    "artemis-3": "Artemis-3", "artemis 3": "Artemis-3", "artemis3": "Artemis-3",
-    "gateway": "Gateway", "moon-base": "Moon-Base", "moon base": "Moon-Base",
-    "moonbase": "Moon-Base", "egs": "EGS-Ground", "ground": "EGS-Ground",
+    "artemis-3": "Artemis-3",
+    "artemis 3": "Artemis-3",
+    "artemis3": "Artemis-3",
+    "gateway": "Gateway",
+    "moon-base": "Moon-Base",
+    "moon base": "Moon-Base",
+    "moonbase": "Moon-Base",
+    "egs": "EGS-Ground",
+    "ground": "EGS-Ground",
 }
 # Prefix tokens end with \w* (NOT \b) so "materi" matches "material", "batter" -> "battery".
 ON_TOPIC = re.compile(
@@ -45,7 +51,9 @@ ON_TOPIC = re.compile(
     r"moon.?base|egs|mission|data product|marketplace|catalog|who (makes|supplies|builds))\w*",
     re.I,
 )
-HELP = re.compile(r"\b(help|what can you|capabilit|who are you|what are you|how do you work)\w*", re.I)
+HELP = re.compile(
+    r"\b(help|what can you|capabilit|who are you|what are you|how do you work)\w*", re.I
+)
 ANALYTICS = re.compile(
     r"\b(stat|statistic|distribut|breakdown|how many|count|chart|graph|plot|analyt|"
     r"compare|trend|metric|by (program|tier|risk))\w*",
@@ -106,7 +114,12 @@ def _parse_params(q: str) -> dict:
     m = re.search(r"(\d+)\s*day", ql)
     min_delay = int(m.group(1)) if m else 30
     sole = not re.search(r"\b(any.?sourc|not? sole|include.*sourc|all sourc)\b", ql)
-    return {"program": program, "criticality": crit, "min_delay": min_delay, "sole_source_only": sole}
+    return {
+        "program": program,
+        "criticality": crit,
+        "min_delay": min_delay,
+        "sole_source_only": sole,
+    }
 
 
 def _detail_target(q: str) -> str | None:
@@ -135,18 +148,24 @@ def healthz():
 async def ask(req: Ask):
     q = (req.question or "").strip()
     if not q:
-        return {"on_topic": False, "grounded": False, "answer": "Ask me about Artemis supply-chain risk. 🚀", "sources": []}
+        return {
+            "on_topic": False,
+            "grounded": False,
+            "answer": "Ask me about Artemis supply-chain risk. 🚀",
+            "sources": [],
+        }
 
     if HELP.search(q) and not ON_TOPIC.search(q):
         return {
-            "on_topic": True, "grounded": False,
+            "on_topic": True,
+            "grounded": False,
             "answer": (
                 "👋 I'm the Artemis mission agent. I answer **supply-chain** questions using the "
                 "governed data product — through the gateway, via the open MCP standard. Try:\n"
-                "• \"What's at risk on Artemis-3?\"\n"
-                "• \"Which Essential materials on Gateway are slipping > 20 days?\"\n"
-                "• \"Tell me about the Li-ion battery module\" or an NSN like NSN-4002-901834\n"
-                "• \"Who supplies the heat-pipe radiator panel?\""
+                '• "What\'s at risk on Artemis-3?"\n'
+                '• "Which Essential materials on Gateway are slipping > 20 days?"\n'
+                '• "Tell me about the Li-ion battery module" or an NSN like NSN-4002-901834\n'
+                '• "Who supplies the heat-pipe radiator panel?"'
             ),
             "sources": [],
         }
@@ -163,13 +182,23 @@ async def ask(req: Ask):
             d = await _call_tool("material_detail", {"material": target})
             if not d.get("found"):
                 return {
-                    "on_topic": True, "grounded": True,
+                    "on_topic": True,
+                    "grounded": True,
                     "answer": f"🔭 I queried the governed supply-risk product for “{target}” but found no match. "
-                              f"Try an exact NSN or a name like “battery module” or “radiator panel”.",
-                    "sources": [{"tool": "material_detail", "gateway_correlation_id": d.get("gateway_correlation_id")}],
+                    f"Try an exact NSN or a name like “battery module” or “radiator panel”.",
+                    "sources": [
+                        {
+                            "tool": "material_detail",
+                            "gateway_correlation_id": d.get("gateway_correlation_id"),
+                        }
+                    ],
                 }
             ss = " (sole-source)" if d.get("sole_source") else ""
-            sup = f" Supplier: **{d['supplier']}** (CAGE {d.get('cage_code', '?')})." if d.get("supplier") else ""
+            sup = (
+                f" Supplier: **{d['supplier']}** (CAGE {d.get('cage_code', '?')})."
+                if d.get("supplier")
+                else ""
+            )
             answer = (
                 f"**{d['material_name']}** ({d['material_id']}) on {d['program']} is **{d['risk_tier']} risk** "
                 f"(score {d['risk_score']}), averaging **{float(d['avg_delay_days']):.1f} days** of slip{ss}.{sup} "
@@ -177,21 +206,34 @@ async def ask(req: Ask):
                 f"Net price/value and unit cost are **redacted at the gateway** — the same governance every consumer gets."
             )
             return {
-                "on_topic": True, "grounded": True, "answer": answer, "tool": "material_detail",
+                "on_topic": True,
+                "grounded": True,
+                "answer": answer,
+                "tool": "material_detail",
                 "render": {
                     "kind": "detail",
                     "material": {
-                        "matnr": d["material_id"], "maktx": d["material_name"], "program": d.get("program"),
-                        "criticality": d.get("criticality"), "risk_tier": d.get("risk_tier"),
-                        "risk_score": d.get("risk_score"), "avg_delay_days": d.get("avg_delay_days"),
-                        "sole_source": d.get("sole_source"), "supplier": d.get("supplier"),
+                        "matnr": d["material_id"],
+                        "maktx": d["material_name"],
+                        "program": d.get("program"),
+                        "criticality": d.get("criticality"),
+                        "risk_tier": d.get("risk_tier"),
+                        "risk_score": d.get("risk_score"),
+                        "avg_delay_days": d.get("avg_delay_days"),
+                        "sole_source": d.get("sole_source"),
+                        "supplier": d.get("supplier"),
                         "cage_code": d.get("cage_code"),
                     },
                     "image": f"/img/products/{_img_slug(d['material_name'])}.svg",
                     "recent_pos": d.get("recent_pos", []),
                 },
-                "sources": [{"tool": "material_detail", "product": "SupplyRisk→PurchaseOrder→Vendor",
-                             "gateway_correlation_id": d.get("gateway_correlation_id")}],
+                "sources": [
+                    {
+                        "tool": "material_detail",
+                        "product": "SupplyRisk→PurchaseOrder→Vendor",
+                        "gateway_correlation_id": d.get("gateway_correlation_id"),
+                    }
+                ],
             }
 
         p = _parse_params(q)
@@ -210,25 +252,36 @@ async def ask(req: Ask):
         ranked = sorted(mats, key=lambda m: float(m.get(metric) or 0), reverse=True)
         items = [
             {
-                "matnr": m.get("matnr"), "maktx": m.get("maktx"), "program": m.get("program"),
-                "risk_tier": m.get("risk_tier"), "risk_score": m.get("risk_score"),
-                "avg_delay_days": m.get("avg_delay_days"), "sole_source": m.get("sole_source"),
+                "matnr": m.get("matnr"),
+                "maktx": m.get("maktx"),
+                "program": m.get("program"),
+                "risk_tier": m.get("risk_tier"),
+                "risk_score": m.get("risk_score"),
+                "avg_delay_days": m.get("avg_delay_days"),
+                "sole_source": m.get("sole_source"),
             }
             for m in ranked[:8]
         ]
         chart = {
             "type": "bar",
-            "title": ("Average delay (days)" if by_delay else "Risk score") + f" — top materials, {p['program']}",
+            "title": ("Average delay (days)" if by_delay else "Risk score")
+            + f" — top materials, {p['program']}",
             "unit": "days" if by_delay else "score",
             "points": [
-                {"label": m["maktx"], "value": round(float(m.get(metric) or 0), 1), "tier": m.get("risk_tier")}
+                {
+                    "label": m["maktx"],
+                    "value": round(float(m.get(metric) or 0), 1),
+                    "tier": m.get("risk_tier"),
+                }
                 for m in ranked[: 8 if n else 0]
             ],
         }
 
         if n == 0:
-            answer = (f"✅ Good news for {p['program']}: I found **no** {crit} {src}materials slipping more than "
-                      f"{p['min_delay']} days in the governed data product.")
+            answer = (
+                f"✅ Good news for {p['program']}: I found **no** {crit} {src}materials slipping more than "
+                f"{p['min_delay']} days in the governed data product."
+            )
         elif analytics:
             tiers = {}
             for m in mats:
@@ -242,23 +295,34 @@ async def ask(req: Ask):
         else:
             top = "; ".join(
                 f"{m.get('maktx')} ({m.get('risk_tier')}/{m.get('risk_score')}, "
-                f"{float(m.get('avg_delay_days', 0)):.0f}d)" for m in ranked[:3]
+                f"{float(m.get('avg_delay_days', 0)):.0f}d)"
+                for m in ranked[:3]
             )
             answer = (
                 f"🛰️ Through the gateway I found **{n}** {crit} {src}material(s) on **{p['program']}** slipping "
                 f">{p['min_delay']} days. Highest risk: {top}."
             )
         return {
-            "on_topic": True, "grounded": True, "answer": answer, "tool": "query_supply_risk",
+            "on_topic": True,
+            "grounded": True,
+            "answer": answer,
+            "tool": "query_supply_risk",
             "render": {"kind": "materials", "items": items, "chart": chart if items else None},
-            "sources": [{"tool": "query_supply_risk", "product": "SupplyRisk",
-                         "gateway_correlation_id": r.get("gateway_correlation_id"), "rows": n}],
+            "sources": [
+                {
+                    "tool": "query_supply_risk",
+                    "product": "SupplyRisk",
+                    "gateway_correlation_id": r.get("gateway_correlation_id"),
+                    "rows": n,
+                }
+            ],
         }
     except Exception as exc:  # noqa: BLE001 — degrade gracefully
         return {
-            "on_topic": True, "grounded": False,
+            "on_topic": True,
+            "grounded": False,
             "answer": f"🛠️ Houston, I couldn't reach the data product just now ({type(exc).__name__}). "
-                      f"The gateway or MCP server may be warming up — try again in a moment.",
+            f"The gateway or MCP server may be warming up — try again in a moment.",
             "sources": [],
         }
 
