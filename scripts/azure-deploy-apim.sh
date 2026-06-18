@@ -68,6 +68,40 @@ az apim product create -g "$RG" --service-name "$APIM" --product-id artemis \
   --approval-required false -o none 2>/dev/null || true
 az apim product api add -g "$RG" --service-name "$APIM" --product-id artemis --api-id artemis-procurement -o none
 
+# Make the product (and so the Artemis API) visible to anonymous visitors + developers in
+# the Developer Portal. A new product is visible only to 'administrators' by default, so
+# without this the API does not appear on the portal's APIs page for guests. (Found in
+# browser E2E.)
+for grp in guests developers; do
+  az rest --method put \
+    --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/products/artemis/groups/$grp?api-version=2022-08-01" \
+    -o none 2>/dev/null || true
+done
+
+echo "==> enable CORS for the Developer Portal origin (so the Try-It console works)"
+# A global CORS policy that allows the managed portal origin — the equivalent of the
+# portal's "Enable CORS" button. The API-level policy keeps <base/> so this stacks.
+mkdir -p temp
+python - > temp/apim-global-cors.json <<PY
+import json
+xml = """<policies>
+  <inbound>
+    <cors allow-credentials="true">
+      <allowed-origins><origin>https://$APIM.developer.azure-api.net</origin></allowed-origins>
+      <allowed-methods><method>*</method></allowed-methods>
+      <allowed-headers><header>*</header></allowed-headers>
+    </cors>
+  </inbound>
+  <backend><forward-request /></backend>
+  <outbound />
+  <on-error />
+</policies>"""
+print(json.dumps({"properties": {"format": "xml", "value": xml}}))
+PY
+az rest --method put \
+  --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/policies/policy?api-version=2022-08-01" \
+  --body @temp/apim-global-cors.json -o none 2>/dev/null || true
+
 echo "==> publish the Developer Portal (best-effort: works once default content is provisioned)"
 # The managed developer portal needs its default content provisioned ONCE from admin mode
 # (Azure portal -> API Management -> Developer portal -> Portal overview -> Publish, which

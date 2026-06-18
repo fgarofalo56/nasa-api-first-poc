@@ -84,10 +84,21 @@ az apim create -g artemis-poc-rg -n artemis-apim-n1 -l centralus \
 
 ## 📖 Showcase the Developer Portal
 
-1. Open `https://artemis-apim-n1.developer.azure-api.net` (publish it once from the APIM
-   **Developer portal → Publish** in the Azure portal on first run).
-2. Show: **browse APIs** → the Artemis API + its OpenAPI, **Try it** console (live calls
-   with a subscription key / Entra login), and **self-service subscription** sign-up.
+> [!NOTE]
+> **One-time provisioning.** The managed portal's default content must be provisioned once
+> from admin mode: Azure portal → API Management → **Developer portal → Portal overview**,
+> click the **Developer portal** toolbar link (provisions default content), then back on
+> **Portal overview** click **Publish**. The deploy script then keeps it republished, makes
+> the **Artemis Data Products** product visible to *guests + developers* (so the API shows
+> for anonymous visitors), and applies the **CORS** policy for the Try-It console — all by
+> default on subsequent runs.
+
+1. Open `https://artemis-apim-n1.developer.azure-api.net` — the published portal lists the
+   **Artemis Supply-Chain Risk API** (and the sample Echo API) to anonymous visitors.
+2. Open the Artemis API → all eight operations (Material / PurchaseOrder / SupplyRisk /
+   Vendor, list + by-key) with a downloadable OpenAPI definition, the **Try it** console
+   (live calls with a subscription key / Entra login), and **self-service subscription**
+   sign-up.
 3. The narrative: *this is the managed twin of our catalog UI + "add a source" wizard —
    self-service discovery and onboarding, run by Azure.*
 
