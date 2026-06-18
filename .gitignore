@@ -50,3 +50,6 @@ Thumbs.db
 .claude/projects/
 .claude/todos/
 .claude/shell-snapshots/
+
+# Bicep build output (reference IaC; compile on demand)
+infra/azure/*.json
