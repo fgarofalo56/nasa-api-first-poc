@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { gatewayGet, supplyRiskPath } from "../api";
 import ResultTable from "./ResultTable.jsx";
 
 // Query a selected source THROUGH the gateway. The Artemis source gets parametric
 // controls; every source can run its catalog sample query. Shows the correlation id.
-export default function QueryConsole({ product, onClose }) {
+export default function QueryConsole({ product, onClose, onOpenDetail }) {
   const isArtemis = product.id === "artemis-supply-risk";
   const [program, setProgram] = useState("Artemis-3");
   const [minDelay, setMinDelay] = useState(30);
@@ -12,6 +12,12 @@ export default function QueryConsole({ product, onClose }) {
   const [soleSource, setSoleSource] = useState(true);
   const [consumer, setConsumer] = useState("analyst");
   const [state, setState] = useState({ loading: false });
+
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose?.();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   const samplePath = (() => {
     if (isArtemis) return supplyRiskPath({ program, minDelay, criticality, soleSource });
@@ -34,7 +40,7 @@ export default function QueryConsole({ product, onClose }) {
     <div className="console">
       <div className="console-head">
         <h3>Query · {product.title}</h3>
-        <button className="ghost" onClick={onClose}>
+        <button className="ghost" onClick={onClose} aria-label="Close query console">
           close
         </button>
       </div>
@@ -81,15 +87,27 @@ export default function QueryConsole({ product, onClose }) {
         {state.loading ? "Querying…" : "Run through gateway"}
       </button>
 
-      <div aria-live="polite">
-        {state.error && <div className="err" role="alert">Error: {state.error}</div>}
-        {state.status != null && (
-          <div className="corr">
-            HTTP {state.status} · gateway correlation-id: <code>{state.correlationId || "(none)"}</code>
-          </div>
-        )}
-        {state.rows && <ResultTable rows={state.rows} />}
+      <div aria-live="polite" className="sr-only">
+        {state.loading
+          ? "Running the query through the gateway…"
+          : state.error
+            ? `Error: ${state.error}`
+            : state.status != null
+              ? `HTTP ${state.status}, ${state.rows?.length || 0} rows returned, correlation id ${state.correlationId || "none"}`
+              : ""}
       </div>
+      {state.error && <div className="err" role="alert">Error: {state.error}</div>}
+      {state.status != null && (
+        <div className="corr">
+          HTTP {state.status} · gateway correlation-id: <code>{state.correlationId || "(none)"}</code>
+        </div>
+      )}
+      {state.rows && (
+        <ResultTable
+          rows={state.rows}
+          onOpen={isArtemis && onOpenDetail ? (row) => onOpenDetail(row, consumer) : undefined}
+        />
+      )}
     </div>
   );
 }

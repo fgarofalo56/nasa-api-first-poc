@@ -44,10 +44,15 @@ export default function AddSourceWizard({ onDone, onClose }) {
     try {
       const res = await addSource(spec);
       setResult(res);
-      // prove it instantly: call the new source through the gateway
+      // prove it instantly: call the new source through the gateway. A failed PROOF must
+      // not hide a successful publish, so probe in its own try/catch.
       if (spec.sample_path) {
-        const probe = await gatewayGet(spec.sample_path.replace(/^https?:\/\/[^/]+/, ""));
-        setVerify(probe);
+        try {
+          const probe = await gatewayGet(spec.sample_path.replace(/^https?:\/\/[^/]+/, ""));
+          setVerify(probe);
+        } catch (probeErr) {
+          setVerify({ status: "—", error: String(probeErr) });
+        }
       }
       setStep(4);
       onDone?.();
