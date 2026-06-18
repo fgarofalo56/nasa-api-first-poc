@@ -153,11 +153,15 @@ KONG_FQDN="$(deploy kong kong:latest 8000 \
   --env-vars KONG_DATABASE=off KONG_DECLARATIVE_CONFIG=/kong.yml KONG_PROXY_LISTEN=0.0.0.0:8000 \
              KONG_ADMIN_LISTEN=0.0.0.0:8001 KONG_PLUGINS=bundled)"
 
-echo "==> 5. catalog + registry (now that the gateway URL is known)"
-CAT_FQDN="$(deploy catalog catalog:latest 8080 \
-  --env-vars "KONG_PUBLIC_URL=https://$KONG_FQDN" "SOURCES_JSON=$DOT_SOURCES_JSON")"
+echo "==> 5. registry (DOT pre-seeded + removable) + catalog (reads the registry live)"
+# Registry is the source of truth for add/remove. Seed DOT so it's present-by-default yet
+# removable (and re-addable via the wizard); the /dot Kong route is pre-baked above, so a
+# re-added DOT routes immediately even though ACA can't hot-reload Kong's admin.
+SEED_DOT="[{\"id\":\"dot-bridges\",\"title\":\"DOT Transportation - Bridge Inventory\",\"upstream_url\":\"https://$TRANSPORT_FQDN\",\"base_path\":\"/dot\",\"owner\":\"US DOT (synthetic)\",\"domain\":\"Transportation / Infrastructure\",\"classification_label\":\"Routine\",\"require_jwt\":true,\"sample_path\":\"/dot/api/Bridge?\$orderby=condition_rating asc&\$first=8\"}]"
 REG_FQDN="$(deploy registry registry:latest 8095 \
-  --env-vars REGISTRY_PORT=8095 "KONG_ADMIN_INTERNAL_URL=https://$KONG_FQDN")"
+  --env-vars REGISTRY_PORT=8095 "KONG_ADMIN_INTERNAL_URL=https://$KONG_FQDN" "SEED_SOURCES_JSON=$SEED_DOT")"
+CAT_FQDN="$(deploy catalog catalog:latest 8080 \
+  --env-vars "KONG_PUBLIC_URL=https://$KONG_FQDN" "REGISTRY_INTERNAL_URL=https://$REG_FQDN")"
 
 echo "==> 5b. MCP server (agent path) — reaches the gateway/issuer over their Azure URLs"
 az acr build -r "$ACR" -t mcp:latest -f services/mcp/Dockerfile . --no-logs >/dev/null
@@ -177,9 +181,9 @@ window.APP_CONFIG = {
   catalog: "https://$CAT_FQDN",
   registry: "https://$REG_FQDN",
   agent: "https://$AGENT_FQDN",
-  // No shared config volume + no Kong admin ingress in ACA, so live add/remove can't
-  // work here — sources are pre-registered. Hide the wizard/remove controls (graceful).
-  liveOnboarding: false,
+  // Live add/remove works in Azure via the registry (the catalog reads it live); DOT is
+  // pre-seeded + removable, and re-adds route through the pre-baked /dot Kong route.
+  liveOnboarding: true,
   authEnabled: true,
 };
 EOF

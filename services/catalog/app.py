@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 
+import httpx
 import uvicorn
 import yaml
 from fastapi import FastAPI, HTTPException
@@ -24,6 +25,9 @@ PORT = int(os.environ.get("CATALOG_PORT", "8080"))
 # Public base URL clients use to reach Kong (for the OpenAPI + request path links).
 KONG_PUBLIC_URL = os.environ.get("KONG_PUBLIC_URL", "http://localhost:8000").rstrip("/")
 SOURCES_FILE = Path(os.environ.get("SOURCES_FILE", "/shared/sources.json"))
+# In Azure there is no shared volume, so the catalog asks the registry (the source of
+# truth for add/remove) for the live source list instead of reading a shared file.
+REGISTRY_INTERNAL_URL = os.environ.get("REGISTRY_INTERNAL_URL", "").rstrip("/")
 
 app = FastAPI(title="Artemis Data Marketplace Catalog", version="0.1.0")
 
@@ -77,10 +81,33 @@ def healthz():
     return {"status": "ok"}
 
 
+def _map_source(s: dict) -> dict:
+    return {
+        "id": s["id"],
+        "title": s["title"],
+        "owner": s.get("owner", "Unspecified"),
+        "domain": s.get("domain", "Unspecified"),
+        "request_path": s["base_path"],
+        "openapi_url": f"{KONG_PUBLIC_URL}{s['base_path']}/api/openapi",
+        "sample_url": f"{KONG_PUBLIC_URL}{s.get('sample_path') or s['base_path']}",
+        "classification_label": s.get("classification_label", "Routine"),
+        "origin": "registered via onboarding wizard",
+        "require_jwt": s.get("require_jwt", True),
+        "detail": f"/catalog/{s['id']}",
+    }
+
+
 def _load_dynamic_sources() -> list[dict]:
-    """Sources registered at runtime via the wizard (registry → /shared/sources.json),
-    or pre-registered via the SOURCES_JSON env (used in Azure, where there is no shared
-    volume and sources are baked in rather than added live)."""
+    """Sources registered at runtime via the wizard. The registry is the source of truth
+    when REGISTRY_INTERNAL_URL is set (Azure, no shared volume); otherwise read the shared
+    /shared/sources.json (local), falling back to a baked SOURCES_JSON env."""
+    if REGISTRY_INTERNAL_URL:
+        try:
+            r = httpx.get(f"{REGISTRY_INTERNAL_URL}/sources", timeout=5)
+            if r.status_code == 200:
+                return [_map_source(s) for s in r.json().get("sources", [])]
+        except httpx.HTTPError:
+            return []
     raw = None
     if SOURCES_FILE.exists():
         raw = SOURCES_FILE.read_text(encoding="utf-8")
@@ -92,22 +119,7 @@ def _load_dynamic_sources() -> list[dict]:
         sources = json.loads(raw)
     except json.JSONDecodeError:
         return []
-    return [
-        {
-            "id": s["id"],
-            "title": s["title"],
-            "owner": s.get("owner", "Unspecified"),
-            "domain": s.get("domain", "Unspecified"),
-            "request_path": s["base_path"],
-            "openapi_url": f"{KONG_PUBLIC_URL}{s['base_path']}/api/openapi",
-            "sample_url": f"{KONG_PUBLIC_URL}{s.get('sample_path') or s['base_path']}",
-            "classification_label": s.get("classification_label", "Routine"),
-            "origin": "registered via onboarding wizard",
-            "require_jwt": s.get("require_jwt", True),
-            "detail": f"/catalog/{s['id']}",
-        }
-        for s in sources
-    ]
+    return [_map_source(s) for s in sources]
 
 
 @app.get("/catalog")

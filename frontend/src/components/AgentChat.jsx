@@ -16,6 +16,8 @@ const SUGGESTIONS = [
 // bar chart for stats, or a full detail card — each with its data source cited.
 export default function AgentChat({ onOpenDetail }) {
   const [open, setOpen] = useState(false);
+  const [size, setSize] = useState({ w: 420, h: 620 });
+  const drag = useRef(null);
   const [msgs, setMsgs] = useState([
     { role: "agent", answer: "🚀 Mission agent online. I answer Artemis supply-chain questions from the **governed data** — through the gateway, over MCP. Ask away (or try a suggestion)." },
   ]);
@@ -32,6 +34,32 @@ export default function AgentChat({ onOpenDetail }) {
     if (open) document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
+
+  // Resize from the top edge ('h') or the top-left corner ('wh'). The panel is anchored
+  // bottom-right, so growing height extends upward and width extends leftward.
+  function startResize(mode) {
+    return (e) => {
+      e.preventDefault();
+      drag.current = { mode, x: e.clientX, y: e.clientY, w: size.w, h: size.h };
+      const move = (ev) => {
+        const d = drag.current;
+        if (!d) return;
+        const w = d.mode.includes("w") ? d.w + (d.x - ev.clientX) : d.w;
+        const h = d.mode.includes("h") ? d.h + (d.y - ev.clientY) : d.h;
+        setSize({
+          w: Math.max(320, Math.min(w, window.innerWidth - 32)),
+          h: Math.max(360, Math.min(h, window.innerHeight - 96)),
+        });
+      };
+      const up = () => {
+        drag.current = null;
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+    };
+  }
 
   async function send(text) {
     const q = (text ?? input).trim();
@@ -56,7 +84,14 @@ export default function AgentChat({ onOpenDetail }) {
       </button>
 
       {open && (
-        <section className="agent-panel" role="dialog" aria-label="Mission agent chat">
+        <section
+          className="agent-panel"
+          role="dialog"
+          aria-label="Mission agent chat"
+          style={{ width: size.w, height: size.h }}
+        >
+          <div className="rsz rsz-top" onPointerDown={startResize("h")} title="Drag to resize" />
+          <div className="rsz rsz-corner" onPointerDown={startResize("wh")} title="Drag to resize" />
           <header className="agent-head">
             <span>🛰️ Artemis Mission Agent</span>
             <span className="agent-badge" title="Answers only from governed gateway data via MCP">grounded · MCP</span>
