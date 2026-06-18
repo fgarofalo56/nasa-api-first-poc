@@ -68,6 +68,10 @@ set -e
 TGZ=$(curl -fsSL https://download.docker.com/linux/static/stable/x86_64/ | grep -oE "docker-[0-9]+\.[0-9]+\.[0-9]+\.tgz" | sort -V | tail -1)
 curl -fsSL -o /tmp/docker.tgz "https://download.docker.com/linux/static/stable/x86_64/${TGZ}"
 tar xzf /tmp/docker.tgz -C /tmp && install -m0755 /tmp/docker/* /usr/local/bin/ && rm -rf /tmp/docker /tmp/docker.tgz
+# Docker Compose v2 plugin (not in the static tarball) — from GitHub releases (allowlisted).
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -fsSL -o /usr/local/lib/docker/cli-plugins/docker-compose https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 cat >/etc/systemd/system/docker.service <<UNIT
 [Unit]
 Description=Docker Engine (static)
