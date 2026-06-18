@@ -7,7 +7,7 @@ COMPOSE ?= docker compose
 PY ?= python
 
 .DEFAULT_GOAL := help
-.PHONY: help up down seed demo test lint diagram pricing logs clean
+.PHONY: help up down seed demo test lint diagram pricing logs clean obs
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -24,6 +24,11 @@ seed: ## Generate + load the synthetic Artemis data into Postgres
 
 demo: up seed ## Full end-to-end demo: up -> seed -> query through the gateway -> print the answer
 	./scripts/demo.sh
+
+obs: ## Start Prometheus + Grafana (per-consumer metrics dashboard at :3000)
+	$(COMPOSE) --profile observability up -d
+	@echo "Grafana:    http://localhost:$${GRAFANA_PORT:-3000}  (anonymous viewer enabled)"
+	@echo "Prometheus: http://localhost:$${PROMETHEUS_PORT:-9090}"
 
 test: ## Run the test suite (zero-move / auth / discovery / supply-risk / no-fabric)
 	$(PY) -m pytest -q
