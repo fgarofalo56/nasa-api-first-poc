@@ -335,6 +335,7 @@ know what you're looking for.
 | [APIM-CAPABILITIES.md](APIM-CAPABILITIES.md) | What managed Azure API Management adds over the OSS gateway |
 | [DATABRICKS-WALKTHROUGH.md](DATABRICKS-WALKTHROUGH.md) | Zero-move medallion → Unity Catalog → Databricks SQL → Power BI |
 | [POWERBI-GUIDE.md](POWERBI-GUIDE.md) | Connect Power BI to the Gold mart + report spec |
+| [ART-OF-THE-POSSIBLE.md](ART-OF-THE-POSSIBLE.md) | Roadmap: what's built + what else to show (Direct Lake, Delta Sharing, RLS, Q&A, Purview, AI gateway) |
 
 ### 📦 Beyond `docs/` (linked context)
 

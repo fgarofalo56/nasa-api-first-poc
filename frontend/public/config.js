@@ -7,6 +7,9 @@ window.APP_CONFIG = {
   catalog: "http://localhost:8080",
   registry: "http://localhost:8095",
   agent: "http://localhost:8110",
+  // Optional: URL of the published Power BI report (the same governed Gold mart, in BI).
+  // Set by the Azure deploy to surface a "Power BI report" link in the UI; "" hides it.
+  powerbi: "",
   // Local dev has the registry's shared base config + Kong's admin port, so the live
   // "add/remove a source" wizard works. The Azure deploy sets this false (pre-registered).
   liveOnboarding: true,

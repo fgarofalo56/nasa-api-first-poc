@@ -3,6 +3,8 @@
 // or explore the demo. Sign-in uses the App Service / Container Apps EasyAuth endpoint.
 const LOGIN_URL = "/.auth/login/aad?post_login_redirect_uri=/";
 const LOGOUT_URL = "/.auth/logout?post_logout_redirect_uri=/";
+// Optional Power BI report link (the same Gold mart in BI); hidden unless config sets it.
+const POWERBI_URL = (typeof window !== "undefined" && window.APP_CONFIG && window.APP_CONFIG.powerbi) || "";
 
 const HIGHLIGHTS = [
   ["🛰️", "Zero data movement", "The system of record never moves — the gateway brokers every call."],
@@ -40,6 +42,11 @@ export default function Landing({ auth, onEnter }) {
           <button className={auth.gated && !auth.signedIn ? "cta ghost-cta" : "cta"} onClick={onEnter}>
             Explore the demo →
           </button>
+          {POWERBI_URL && (
+            <a className="cta ghost-cta" href={POWERBI_URL} target="_blank" rel="noreferrer">
+              📊 Power BI report ↗
+            </a>
+          )}
           {auth.signedIn && <a className="link-quiet" href={LOGOUT_URL}>Sign out</a>}
         </div>
 
