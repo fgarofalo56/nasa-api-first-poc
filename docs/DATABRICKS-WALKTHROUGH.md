@@ -173,5 +173,17 @@ ALTER SHARE artemis_supply_risk_share ADD TABLE <catalog>.gold.artemis_supply_ri
 
 ## 8. Teardown (stop billing)
 
-Delete the SQL warehouse + clusters, drop the catalog (`DROP SCHEMA <catalog>.bronze CASCADE; DROP SCHEMA <catalog>.silver CASCADE; DROP SCHEMA <catalog>.gold CASCADE`),
-and `az group delete -n artemis-poc-rg --yes` (removes the workspace/storage too).
+The notebook uses a **pre-existing** Databricks workspace (the reference is
+`dbw-btfabric-dev` in `rg-btfabric-tut57-dev`) — so **don't** delete that resource group.
+Just remove what the notebook created:
+
+```sql
+DROP SCHEMA IF EXISTS <catalog>.bronze CASCADE;
+DROP SCHEMA IF EXISTS <catalog>.silver CASCADE;
+DROP SCHEMA IF EXISTS <catalog>.gold   CASCADE;
+```
+
+Serverless SQL warehouses auto-stop when idle (no action needed); stop/delete any
+all-purpose cluster you started. The notebook + secret scope under
+`/Users/<you>/artemis` can be deleted from the workspace. (The API-stack teardown,
+`scripts/azure-teardown.sh`, is separate and does not touch this workspace.)

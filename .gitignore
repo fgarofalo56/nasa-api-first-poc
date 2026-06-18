@@ -29,6 +29,10 @@ frontend/.vite/
 # --- Temp working dir (Claude sessions) ---
 temp/
 
+# --- Browser E2E artifacts (Playwright/Chrome screenshots) ---
+.playwright-mcp/
+apim-portal-*.png
+
 # --- Generated data / artifacts (runtime) ---
 # NOTE: data/sample/ IS committed (the reference synthetic dataset); only the
 # seeder's runtime output dir is ignored.

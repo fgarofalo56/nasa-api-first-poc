@@ -1,7 +1,8 @@
 # Power BI — supply-risk report on the Databricks Gold mart
 
 Connect Power BI to the Databricks SQL warehouse and build a supply-risk report on
-`artemis.gold.artemis_supply_risk` (built by `databricks/notebooks/01_zero_move_medallion.ipynb`).
+`<catalog>.gold.artemis_supply_risk` (built by `databricks/notebooks/01_zero_move_medallion.ipynb`;
+the reference workspace uses catalog **`adb_eastus2_sandbox`**).
 
 > [!NOTE]
 > **Why this is still zero-move:** use **DirectQuery** — Power BI queries the Delta mart
@@ -30,11 +31,15 @@ Connect Power BI to the Databricks SQL warehouse and build a supply-risk report 
 
 Power BI Desktop → **Get Data → Azure Databricks**:
 - **Server hostname** and **HTTP path** — from the SQL warehouse's *Connection details*.
+  In the reference workspace (Serverless Starter Warehouse):
+  - Server hostname: `adb-7405607213468698.18.azuredatabricks.net`
+  - HTTP path: `/sql/1.0/warehouses/973dba4787484119`
 - **Authentication:** Microsoft Entra ID (sign in with a tenant account — same tenant
   lock as the rest of the demo).
 - **Data Connectivity mode:** **DirectQuery** (recommended) or Import.
 
-Navigator → expand `artemis` → `gold` → select **`artemis_supply_risk`** → Load.
+Navigator → expand your catalog (reference: **`adb_eastus2_sandbox`**) → `gold` →
+select **`artemis_supply_risk`** → Load.
 
 ## 2. Measures (DAX)
 
@@ -73,8 +78,8 @@ credentials (Entra) in the dataset settings. Row-level security and sensitivity 
 
 ## 5. The narrative for the customer
 
-> "The same supply-risk answer the gateway serves — `Mobile launcher umbilical`, risk 99,
-> 34.8-day average slip — now lands in the lakehouse via a governed, metered read, is
+> "The same supply-risk answer the gateway serves — `Heat-pipe radiator panel`, risk 100,
+> 54-day average slip — now lands in the lakehouse via a governed, metered read, is
 > curated in Unity Catalog, and is presented in Power BI over DirectQuery. One data
 > product, consumed by a CLI, an MCP agent, the marketplace UI, **and** the analytics
 > platform — without copying the system of record."
