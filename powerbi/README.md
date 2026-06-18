@@ -166,6 +166,31 @@ Defined on `artemis_supply_risk` (see [`tables/artemis_supply_risk.tmdl`](Artemi
 
 ---
 
+## ☁️ Publish to the Power BI Service
+
+The project is published as code with [`tools/publish_powerbi.py`](../tools/publish_powerbi.py)
+(via [`fabric-cicd`](https://learn.microsoft.com/power-bi/developer/projects/projects-deploy-fabric-cicd)),
+no Desktop required:
+
+```bash
+pip install fabric-cicd
+az login --use-device-code          # into the workspace tenant (limitlessdata.ai)
+WORKSPACE_ID=46c42501-e97a-4295-8cdb-b1c7000cce1f python tools/publish_powerbi.py
+```
+
+Deployed to the **`csa-loom`** workspace (Limitless Data tenant):
+[**ArtemisSupplyRisk report**](https://app.powerbi.com/groups/46c42501-e97a-4295-8cdb-b1c7000cce1f/reports/553df6af-bfba-45a7-9c77-56aae5128d33).
+
+> [!IMPORTANT]
+> **One-time connection setup in the Service** (the publish carries the *definition*, not
+> credentials). On the **ArtemisSupplyRisk** semantic model → **Settings**:
+> 1. **Parameters** → set `DatabricksServerHostname`, `DatabricksHttpPath` (your SQL
+>    warehouse's HTTP path), `CatalogName` = `dbw_btfabric_dev`.
+> 2. **Data source credentials** → sign in to the **Azure Databricks** source with your
+>    **Entra ID** (DirectQuery — zero copy). The report renders once this is bound.
+
+---
+
 ## 🔁 Regenerate from code
 
 The entire project is emitted by [`tools/make_powerbi_pbip.py`](../tools/make_powerbi_pbip.py)
