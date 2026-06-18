@@ -45,7 +45,9 @@ docker run --rm \
 
 echo "==> ACR + cloud-build the DAB image (bakes dab-config.json)"
 az acr create -g "$RG" -n "$ACR" --sku Basic --admin-enabled true --tags "${TAGS[@]}" -o none
-az acr build -r "$ACR" -t dab:latest -f services/dab/Dockerfile services/dab
+# Content-derived tag so a config change always yields a new image/revision on re-run.
+DAB_TAG="dab:$(git rev-parse --short HEAD 2>/dev/null || echo manual)"
+az acr build -r "$ACR" -t "$DAB_TAG" -f services/dab/Dockerfile services/dab
 
 echo "==> Container Apps environment + DAB app over the cloud SoR"
 az containerapp env create -g "$RG" -n "$CAE" -l "$LOC" --logs-destination none --tags "${TAGS[@]}" -o none
@@ -53,7 +55,7 @@ ACRUSER="$(az acr credential show -n "$ACR" --query username -o tsv)"
 ACRPASS="$(az acr credential show -n "$ACR" --query 'passwords[0].value' -o tsv)"
 CONN="Host=$PGFQDN;Port=5432;Database=procurement;Username=artemis;Password=$PG_ADMIN_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
 az containerapp create -g "$RG" -n "$DABAPP" --environment "$CAE" \
-  --image "$ACR.azurecr.io/dab:latest" \
+  --image "$ACR.azurecr.io/$DAB_TAG" \
   --registry-server "$ACR.azurecr.io" --registry-username "$ACRUSER" --registry-password "$ACRPASS" \
   --target-port 5000 --ingress external \
   --secrets "dab-conn=$CONN" \

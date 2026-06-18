@@ -66,7 +66,12 @@ LA_KEY="$(az monitor log-analytics workspace get-shared-keys -g "$RG" -n artemis
 az containerapp env update -g "$RG" -n "$CAE" --logs-destination log-analytics \
   --logs-workspace-id "$LA_CID" --logs-workspace-key "$LA_KEY" -o none 2>/dev/null || true
 
-echo "==> 2. DAB: drop EasyAuth so the gateway can front it"
+echo "==> 2. DAB: rebuild image (carries dab-config.json incl. column permissions) + drop EasyAuth"
+# Use a content-derived tag so a dab-config.json change (e.g. field-level redaction)
+# always produces a NEW revision — ACA will not re-pull an unchanged :latest tag.
+DAB_TAG="dab:$(git rev-parse --short HEAD 2>/dev/null || echo manual)"
+az acr build -r "$ACR" -t "$DAB_TAG" -f services/dab/Dockerfile services/dab --no-logs >/dev/null
+az containerapp update -g "$RG" -n artemis-dab --image "$ACRSRV/$DAB_TAG" -o none 2>/dev/null || true
 az containerapp auth update -g "$RG" -n artemis-dab --action AllowAnonymous -o none 2>/dev/null || true
 DAB_FQDN="$(az containerapp show -g "$RG" -n artemis-dab --query properties.configuration.ingress.fqdn -o tsv)"
 
