@@ -1,23 +1,123 @@
 {
-  "name": "NASA Artemis",
-  "dataColors": ["#FC3D21", "#0B3D91", "#1B4F9C", "#7FA9D8", "#FF9E1B", "#3DDC97", "#E03C31", "#0A1F4D", "#50E6FF", "#CFE8FF"],
-  "background": "#FFFFFF",
-  "secondaryBackground": "#F2F6FC",
-  "foreground": "#0B3D91",
-  "foregroundNeutralSecondary": "#1B4F9C",
+  "name": "NASA Artemis Dark",
+  "dataColors": [
+    "#FC3D21",
+    "#50A7FF",
+    "#7FA9D8",
+    "#FF9E1B",
+    "#3DDC97",
+    "#B388FF",
+    "#E03C31",
+    "#CFE8FF",
+    "#FFD166",
+    "#50E6FF"
+  ],
+  "background": "#0A1633",
+  "secondaryBackground": "#11224A",
+  "foreground": "#E8F0FF",
+  "foregroundNeutralSecondary": "#AFC4E6",
   "tableAccent": "#FC3D21",
   "good": "#3DDC97",
   "neutral": "#FF9E1B",
   "bad": "#FC3D21",
   "maximum": "#FC3D21",
   "center": "#FF9E1B",
-  "minimum": "#0B3D91",
-  "null": "#CFE8FF",
-  "hyperlink": "#0B3D91",
+  "minimum": "#50A7FF",
+  "null": "#1B2E5A",
+  "hyperlink": "#7FB3FF",
   "textClasses": {
-    "title":   { "color": "#0B3D91", "fontFace": "Segoe UI Semibold" },
-    "header":  { "color": "#0B3D91", "fontFace": "Segoe UI Semibold" },
-    "callout": { "color": "#FC3D21", "fontFace": "Segoe UI Semibold" },
-    "label":   { "color": "#1B1B1B", "fontFace": "Segoe UI" }
+    "title": {
+      "color": "#FFFFFF",
+      "fontFace": "Segoe UI Semibold"
+    },
+    "header": {
+      "color": "#FFFFFF",
+      "fontFace": "Segoe UI Semibold"
+    },
+    "callout": {
+      "color": "#FC3D21",
+      "fontFace": "Segoe UI Semibold"
+    },
+    "label": {
+      "color": "#E8F0FF",
+      "fontFace": "Segoe UI"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#11224A"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#1F3E78"
+              }
+            },
+            "radius": 6
+          }
+        ],
+        "title": [
+          {
+            "fontColor": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "background": {
+              "solid": {
+                "color": "#11224A"
+              }
+            },
+            "fontFamily": "Segoe UI Semibold"
+          }
+        ],
+        "visualHeader": [
+          {
+            "foreground": {
+              "solid": {
+                "color": "#AFC4E6"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "page": [
+      {
+        "*": {
+          "background": [
+            {
+              "color": {
+                "solid": {
+                  "color": "#0A1633"
+                }
+              },
+              "transparency": 0
+            }
+          ],
+          "outspace": [
+            {
+              "color": {
+                "solid": {
+                  "color": "#071029"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
   }
 }
