@@ -1,0 +1,88 @@
+{
+  "$schema": "https://github.com/Azure/data-api-builder/releases/latest/download/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "postgresql",
+    "connection-string": "@env('DAB_CONNECTION_STRING')",
+    "options": {}
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api"
+    },
+    "graphql": {
+      "enabled": true,
+      "path": "/graphql",
+      "allow-introspection": true
+    },
+    "host": {
+      "cors": {
+        "origins": ["*"],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "StaticWebApps"
+      },
+      "mode": "development"
+    }
+  },
+  "entities": {
+    "Material": {
+      "source": {
+        "object": "materials",
+        "type": "table"
+      },
+      "rest": { "enabled": true },
+      "graphql": {
+        "enabled": true,
+        "type": { "singular": "Material", "plural": "Materials" }
+      },
+      "permissions": [
+        { "role": "anonymous", "actions": ["read"] }
+      ]
+    },
+    "Vendor": {
+      "source": {
+        "object": "vendors",
+        "type": "table"
+      },
+      "rest": { "enabled": true },
+      "graphql": {
+        "enabled": true,
+        "type": { "singular": "Vendor", "plural": "Vendors" }
+      },
+      "permissions": [
+        { "role": "anonymous", "actions": ["read"] }
+      ]
+    },
+    "PurchaseOrder": {
+      "source": {
+        "object": "purchase_orders",
+        "type": "table",
+        "key-fields": ["ebeln", "ebelp"]
+      },
+      "rest": { "enabled": true },
+      "graphql": {
+        "enabled": true,
+        "type": { "singular": "PurchaseOrder", "plural": "PurchaseOrders" }
+      },
+      "permissions": [
+        { "role": "anonymous", "actions": ["read"] }
+      ]
+    },
+    "SupplyRisk": {
+      "source": {
+        "object": "supply_risk",
+        "type": "table"
+      },
+      "rest": { "enabled": true },
+      "graphql": {
+        "enabled": true,
+        "type": { "singular": "SupplyRisk", "plural": "SupplyRisks" }
+      },
+      "permissions": [
+        { "role": "anonymous", "actions": ["read"] }
+      ]
+    }
+  }
+}
