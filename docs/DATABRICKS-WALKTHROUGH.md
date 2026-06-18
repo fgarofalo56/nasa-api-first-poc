@@ -146,6 +146,21 @@ It creates the catalog/schemas, lands Bronze Delta, refines to Silver, and build
 `<catalog>.gold.artemis_supply_risk`. (To run headless: `databricks jobs submit` with a
 `notebook_task` + `base_parameters` for the widgets above.)
 
+> [!NOTE]
+> **Governance follows the data product into the lakehouse (verified).** Run both modes
+> and compare the same gold mart:
+>
+> | | **postgres** mode (privileged ETL) | **gateway** mode (governed consumer) |
+> |---|---|---|
+> | Read path | direct JDBC to the SoR | **through Kong** (token, paged `$first/$after`, rate-limited) |
+> | gold rows / headline | 600 / 6 | 600 / 6 |
+> | `total_committed_usd` | populated | **$0 — redacted** (`netwr`/`netpr` never cross the gateway) |
+> | purchase_orders | full (10k) | a **governed sample** (the gateway prevents bulk dumps) |
+>
+> Same risk picture either way; **cost is redacted on the governed path** — the field-level
+> redaction (`SECURITY.md`) applies to the analytics platform exactly as it does to the CLI,
+> MCP agent, and UI. Use postgres mode for the full-fidelity Power BI `$` measures.
+
 ## 5. Verify in Unity Catalog + Databricks SQL
 
 ```sql
