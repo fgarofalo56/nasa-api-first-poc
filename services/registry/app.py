@@ -37,6 +37,9 @@ BASE_KONG = Path(os.environ.get("KONG_BASE", "/shared/kong.base.yml"))
 KONG_RENDERED = Path(os.environ.get("KONG_RENDERED", "/shared/kong.yml"))
 SOURCES_FILE = Path(os.environ.get("SOURCES_FILE", "/shared/sources.json"))
 RATE_LIMIT = os.environ.get("RATE_LIMIT_PER_MINUTE", "60")
+# Pre-registered sources (JSON array) seeded on first start when the store is empty — used
+# in Azure so DOT is present-by-default yet removable (and re-addable via the wizard).
+SEED_SOURCES_JSON = os.environ.get("SEED_SOURCES_JSON", "")
 
 app = FastAPI(title="Artemis Marketplace — Source Registry", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -196,16 +199,35 @@ def _apply(sources: list[dict]) -> None:
         log.warning("could not persist merged config to %s: %s", KONG_RENDERED, exc)
 
 
+def _try_apply(sources: list[dict]) -> bool:
+    """Best-effort hot-reload. In Azure there is no shared base config or reachable Kong
+    admin, so this no-ops gracefully — the source list still persists and the catalog
+    (which reads the registry) reflects it; the gateway route is pre-baked there."""
+    try:
+        _apply(sources)
+        return True
+    except Exception as exc:  # noqa: BLE001 — degrade gracefully
+        log.info("Kong hot-reload skipped/failed (expected in Azure): %s", str(exc)[:120])
+        return False
+
+
 @app.on_event("startup")
 def _startup():
-    # Rebuild the merged config from base + persisted sources so Kong's effective config
-    # is consistent on boot (and registered sources are re-applied).
     try:
         sources = _load_sources()
-        _apply(sources)
-        log.info("applied %s registered source(s) to Kong on startup", len(sources))
+        if not sources and SEED_SOURCES_JSON:
+            try:
+                seed = json.loads(SEED_SOURCES_JSON)
+                if isinstance(seed, list) and seed:
+                    _save_sources(seed)
+                    sources = seed
+                    log.info("seeded %s pre-registered source(s)", len(seed))
+            except json.JSONDecodeError:
+                log.warning("SEED_SOURCES_JSON is not valid JSON; ignoring")
+        _try_apply(sources)
+        log.info("registry ready with %s source(s)", len(sources))
     except Exception as exc:  # noqa: BLE001 — degrade gracefully on boot
-        log.warning("could not apply sources on startup: %s", exc)
+        log.warning("startup issue: %s", exc)
 
 
 @app.get("/healthz")
@@ -225,10 +247,10 @@ def add_source(spec: SourceSpec):
         raise HTTPException(409, f"source '{spec.id}' already registered")
     src = spec.model_dump()
     sources.append(src)
-    _apply(sources)  # hot-reload Kong first; only persist if it succeeds
-    _save_sources(sources)
+    _save_sources(sources)  # persist first — the catalog reads the registry as truth
+    reloaded = _try_apply(sources)  # best-effort hot-reload (no-op in Azure; route pre-baked)
     log.info("registered source %s -> %s at %s", spec.id, spec.upstream_url, spec.base_path)
-    return {"status": "registered", "source": src, "gateway_path": spec.base_path}
+    return {"status": "registered", "source": src, "gateway_path": spec.base_path, "gateway_reloaded": reloaded}
 
 
 @app.delete("/sources/{source_id}")
@@ -237,9 +259,9 @@ def remove_source(source_id: str):
     remaining = [s for s in sources if s["id"] != source_id]
     if len(remaining) == len(sources):
         raise HTTPException(404, f"source '{source_id}' not found")
-    _apply(remaining)
-    _save_sources(remaining)
-    return {"status": "removed", "id": source_id}
+    _save_sources(remaining)  # persist first; reload is best-effort
+    reloaded = _try_apply(remaining)
+    return {"status": "removed", "id": source_id, "gateway_reloaded": reloaded}
 
 
 if __name__ == "__main__":
