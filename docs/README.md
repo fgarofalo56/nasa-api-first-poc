@@ -29,6 +29,7 @@ marketplace** — and the runnable proof in this repo.
 |---|---|
 | [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md) | Managed-target mapping + reference Bicep |
 | [`AZURE-LIVE-DEPLOYMENT.md`](AZURE-LIVE-DEPLOYMENT.md) | The live, tenant-locked Container Apps deploy |
+| [`APIM-CAPABILITIES.md`](APIM-CAPABILITIES.md) | What managed Azure API Management adds over the OSS gateway |
 | [`DATABRICKS-WALKTHROUGH.md`](DATABRICKS-WALKTHROUGH.md) | Zero-move medallion → Unity Catalog → Databricks SQL |
 | [`POWERBI-GUIDE.md`](POWERBI-GUIDE.md) | Connect Power BI to the Gold mart + report spec |
 
