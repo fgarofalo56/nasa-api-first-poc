@@ -26,6 +26,9 @@ frontend/dist/
 frontend/.vite/
 *.log
 
+# --- Temp working dir (Claude sessions) ---
+temp/
+
 # --- Generated data / artifacts (runtime) ---
 # NOTE: data/sample/ IS committed (the reference synthetic dataset); only the
 # seeder's runtime output dir is ignored.
