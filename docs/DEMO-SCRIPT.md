@@ -7,8 +7,9 @@
 > ~10-minute demo of the API-first **zero-move** pattern. One command (`make demo`) brings
 > the whole stack up; you then show the mission supply-risk answer returned *through the
 > gateway*, prove auth at the edge (`401` / `200` / `429` / `400`), prove zero-move with a
-> test, then walk discovery, the AI-agent path, observability, live source onboarding, and
-> the close: *"swap each open-source piece for its managed Azure service."*
+> test, then walk discovery, the AI-agent path (an MCP smoke client **and** a grounded
+> mission-agent chat), a nested drill-down, observability, live source onboarding, and the
+> close: *"swap each open-source piece for its managed Azure service."*
 >
 > **This file is the fast local loop.** For the full superset — the same story running
 > **live in Azure** (Container Apps + Kong, *and* Azure API Management), plus the
@@ -43,8 +44,9 @@
 - [4. Prove zero-move (1 min)](#-4-prove-zero-move-1-min)
 - [5. Discovery — the catalog + OpenAPI (1 min)](#-5-discovery--the-catalog--openapi-1-min)
 - [6. The agent path — MCP (1 min)](#-6-the-agent-path--mcp-1-min)
+- [6b. The grounded mission agent — chat over governed data (1–2 min)](#-6b-the-grounded-mission-agent--chat-over-governed-data-12-min)
 - [7. Observability — per-consumer traffic (1 min)](#-7-observability--per-consumer-traffic-1-min)
-- [7b. Add a source, live — the onboarding wizard (1–2 min)](#-7b-add-a-source-live--the-onboarding-wizard-12-min)
+- [7b. Add a source, live — the onboarding wizard + drill-down (1–2 min)](#-7b-add-a-source-live--the-onboarding-wizard--drill-down-12-min)
 - [8. Close — the Azure swap (30 sec)](#-8-close--the-azure-swap-30-sec)
 - [Gotchas & troubleshooting](#-gotchas--troubleshooting)
 - [Teardown](#-teardown)
@@ -133,7 +135,8 @@ docker compose --profile core --profile observability pull
 
 > [!WARNING]
 > **Ports may collide on a busy dev box.** The defaults are `8000` (Kong proxy), `8081`
-> (issuer), `8080` (catalog), `8090` (MCP), `3000` (Grafana), `5173` (UI). If something
+> (issuer), `8080` (catalog), `8090` (MCP), `8110` (mission agent), `3000` (Grafana),
+> `5173` (UI). If something
 > already binds those, remap the host side in `.env` (e.g. `KONG_PROXY_PORT=18000`) — the
 > `make` targets and `demo.sh` read your `.env`, so the URLs below follow whatever you set.
 > See [`LOCAL-DEV.md`](LOCAL-DEV.md).
@@ -406,6 +409,70 @@ MCP tool returned 6 material(s); correlation-id=<id>
 
 ---
 
+## 🤖 6b. The grounded mission agent — chat over governed data (1–2 min)
+
+Section 6 proved an MCP *client* (the smoke script) reaches the governed surface. This
+segment shows the **mission agent** — a small chat agent that is itself an **MCP host**:
+it answers natural-language questions by calling the MCP tools (`query_supply_risk`,
+`material_detail`), which reach data **only through Kong**. Every answer is **grounded** in
+governed data and **cites its source** — the MCP tool plus the gateway correlation id.
+
+The agent comes up with the `core` profile, so it is **already running** after
+[`make demo`](#️-1-one-command-brings-the-whole-stack-up-2-min) on port `8110`. You can
+hit it directly to show the round trip in a terminal:
+
+```bash
+# An on-topic question → grounded, cited answer (NL in, structured answer out):
+curl -s -X POST http://localhost:8110/ask -H 'Content-Type: application/json' \
+  -d '{"question":"What is at risk on Artemis-3?"}' | python -m json.tool
+
+# An off-topic question → a sarcastic, space-themed refusal that points to a Microsoft rep:
+curl -s -X POST http://localhost:8110/ask -H 'Content-Type: application/json' \
+  -d '{"question":"What is the weather on Mars?"}' | python -m json.tool
+```
+
+```mermaid
+flowchart LR
+    U["Chat widget<br/>(browser)"] -->|POST /ask| A["Mission agent<br/>(MCP host)"]
+    A -->|call MCP tool| M["MCP server<br/>query_supply_risk · material_detail"]
+    M -->|Bearer token| K["Kong (gateway)"]
+    K --> D["DAB (auto-API)"]
+    D --> P["Postgres (SoR)"]
+    A -.->|cites tool + gateway correlation id| U
+```
+
+For the **visual** version, open the catalog UI ([`make ui`](#-7b-add-a-source-live--the-onboarding-wizard--drill-down-12-min),
+`http://localhost:5173`) and click the floating **"🚀 Ask the mission agent"** button.
+The chat renders the answer *richly in the conversation*:
+
+- **Ranked material cards** for a supply-risk question — click any card to open the
+  [drill-down detail](#-7b-add-a-source-live--the-onboarding-wizard--drill-down-12-min).
+- A **bar chart** for a stats/analytics question (e.g. *"Show me risk stats by tier"*).
+- A **detail card** for one material (e.g. *"Tell me about the Li-ion battery module"*).
+- A **sarcastic, space-themed refusal** for anything off-topic — ending with a nudge to
+  *"your friendly Microsoft rep"* who can build a grounded agent on **your** governed data.
+
+> [!TIP]
+> **In plain terms — what makes this "grounded"?** The agent has **no** knowledge of its
+> own and **no** back channel to the database. It can only answer by calling a governed
+> MCP tool, and every reply shows its receipt — `🔗 Source: MCP query_supply_risk · gw
+> <correlation-id>`. So it cannot hallucinate Artemis facts: if the data product does not
+> say it, the agent cannot either. The **routing is deterministic** (keyword-based) — chosen
+> on purpose so a live demo is reliable and free, and never makes things up. *An optional
+> `AGENT_LLM=azure-openai` upgrade lets **Azure OpenAI** phrase the grounded answer — it
+> still only sees gateway data and must cite. This is the "AI grounded on governed data, over
+> the open MCP standard" story: the exact same tools **Microsoft Copilot or Azure AI Foundry**
+> would call.*
+
+> [!NOTE]
+> The off-topic refusal is the point made vivid: a *grounded, governed* agent speaks only to
+> the data product it was given. That is the opposite of an ungoverned model with a database
+> connection string. The live Azure agent, plus the same chat / drill-down / landing flow
+> running in Container Apps, is in
+> [`DEMO-COMPLETE.md`](DEMO-COMPLETE.md#-part-b-bonus--the-four-showpiece-moments-landing-drill-down-agent-live-onboarding-7-min).
+
+---
+
 ## 📊 7. Observability — per-consumer traffic (1 min)
 
 ```bash
@@ -434,14 +501,23 @@ open the dashboard **"Artemis Gateway — per-consumer traffic & latency."** Re-
 
 ---
 
-## ✨ 7b. Add a source, live — the onboarding wizard (1–2 min)
+## ✨ 7b. Add a source, live — the onboarding wizard + drill-down (1–2 min)
 
 This is the *"how hard is it to onboard a new data product?"* moment — and the answer is
-"minutes, in the browser, with no restart."
+"minutes, in the browser, with no restart." It is also where you show the **drill-down
+detail** and the **mission-agent chat** ([section 6b](#-6b-the-grounded-mission-agent--chat-over-governed-data-12-min)),
+since all three live in the same SPA.
 
 ```bash
 make ui            # starts the catalog UI (browser SPA) at http://localhost:5173
 ```
+
+> [!NOTE]
+> **The landing page comes first.** The SPA opens on a **public landing page** (NASA logo,
+> value prop) with **"Sign in with Microsoft"** (Entra) and **"Explore the demo"** buttons —
+> auth does **not** auto-redirect on load (the deferred-auth, DOT-style pattern, driven by an
+> `authEnabled` flag; locally it is anonymous-friendly). Click **"Explore the demo →"** to
+> enter the marketplace.
 
 In the UI: click **"+ Add a data source"** → step through the guided wizard (it is
 **pre-filled** with the DOT transportation example — a second internal-only DAB-style API
@@ -466,6 +542,43 @@ that ships with the stack) → **Publish through gateway.** Narrate what just ha
 > *Say it:* "Onboarding a data product is registering its API with the gateway — minutes,
 > not a migration." Full guide, plus how to swap in the real public DOT URL:
 > [`ADD-A-SOURCE.md`](ADD-A-SOURCE.md).
+
+### 🔎 Drill-down detail — nested governed calls (quick segment)
+
+Click any data product, run its query in the **Query console**, then **click any result
+row**. A **centered floating modal** opens and composes the **full product record** from
+**several** governed gateway calls in sequence — **Material → SupplyRisk → PurchaseOrder →
+Vendor** — showing the assembled record, a **blueprint visual**, and the **gateway
+correlation ids** for every hop.
+
+```mermaid
+flowchart LR
+    R["Result row<br/>(click)"] --> M1["GET /api/Material"]
+    M1 --> M2["GET /api/SupplyRisk"]
+    M2 --> M3["GET /api/PurchaseOrder"]
+    M3 --> M4["GET /api/Vendor"]
+    M4 --> Card["Assembled record<br/>+ blueprint + correlation ids"]
+```
+
+**Point out, in order:**
+
+1. Each step is a **separate authenticated call through Kong** — the modal footer lists the
+   **correlation ids** it collected, one per hop. This is *composition at the consumer*, not a
+   privileged join inside the database.
+2. **Net price/value and unit cost are redacted *at the gateway*** — the same field-level
+   governance ([section 5](#-5-discovery--the-catalog--openapi-1-min)) every consumer gets,
+   visible right in the assembled record.
+3. The **same drill-down opens from the agent chat** — click a ranked material card in the
+   mission agent ([section 6b](#-6b-the-grounded-mission-agent--chat-over-governed-data-12-min))
+   and you land in this exact modal. One governed detail path, reached by a human *or* an agent.
+
+> [!TIP]
+> **Why this is the "advanced API" beat.** A single query answered the headline question; the
+> drill-down shows that **richer, relational answers are just more governed calls** — no new
+> database access, no data copy, every hop still authenticated, rate-limited, and traceable.
+> Result tables use human-friendly column labels (Material, Risk tier, Avg delay…) so the room
+> reads the data, not the schema. *In Azure, each of these hops is the same API Management call
+> to DAB on Container Apps.*
 
 ---
 
@@ -546,6 +659,7 @@ make down     # stops everything and removes volumes (a clean slate for the next
 | You want… | Go to |
 |---|---|
 | The **full Azure + analytics superset** (Kong *and* APIM live, Databricks, Power BI, Delta Sharing) | [`DEMO-COMPLETE.md`](DEMO-COMPLETE.md) |
+| The **showpiece moments in Azure** (public landing, drill-down, the grounded agent, live add/remove) | [`DEMO-COMPLETE.md` Part B-bonus](DEMO-COMPLETE.md#-part-b-bonus--the-four-showpiece-moments-landing-drill-down-agent-live-onboarding-7-min) |
 | The **concepts** behind every term used here (gateway, JWT, DAB, MCP, zero-move) | [`docs/concepts/`](concepts/README.md) · [`GLOSSARY.md`](GLOSSARY.md) |
 | The **architecture** in one page | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | **Why zero-move is real**, and how it's tested | [`ZERO-MOVE.md`](ZERO-MOVE.md) |

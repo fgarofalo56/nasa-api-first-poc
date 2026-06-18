@@ -31,6 +31,8 @@
 - [🛡️ OWASP API Security Top 10 — controls at the gateway](#️-owasp-api-security-top-10--controls-at-the-gateway)
 - [🏷️ Classify before exposure](#️-classify-before-exposure)
 - [✂️ Field-level redaction — two layers, one guarantee](#️-field-level-redaction--two-layers-one-guarantee)
+- [🤖 The grounded agent — governed, not just clever](#-the-grounded-agent--governed-not-just-clever)
+- [🚪 Deliberate demo simplifications — public landing & open `/token`](#-deliberate-demo-simplifications--public-landing--open-token)
 - [🔒 Transport: plaintext local vs TLS everywhere else](#-transport-plaintext-local-vs-tls-everywhere-else)
 - [🔑 Secrets](#-secrets)
 - [📊 Monitoring & SIEM (Azure)](#-monitoring--siem-azure)
@@ -451,6 +453,126 @@ end through Kong:
 
 ---
 
+## 🤖 The grounded agent — governed, not just clever
+
+This POC ships a **mission agent** (a chat assistant) at
+[`services/agent/agent.py`](../services/agent/agent.py). It matters to the security model
+because it answers a question every enterprise now asks: *can an AI agent see more than it
+should?* Here the answer is **no, by construction** — and the reason is the same boundary
+every other consumer hits.
+
+### The agent is an MCP host, not a database client
+
+The agent never touches Postgres, DAB, or even SQL. It is an **MCP host**: when a user asks
+a question, the agent calls the MCP server's tools — `query_supply_risk` and
+`material_detail` in [`services/mcp/server.py`](../services/mcp/server.py) — and those tools
+reach data **only through the Kong gateway**, exactly like the analyst CLI does. The agent
+is just another governed consumer (`client_id = artemis-agent`).
+
+```mermaid
+flowchart LR
+    U["👤 User<br/>(chat widget)"] --> A["🤖 Mission agent<br/>(/ask · MCP host)"]
+    A -->|MCP tools| M["🔧 MCP server<br/>query_supply_risk · material_detail"]
+    M -->|Bearer JWT<br/>consumer=artemis-agent| K["🛡️ Kong gateway"]
+    K --> D["Data API Builder"]
+    D --> P["Postgres (SoR)"]
+    P --> D --> K --> M --> A --> U
+```
+
+> **Why this is the headline AI story:** the same MCP tools could be called by **Copilot**,
+> **Azure AI Foundry**, or any other MCP-aware host. Because the *governance lives at the
+> gateway, not in the agent*, swapping the host in front never widens what the data product
+> serves. "AI grounded on governed data over the open MCP standard" is a security property,
+> not a slogan.
+
+### What the agent cannot do
+
+The agent inherits **every** control documented above — it has no privileged path:
+
+| Control | How it constrains the agent |
+|---|---|
+| **Authentication** | The MCP tools mint a token from the issuer and present it as a bearer; no token, no data — same `401` edge as everyone else. |
+| **Field-level redaction** | The agent reaches DAB through Kong as the `anonymous` role, so `std_unit_cost_usd`, `netpr`, `netwr` are **never in the rows it sees**. It literally cannot quote a unit cost — and its answers say so. |
+| **Rate-limiting / OWASP guards** | The agent's calls are metered and capped per consumer (`60/min`); `$first` over-broad pulls are blocked at the edge. An agent loop cannot drain the SoR. |
+| **Grounding + citation** | Every answer is built from a tool result and **cites the MCP tool + the gateway `X-Correlation-ID`**. The answer cannot exceed what the gateway returned, and the source is auditable. |
+| **Scope refusal** | Off-topic questions get a deterministic, space-themed refusal (it routes by rule, not by an LLM that could be jailbroken into free-form answers). Routing is deterministic by default; an optional Azure OpenAI phrasing upgrade still only sees gateway data and must still cite. |
+
+> **In plain terms:** the agent is *grounded* (it can only speak from tool results) and
+> *governed* (those tools can only reach what the gateway serves). A prompt-injection
+> attempt cannot make it reveal a redacted cost column, because the column was never in the
+> data the model received — the gateway dropped it two hops earlier. The model can only be
+> as privileged as the bearer token its tools carry, and that token is the marketplace
+> consumer, not an admin.
+
+> **Azure equivalent:** point a managed MCP host — **Copilot** or **Azure AI Foundry** — at
+> the same tools fronted by **APIM**, and the identical guarantees hold: Entra-issued token,
+> APIM policy enforcement, redaction at DAB. The agent is portable; the governance is fixed.
+
+---
+
+## 🚪 Deliberate demo simplifications — public landing & open `/token`
+
+Two choices in this POC are intentionally *less locked down than production* so the demo is
+frictionless on a laptop and on the public Azure URL. Both are safe **only because all data
+is synthetic** ([`DISCLAIMER.md`](DISCLAIMER.md)) — and both have a clear production upgrade.
+
+### Public landing page + deferred auth (`AllowAnonymous`)
+
+The Azure front end is deployed **`AllowAnonymous`**, so a visitor lands on a **public
+landing page** (real NASA logo, value prop) instead of being bounced straight to a login.
+That page offers two paths — **Sign in with Microsoft** (Entra) and **Explore the demo** —
+and auth no longer auto-redirects on page load (the "DOT-style" deferred-auth pattern). The
+behavior is driven by the `authEnabled` config flag in
+[`frontend/public/config.js`](../frontend/public/config.js); the front end reads it
+([`frontend/src/api.js`](../frontend/src/api.js)) to decide whether to surface the sign-in
+button, and deliberately **does not** infer the gate from `/.auth/me`.
+
+> [!NOTE]
+> The landing page being public **does not weaken the data boundary**. The marketplace UI
+> is a presentation layer — it never holds data. Every byte it renders still arrives through
+> the gateway under the controls above. Anonymous browsing reaches *the demo*, not *the data
+> path's privileges*: redaction, rate-limiting, and the JWT edge are unchanged.
+
+> [!IMPORTANT]
+> **Production note.** For a real tenant you would gate the UI itself. The deploy script
+> [`scripts/azure-deploy-fullstack.sh`](../scripts/azure-deploy-fullstack.sh) already shows
+> the locked posture — `az containerapp auth update … --action RedirectToLoginPage` with a
+> **single-tenant** Entra app registration (`artemis-ui-easyauth`), so only your tenant's
+> accounts reach the app. Deferred-auth (public landing) and tenant-lock (redirect) are the
+> two ends of one `authEnabled` / EasyAuth dial; choose per audience. Either way the *data*
+> stays governed at the gateway.
+
+### The open `/token` endpoint
+
+The local identity issuer's `POST /token`
+([`services/identity/issuer.py`](../services/identity/issuer.py)) mints a bearer token for
+any caller that names an allowed consumer (`analyst` or `artemis-agent`) — there is **no
+client secret, no client authentication** on the endpoint itself. That is what lets the
+quickstart, the MCP server, and the demo scripts get a token in one `curl`.
+
+> [!WARNING]
+> An open token endpoint is a **demo convenience, not a production pattern**. In this POC it
+> is acceptable because (a) the data is synthetic, (b) the issuer is on the internal Docker
+> network / a demo Azure app, and (c) the token still buys you only the least-privileged,
+> redacted, rate-limited view — minting one grants no extra power.
+
+> [!IMPORTANT]
+> **Production note.** Replace the open `/token` with **Microsoft Entra ID**: clients
+> authenticate with the standard OAuth2 **client-credentials** flow (a registered app +
+> secret/certificate, or a managed identity) against the Entra token endpoint — you do not
+> run a `/token` endpoint at all. APIM then validates the Entra token with
+> `validate-azure-ad-token`. See [Identity & token flow](#-identity--token-flow) and
+> [Token lifetime & the `/token` contract](#️-token-lifetime--the-token-contract) for the
+> 1:1 mapping. The *shape* of trust (signed, audience-scoped, time-limited, gateway-verified)
+> is already exactly right; production just moves the minting behind authenticated clients.
+
+> **In plain terms:** both simplifications relax *who may walk up to the front door of the
+> demo*, never *what the data product hands out*. The gateway-enforced boundary — auth,
+> redaction, rate-limit, correlation id — is identical whether the visitor signed in or not,
+> and whether the token came from the open issuer or from Entra.
+
+---
+
 ## 🔒 Transport: plaintext local vs TLS everywhere else
 
 It's important to be precise about *where the wire is encrypted*, because the local
@@ -572,6 +694,8 @@ stack:
 - [`concepts/04-identity-jwt-oauth.md`](concepts/04-identity-jwt-oauth.md) and
   [`concepts/06-observability-and-security.md`](concepts/06-observability-and-security.md)
   — the teaching primers behind the JWT/OAuth and security/observability material.
+- [`concepts/07-mcp-and-agents.md`](concepts/07-mcp-and-agents.md) — the teaching primer
+  behind the grounded-agent / MCP story summarized above.
 - [`GLOSSARY.md`](GLOSSARY.md) — definitions of JWT, RS256, JWKS, SoR, SIEM, and the other
   terms used here.
 </content>
