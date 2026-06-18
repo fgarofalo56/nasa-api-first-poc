@@ -450,7 +450,7 @@ flowchart LR
 > demo today), and `gateway` mode reads *through* the gateway (the true zero-move path).
 > Lead with `gateway` mode for the zero-move story. The Power BI report targets
 > `<catalog>.gold.artemis_supply_risk`; the reference workspace catalog is
-> `adb_eastus2_sandbox` (the notebook's default `catalog` widget is `artemis`).
+> `dbw_btfabric_dev` (also the notebook's default `catalog` widget).
 
 > **Why this matters (platform posture):** the managed analytics platform — **Azure
 > Databricks + managed Unity Catalog + Databricks SQL + Delta Lake + Delta Sharing on ADLS

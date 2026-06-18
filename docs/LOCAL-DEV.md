@@ -321,7 +321,8 @@ make lint && make test
 ```
 
 CI (GitHub Actions, under `.github/`) runs the same lint + tests, including
-`tests/test_no_fabric.py` (greps the repo to enforce the no-Fabric/OneLake constraint) and
+`tests/test_no_fabric.py` (greps the repo to keep **Fabric / OneLake excluded** — they are
+not available in Azure Gov) and
 `tests/test_zero_move.py`. Keeping the local loop green keeps CI green.
 
 > [!TIP]

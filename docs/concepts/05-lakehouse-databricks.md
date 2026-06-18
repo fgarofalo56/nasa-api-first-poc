@@ -142,7 +142,7 @@ have to provision one to learn:
 |---|---|
 | Workspace | `dbw-btfabric-dev` (premium / Unity Catalog) |
 | URL | `https://adb-7405607213468698.18.azuredatabricks.net` |
-| Reference catalog | `adb_eastus2_sandbox` |
+| Reference catalog | `dbw_btfabric_dev` |
 
 The reference infrastructure-as-code to stand up a *new* one
 ([`infra/azure/modules/databricks.bicep`](../../infra/azure/modules/databricks.bicep))
@@ -274,11 +274,11 @@ UC organizes everything in a **three-level namespace**:
 catalog . schema . table
    │         │        └── e.g. artemis_supply_risk
    │         └────────────  e.g. gold  (also: bronze, silver)
-   └──────────────────────  e.g. adb_eastus2_sandbox
+   └──────────────────────  e.g. dbw_btfabric_dev
 ```
 
 That is why every table reference in this POC is three parts, like
-`adb_eastus2_sandbox.gold.artemis_supply_risk`. The notebook creates the
+`dbw_btfabric_dev.gold.artemis_supply_risk`. The notebook creates the
 **schemas** (the medallion tiers) inside an existing catalog:
 
 ```python
@@ -330,7 +330,7 @@ SQL by anyone with access:
 
 ```sql
 -- databricks/sql/dbsql_samples.sql — the headline mission question, in Databricks SQL
-USE CATALOG adb_eastus2_sandbox;   -- change to your Unity Catalog
+USE CATALOG dbw_btfabric_dev;   -- change to your Unity Catalog
 
 SELECT program, material_name, vendor_name, risk_tier, risk_score,
        avg_delay_days, total_committed_usd
@@ -487,7 +487,7 @@ az login
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'
 python databricks/run_notebook.py \
   --host adb-7405607213468698.18.azuredatabricks.net \
-  --catalog adb_eastus2_sandbox --source-mode postgres \
+  --catalog dbw_btfabric_dev --source-mode postgres \
   --pg-host artemis-pg-n1.postgres.database.azure.com
 ```
 
@@ -495,14 +495,14 @@ python databricks/run_notebook.py \
 imports the notebook into your workspace, sets the secret, runs it on a single-node
 Unity-Catalog cluster, and prints a validation query. It creates the
 `bronze`/`silver`/`gold` schemas, lands Bronze Delta, refines to Silver, and
-builds `adb_eastus2_sandbox.gold.artemis_supply_risk` and `gold.delay_trend`.
+builds `dbw_btfabric_dev.gold.artemis_supply_risk` and `gold.delay_trend`.
 
 **Expected output** (the notebook's `dbutils.notebook.exit(...)` summary):
 
 ```json
 {
-  "catalog": "adb_eastus2_sandbox",
-  "gold_table": "adb_eastus2_sandbox.gold.artemis_supply_risk",
+  "catalog": "dbw_btfabric_dev",
+  "gold_table": "dbw_btfabric_dev.gold.artemis_supply_risk",
   "gold_rows": 600,
   "headline_rows": 6,
   "headline_material": "<a synthetic material name>"
@@ -516,9 +516,9 @@ the CLI and AI agent return**, now sitting in Delta in Unity Catalog.
 ### Step 4 — verify in Databricks SQL
 
 ```sql
-SHOW TABLES IN adb_eastus2_sandbox.gold;
+SHOW TABLES IN dbw_btfabric_dev.gold;
 
-SELECT * FROM adb_eastus2_sandbox.gold.artemis_supply_risk
+SELECT * FROM dbw_btfabric_dev.gold.artemis_supply_risk
 WHERE program='Artemis-3' AND criticality='Critical'
   AND sole_source=true AND avg_delay_days>30
 ORDER BY risk_score DESC;
@@ -533,7 +533,7 @@ will connect to.
 ```bash
 python databricks/run_notebook.py \
   --host adb-7405607213468698.18.azuredatabricks.net \
-  --catalog adb_eastus2_sandbox --source-mode gateway \
+  --catalog dbw_btfabric_dev --source-mode gateway \
   --gateway-url https://kong.<aca-domain> \
   --identity-url https://identity.<aca-domain>
 ```
@@ -550,8 +550,9 @@ difference is governance, proven.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `set the 'catalog' widget to an existing UC catalog` | The `catalog` widget is empty or points at a catalog you cannot write to | Run `databricks unity-catalog catalogs list` and pass one you have `CREATE SCHEMA` on (e.g. `adb_eastus2_sandbox`) |
+| `Cannot write Delta into '<catalog>' managed storage (permission/403?)` | The catalog exists but your identity/compute can't write *data* to its managed storage — the notebook's **write-probe** caught it. (`CREATE SCHEMA` is metadata-only and would have passed.) | Run `databricks unity-catalog catalogs list` and pass a catalog whose managed storage you can write to — e.g. your workspace catalog `dbw_btfabric_dev`. In the reference workspace, `artemis` 403s but `dbw_btfabric_dev` works. |
 | Catalog creation fails | Catalog creation depends on the metastore's storage; the notebook intentionally creates **schemas**, not catalogs | Use an existing catalog; do not try to create one in the notebook |
+| Cell stuck on **"Waiting"** in the notebook editor | A stale front-end state (common after a widget change or interrupt); the backend has usually already finished | **Reload the page** to see the true committed cell state and outputs |
 | `total_committed_usd` is all `$0` | You ran `gateway` mode — `netwr`/`netpr` are redacted at the gateway by design | Use `postgres` mode for full-fidelity dollar measures |
 | `purchase_orders` has far fewer rows than expected | `gateway` mode takes a **governed sample** to prevent bulk dumps | Expected behavior; use `postgres` mode for the full 10k |
 | Delta Sharing step prints "not enabled / insufficient privilege — skipped" | Delta Sharing is not enabled on the metastore, or you lack the privilege | Optional feature; safe to ignore, or enable sharing on the metastore |
