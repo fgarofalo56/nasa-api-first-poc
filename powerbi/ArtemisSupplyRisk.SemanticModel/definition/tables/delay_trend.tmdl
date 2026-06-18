@@ -1,0 +1,51 @@
+table delay_trend
+	lineageTag: 6a2aea20-4f44-50da-b2e7-4008cf4db01c
+
+	column program
+		dataType: string
+		lineageTag: 1439f988-440d-5fe9-bfef-8b1fbda9cc17
+		summarizeBy: none
+		sourceColumn: program
+
+	column order_month
+		dataType: dateTime
+		lineageTag: a76df42c-dffb-5115-8250-b7f0dea8ac25
+		summarizeBy: none
+		sourceColumn: order_month
+		formatString: General Date
+
+	column po_count
+		dataType: int64
+		lineageTag: ec48768c-8000-5618-acee-f758c54afe22
+		summarizeBy: none
+		sourceColumn: po_count
+
+	column avg_delay_days
+		dataType: double
+		lineageTag: 92ab58fe-f5ce-5cca-8cfd-5cbb97a782fe
+		summarizeBy: none
+		sourceColumn: avg_delay_days
+
+	column slipped_pos
+		dataType: int64
+		lineageTag: af7ff256-1b87-563c-ab26-42e926cd4ae4
+		summarizeBy: none
+		sourceColumn: slipped_pos
+
+	column committed_usd
+		dataType: double
+		lineageTag: 2d1f3509-70ca-510e-b71a-c4568dacc6fb
+		summarizeBy: none
+		sourceColumn: committed_usd
+
+	partition delay_trend = m
+		mode: directQuery
+		source =
+			let
+			    Source = Databricks.Catalogs(DatabricksServerHostname, DatabricksHttpPath, [Catalog=null, Database=null, EnableAutomaticProxyDiscovery=null]),
+			    Catalog = Source{[Name=CatalogName, Kind="Database"]}[Data],
+			    Schema = Catalog{[Name="gold", Kind="Schema"]}[Data],
+			    Data = Schema{[Name="delay_trend", Kind="Table"]}[Data]
+			in
+			    Data
+

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "table_ranked_parts",
+  "position": {
+    "x": 16,
+    "y": 428,
+    "width": 1208,
+    "height": 276,
+    "z": 7,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "material_name"
+                }
+              },
+              "queryRef": "artemis_supply_risk.material_name",
+              "nativeQueryRef": "material_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "vendor_name"
+                }
+              },
+              "queryRef": "artemis_supply_risk.vendor_name",
+              "nativeQueryRef": "vendor_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "risk_tier"
+                }
+              },
+              "queryRef": "artemis_supply_risk.risk_tier",
+              "nativeQueryRef": "risk_tier"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "risk_score"
+                }
+              },
+              "queryRef": "artemis_supply_risk.risk_score",
+              "nativeQueryRef": "risk_score"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "avg_delay_days"
+                }
+              },
+              "queryRef": "artemis_supply_risk.avg_delay_days",
+              "nativeQueryRef": "avg_delay_days"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "total_committed_usd"
+                }
+              },
+              "queryRef": "artemis_supply_risk.total_committed_usd",
+              "nativeQueryRef": "total_committed_usd"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

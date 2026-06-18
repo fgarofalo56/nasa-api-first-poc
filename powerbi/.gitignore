@@ -1,0 +1,7 @@
+# Power BI Desktop local/runtime files (regenerated per user/machine) — keep the
+# source-controllable PBIP definition, ignore the local caches and settings.
+**/.pbi/
+**/cache.abf
+**/*.pbix
+**/localSettings.json
+**/unappliedChanges.json

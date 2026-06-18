@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "kpi_crit_slips",
+  "position": {
+    "x": 322,
+    "y": 16,
+    "width": 290,
+    "height": 120,
+    "z": 1,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "Critical Slips >30d"
+                }
+              },
+              "queryRef": "artemis_supply_risk.Critical Slips >30d",
+              "nativeQueryRef": "Critical Slips >30d"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "kpi_sole_exposure",
+  "position": {
+    "x": 628,
+    "y": 16,
+    "width": 290,
+    "height": 120,
+    "z": 2,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "Sole-Source Exposure ($)"
+                }
+              },
+              "queryRef": "artemis_supply_risk.Sole-Source Exposure ($)",
+              "nativeQueryRef": "Sole-Source Exposure ($)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
