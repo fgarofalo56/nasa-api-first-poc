@@ -1,0 +1,28 @@
+{
+  "marketplace": "NASA OCIO API-First Data Marketplace (synthetic POC)",
+  "products": [
+    {
+      "id": "artemis-supply-risk",
+      "title": "Artemis Supply-Chain Risk API",
+      "description": "Zero-move, governed access to the synthetic Artemis SAP procurement system of record (vendors, materials, purchase orders, derived supply risk). Data never leaves Postgres; every call is brokered, authenticated, and metered by the gateway.",
+      "owner": "NASA OCIO — Artemis Track-A (synthetic demo)",
+      "steward": "Supply-Chain Data Product Team",
+      "domain": "Supply Chain / Procurement",
+      "data_source": "PostgreSQL (SAP-shaped) via Microsoft Data API Builder (auto REST + GraphQL + OpenAPI)",
+      "data_sensitivity_banner": "SYNTHETIC — not real NASA procurement data. ITAR/CUI-safe.",
+      "request_path": "/api/SupplyRisk",
+      "openapi_path": "/api/openapi",
+      "graphql_path": "/graphql",
+      "entities": ["Material", "Vendor", "PurchaseOrder", "SupplyRisk"],
+      "auth": "OAuth2 bearer (RS256 JWT) validated at the Kong gateway",
+      "rate_limit_per_minute": 60,
+      "open_standards": ["OData-style REST", "OpenAPI 3", "GraphQL", "OAuth2/JWT", "MCP"],
+      "sample_query": {
+        "question": "Which Critical, sole-source materials on Artemis-3 have an average delay > 30 days?",
+        "method": "GET",
+        "path": "/api/SupplyRisk",
+        "odata": "$filter=program eq 'Artemis-3' and criticality eq 'Critical' and sole_source eq true and avg_delay_days gt 30&$orderby=risk_score desc"
+      }
+    }
+  ]
+}

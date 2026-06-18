@@ -18,44 +18,60 @@ services:
   - name: artemis-dab
     url: http://dab:5000
     routes:
+      # Discovery: the OpenAPI contract is public metadata (no token) so the data
+      # product is findable without tribal knowledge. More specific than /api, so a
+      # call to /api/openapi matches here, not the governed data route below.
+      - name: artemis-openapi
+        paths:
+          - /api/openapi
+        strip_path: false
+      # Governed data route: JWT + rate-limit + OWASP guard apply here only. Paths are
+      # the explicit entity collections (+ GraphQL) so there is no overlap with the
+      # public /api/openapi discovery route above.
       - name: artemis-procurement-api
         paths:
-          - /api
+          - /api/Material
+          - /api/Vendor
+          - /api/PurchaseOrder
+          - /api/SupplyRisk
+          - /graphql
         strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              key_claim_name: client_id
+              claims_to_verify:
+                - exp
+          - name: rate-limiting
+            config:
+              minute: __RATE_LIMIT__
+              policy: local
+              limit_by: consumer
+              fault_tolerant: true
+              hide_client_headers: false
+          - name: pre-function
+            config:
+              access:
+                - |
+                  -- OWASP API4:2023 (Unrestricted Resource Consumption): block over-broad
+                  -- extraction. A consumer may page with $first up to 200; anything larger
+                  -- (an attempt to siphon the whole dataset in one call) is rejected here,
+                  -- before the request ever reaches DAB/Postgres.
+                  local args = kong.request.get_query()
+                  local first = args["$first"]
+                  if first and tonumber(first) and tonumber(first) > 200 then
+                    return kong.response.exit(400, {
+                      message = "Over-broad query blocked (OWASP API4): $first exceeds 200",
+                      max_first = 200
+                    })
+                  end
+    # Service-level: correlation id is stamped + echoed on every route.
     plugins:
-      - name: jwt
-        config:
-          key_claim_name: client_id
-          claims_to_verify:
-            - exp
-      - name: rate-limiting
-        config:
-          minute: __RATE_LIMIT__
-          policy: local
-          limit_by: consumer
-          fault_tolerant: true
-          hide_client_headers: false
       - name: correlation-id
         config:
           header_name: X-Correlation-ID
           generator: uuid#counter
           echo_downstream: true
-      - name: pre-function
-        config:
-          access:
-            - |
-              -- OWASP API4:2023 (Unrestricted Resource Consumption): block over-broad
-              -- extraction. A consumer may page with $first up to 200; anything larger
-              -- (an attempt to siphon the whole dataset in one call) is rejected here,
-              -- before the request ever reaches DAB/Postgres.
-              local args = kong.request.get_query()
-              local first = args["$first"]
-              if first and tonumber(first) and tonumber(first) > 200 then
-                return kong.response.exit(400, {
-                  message = "Over-broad query blocked (OWASP API4): $first exceeds 200",
-                  max_first = 200
-                })
-              end
 
 # Per-consumer metering + latency, exposed on the Kong status/admin /metrics endpoint.
 plugins:
