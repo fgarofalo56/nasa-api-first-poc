@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ENDPOINTS, deleteSource, listCatalog } from "./api";
+import { ENDPOINTS, LIVE_ONBOARDING, deleteSource, listCatalog } from "./api";
 import Emblem from "./components/Emblem.jsx";
 import QueryConsole from "./components/QueryConsole.jsx";
 import AddSourceWizard from "./components/AddSourceWizard.jsx";
@@ -24,9 +24,13 @@ export default function App() {
   }, []);
 
   async function removeSource(id) {
-    await deleteSource(id);
-    if (active?.id === id) setActive(null);
-    refresh();
+    try {
+      await deleteSource(id);
+      if (active?.id === id) setActive(null);
+      refresh();
+    } catch (e) {
+      setErr(`Could not remove '${id}': ${e}`);
+    }
   }
 
   return (
@@ -44,9 +48,15 @@ export default function App() {
             </p>
           </div>
         </div>
-        <button className="cta" onClick={() => setWizard(true)}>
-          + Add a data source
-        </button>
+        {LIVE_ONBOARDING ? (
+          <button className="cta" onClick={() => setWizard(true)}>
+            + Add a data source
+          </button>
+        ) : (
+          <span className="cta-note" title="Live onboarding runs in local dev; in this Azure deploy, sources are pre-registered">
+            Sources pre-registered in this deploy
+          </span>
+        )}
       </header>
 
       <div className="banner">
@@ -86,7 +96,7 @@ export default function App() {
                 <span className={`origin ${p.origin?.includes("wizard") ? "added" : "builtin"}`}>
                   {p.origin?.includes("wizard") ? "added via wizard" : "built-in"}
                 </span>
-                {p.origin?.includes("wizard") && (
+                {LIVE_ONBOARDING && p.origin?.includes("wizard") && (
                   <button
                     className="trash"
                     title="remove source"
@@ -143,8 +153,9 @@ export default function App() {
         <div className="panel">
           <h3>➕ Add a source in seconds</h3>
           <p>
-            The wizard publishes any existing API through the gateway with a live config reload —
-            no source change, no downtime. This is the APIM / API Center pattern, locally.
+            {LIVE_ONBOARDING
+              ? "The wizard publishes any existing API through the gateway with a live config reload — no source change, no downtime. This is the APIM / API Center pattern, locally."
+              : "Live onboarding (the wizard) runs in local dev, where the registry hot-reloads Kong. In this Azure deploy, sources are pre-registered — the managed equivalent is publishing an API in Azure API Management / API Center."}
           </p>
         </div>
       </section>

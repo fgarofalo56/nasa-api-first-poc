@@ -171,6 +171,9 @@ window.APP_CONFIG = {
   identity: "https://$IDENT_FQDN",
   catalog: "https://$CAT_FQDN",
   registry: "https://$REG_FQDN",
+  // No shared config volume + no Kong admin ingress in ACA, so live add/remove can't
+  // work here — sources are pre-registered. Hide the wizard/remove controls (graceful).
+  liveOnboarding: false,
 };
 EOF
 az acr build -r "$ACR" -t frontend:latest -f frontend/Dockerfile . --no-logs >/dev/null
