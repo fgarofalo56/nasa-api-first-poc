@@ -4,6 +4,7 @@ import Landing from "./components/Landing.jsx";
 import QueryConsole from "./components/QueryConsole.jsx";
 import AddSourceWizard from "./components/AddSourceWizard.jsx";
 import ProductDetail from "./components/ProductDetail.jsx";
+import AgentChat from "./components/AgentChat.jsx";
 
 const LABEL_COLORS = { Confidential: "#fc3d21", Sensitive: "#ff9e1b", Routine: "#3ddc97" };
 const LOGOUT_URL = "/.auth/logout?post_logout_redirect_uri=/";
@@ -189,6 +190,7 @@ export default function App() {
 
       {wizard && <AddSourceWizard onClose={() => setWizard(false)} onDone={refresh} />}
       {detail && <ProductDetail row={detail.row} consumer={detail.consumer} onClose={() => setDetail(null)} />}
+      <AgentChat onOpenDetail={(row, consumer) => setDetail({ row, consumer })} />
     </div>
   );
 }

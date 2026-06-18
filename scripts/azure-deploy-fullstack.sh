@@ -164,6 +164,11 @@ az acr build -r "$ACR" -t mcp:latest -f services/mcp/Dockerfile . --no-logs >/de
 MCP_FQDN="$(deploy mcp mcp:latest 8090 --min-replicas 1 \
   --env-vars MCP_PORT=8090 "KONG_INTERNAL_URL=https://$KONG_FQDN" "IDENTITY_INTERNAL_URL=https://$IDENT_FQDN" JWT_AUDIENCE=artemis-api)"
 
+echo "==> 5c. mission agent (grounded chat: NL -> MCP tools -> gateway -> cited answer)"
+az acr build -r "$ACR" -t agent:latest -f services/agent/Dockerfile . --no-logs >/dev/null
+AGENT_FQDN="$(deploy agent agent:latest 8110 --min-replicas 1 \
+  --env-vars AGENT_PORT=8110 "MCP_URL=https://$MCP_FQDN/mcp")"
+
 echo "==> 6. render UI config + build the frontend image (points at the Azure URLs)"
 cat > frontend/public/config.js <<EOF
 window.APP_CONFIG = {
@@ -171,6 +176,7 @@ window.APP_CONFIG = {
   identity: "https://$IDENT_FQDN",
   catalog: "https://$CAT_FQDN",
   registry: "https://$REG_FQDN",
+  agent: "https://$AGENT_FQDN",
   // No shared config volume + no Kong admin ingress in ACA, so live add/remove can't
   // work here — sources are pre-registered. Hide the wizard/remove controls (graceful).
   liveOnboarding: false,
@@ -199,4 +205,5 @@ echo "  Gateway:   https://$KONG_FQDN     Identity: https://$IDENT_FQDN"
 echo "  Catalog:   https://$CAT_FQDN     Registry: https://$REG_FQDN"
 echo "  DAB:       https://$DAB_FQDN     Transport: https://$TRANSPORT_FQDN"
 echo "  MCP:       https://$MCP_FQDN     (agent path)"
+echo "  Agent:     https://$AGENT_FQDN     (grounded chat over MCP)"
 echo "Teardown: az group delete -n $RG --yes --no-wait  (+ az ad app delete --id $APPID)"

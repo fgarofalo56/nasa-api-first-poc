@@ -4,6 +4,7 @@ const CFG = window.APP_CONFIG || {
   identity: "http://localhost:8081",
   catalog: "http://localhost:8080",
   registry: "http://localhost:8095",
+  agent: "http://localhost:8110",
 };
 
 export const ENDPOINTS = CFG;
@@ -134,6 +135,17 @@ export async function materialDetail(matnr, consumer = "analyst") {
     calls: corr.filter(Boolean).length,
     correlationIds: corr.filter(Boolean),
   };
+}
+
+// Ask the grounded mission agent (NL question -> MCP tools -> gateway -> cited answer).
+export async function askAgent(question, consumer = "artemis-agent") {
+  const r = await fetch(`${CFG.agent}/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, consumer }),
+  });
+  if (!r.ok) throw new Error(`agent ${r.status}`);
+  return r.json();
 }
 
 // Escape single quotes for an OData string literal (' -> '').
