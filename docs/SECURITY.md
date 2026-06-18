@@ -25,7 +25,7 @@ in `infra/azure/modules/apim.bicep`).
 |---|---|
 | **API1 Broken Object Level Auth** | DAB exposes read-only entities; no object mutation paths; sensitive fields classified (`classification.yml`). |
 | **API2 Broken Authentication** | Kong `jwt` plugin validates RS256 signature + `exp`; unauthenticated → 401 at the edge. |
-| **API3 Broken Object Property Auth** | Read-only `anonymous` role in DAB; OData `$select` is the only projection; no writes. |
+| **API3 Broken Object Property Auth** | Read-only `anonymous` role in DAB with **column permissions** (`fields.exclude`) that redact Confidential columns (unit cost, net price/value); no writes. |
 | **API4 Unrestricted Resource Consumption** | `rate-limiting` (per-consumer 60/min, 429 + `Retry-After`) **and** the `pre-function` guard that blocks over-broad extraction (`$first > 200` → 400). |
 | **API5 Broken Function Level Auth** | Only the explicit entity routes are published; everything else under the service is unrouted. |
 | **API6 Unrestricted Access to Business Flows** | Per-consumer quota + metering; the OWASP guard caps bulk pulls. |
@@ -43,6 +43,29 @@ system of record as Postgres `COMMENT`s **at seed time** and surfaced in the cat
 so confidential records (e.g. `purchase_orders.NETPR`) are governed and visible as such
 *before* the API is ever called. This is the Microsoft Purview discipline, applied
 locally.
+
+## Field-level redaction (column permissions at the data API)
+
+Classification is **enforced**, not just labelled. Data API Builder applies per-role
+**column permissions**, so the columns marked **Confidential** in `classification.yml`
+never leave the system of record for a marketplace consumer:
+
+| Entity | Confidential column redacted from the default consumer |
+|---|---|
+| `Material` | `std_unit_cost_usd` (unit cost) |
+| `PurchaseOrder` | `netpr`, `netwr` (net price / net value) |
+
+In `services/dab/dab-config.json` the default `anonymous` role reads with
+`fields.exclude` set to those columns; a privileged `authenticated` role (an internal
+caller presenting the principal header) reads the full record. The row is still returned —
+only the confidential **columns** are withheld — so the headline supply-risk answer is
+unaffected while cost/price data is masked at the API layer, before the gateway ever sees
+it. `tests/test_redaction.py` proves the confidential fields are absent through Kong.
+
+> [!NOTE]
+> This is the robust, DAB-native equivalent of column-level masking in Microsoft Purview /
+> Azure SQL. An earlier gateway-side body-rewrite approach was rejected — redaction belongs
+> at the data API (least privilege at the source), not bolted onto the gateway response.
 
 ## Secrets
 

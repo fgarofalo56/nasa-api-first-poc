@@ -38,7 +38,13 @@
         "type": { "singular": "Material", "plural": "Materials" }
       },
       "permissions": [
-        { "role": "anonymous", "actions": ["read"] }
+        {
+          "role": "anonymous",
+          "actions": [
+            { "action": "read", "fields": { "exclude": ["std_unit_cost_usd"] } }
+          ]
+        },
+        { "role": "authenticated", "actions": ["read"] }
       ]
     },
     "Vendor": {
@@ -67,7 +73,13 @@
         "type": { "singular": "PurchaseOrder", "plural": "PurchaseOrders" }
       },
       "permissions": [
-        { "role": "anonymous", "actions": ["read"] }
+        {
+          "role": "anonymous",
+          "actions": [
+            { "action": "read", "fields": { "exclude": ["netpr", "netwr"] } }
+          ]
+        },
+        { "role": "authenticated", "actions": ["read"] }
       ]
     },
     "SupplyRisk": {
