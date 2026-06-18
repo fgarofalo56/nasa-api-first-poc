@@ -23,6 +23,7 @@ CLASSIFICATION_YML = Path(os.environ.get("CLASSIFICATION_YML", APP_DIR / "classi
 PORT = int(os.environ.get("CATALOG_PORT", "8080"))
 # Public base URL clients use to reach Kong (for the OpenAPI + request path links).
 KONG_PUBLIC_URL = os.environ.get("KONG_PUBLIC_URL", "http://localhost:8000").rstrip("/")
+SOURCES_FILE = Path(os.environ.get("SOURCES_FILE", "/shared/sources.json"))
 
 app = FastAPI(title="Artemis Data Marketplace Catalog", version="0.1.0")
 
@@ -76,6 +77,32 @@ def healthz():
     return {"status": "ok"}
 
 
+def _load_dynamic_sources() -> list[dict]:
+    """Sources registered at runtime via the onboarding wizard (the registry service)."""
+    if not SOURCES_FILE.exists():
+        return []
+    try:
+        sources = json.loads(SOURCES_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    return [
+        {
+            "id": s["id"],
+            "title": s["title"],
+            "owner": s.get("owner", "Unspecified"),
+            "domain": s.get("domain", "Unspecified"),
+            "request_path": s["base_path"],
+            "openapi_url": f"{KONG_PUBLIC_URL}{s['base_path']}/api/openapi",
+            "sample_url": f"{KONG_PUBLIC_URL}{s.get('sample_path') or s['base_path']}",
+            "classification_label": s.get("classification_label", "Routine"),
+            "origin": "registered via onboarding wizard",
+            "require_jwt": s.get("require_jwt", True),
+            "detail": f"/catalog/{s['id']}",
+        }
+        for s in sources
+    ]
+
+
 @app.get("/catalog")
 def list_catalog():
     catalog = _load_catalog()
@@ -88,10 +115,12 @@ def list_catalog():
             "request_path": p["request_path"],
             "openapi_url": f"{KONG_PUBLIC_URL}{p['openapi_path']}",
             "classification_dataset": (_load_classification() or {}).get("dataset"),
+            "origin": "built-in",
             "detail": f"/catalog/{p['id']}",
         }
         for p in catalog.get("products", [])
     ]
+    products.extend(_load_dynamic_sources())
     return {"marketplace": catalog.get("marketplace"), "count": len(products), "products": products}
 
 
@@ -101,6 +130,9 @@ def get_product(product_id: str):
     for product in catalog.get("products", []):
         if product["id"] == product_id:
             return _enrich(product)
+    for src in _load_dynamic_sources():
+        if src["id"] == product_id:
+            return src
     raise HTTPException(status_code=404, detail=f"unknown product '{product_id}'")
 
 

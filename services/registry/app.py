@@ -1,0 +1,199 @@
+"""Source registry / control-plane — "add a data source through the gateway, live."
+
+Powers the onboarding wizard. Registering a source:
+  1. validates the request,
+  2. loads the base Kong declarative config (rendered by identity into /shared/kong.yml,
+     so the RSA keys + consumers + the Artemis service are preserved),
+  3. merges a Kong service + route (+ governance plugins) for each registered source,
+  4. hot-reloads Kong via the admin `/config` endpoint (DB-less), and
+  5. persists the source list so the catalog can list it and it survives restarts.
+
+This is the local analogue of registering an API in Azure API Management / API Center.
+No source is modified — only the gateway learns a new upstream.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+from pathlib import Path
+
+import httpx
+import uvicorn
+import yaml
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s registry %(message)s")
+log = logging.getLogger("registry")
+
+PORT = int(os.environ.get("REGISTRY_PORT", "8095"))
+KONG_ADMIN = os.environ.get("KONG_ADMIN_INTERNAL_URL", "http://kong:8001").rstrip("/")
+BASE_KONG = Path(os.environ.get("KONG_RENDERED", "/shared/kong.yml"))
+SOURCES_FILE = Path(os.environ.get("SOURCES_FILE", "/shared/sources.json"))
+RATE_LIMIT = os.environ.get("RATE_LIMIT_PER_MINUTE", "60")
+
+app = FastAPI(title="Artemis Marketplace — Source Registry", version="0.1.0")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+class SourceSpec(BaseModel):
+    id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{1,40}$")
+    title: str
+    upstream_url: str
+    base_path: str = Field(description="Gateway path, e.g. /dot/api")
+    owner: str = "Unspecified"
+    domain: str = "Unspecified"
+    classification_label: str = "Routine"
+    require_jwt: bool = True
+    sample_path: str | None = None
+
+
+def _load_sources() -> list[dict]:
+    if SOURCES_FILE.exists():
+        try:
+            return json.loads(SOURCES_FILE.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return []
+    return []
+
+
+def _save_sources(sources: list[dict]) -> None:
+    SOURCES_FILE.write_text(json.dumps(sources, indent=2), encoding="utf-8")
+
+
+def _kong_route_for(src: dict) -> dict:
+    plugins = [
+        {
+            "name": "correlation-id",
+            "config": {
+                "header_name": "X-Correlation-ID",
+                "generator": "uuid#counter",
+                "echo_downstream": True,
+            },
+        }
+    ]
+    if src.get("require_jwt", True):
+        plugins.append(
+            {
+                "name": "jwt",
+                "config": {
+                    "key_claim_name": "client_id",
+                    "run_on_preflight": False,
+                    "claims_to_verify": ["exp"],
+                },
+            }
+        )
+        plugins.append(
+            {
+                "name": "rate-limiting",
+                "config": {
+                    "minute": int(RATE_LIMIT),
+                    "policy": "local",
+                    "limit_by": "consumer",
+                    "fault_tolerant": True,
+                },
+            }
+        )
+    plugins.append(
+        {
+            "name": "cors",
+            "config": {
+                "origins": ["*"],
+                "methods": ["GET", "OPTIONS"],
+                "headers": ["Authorization", "Content-Type"],
+                "exposed_headers": ["X-Correlation-ID"],
+                "credentials": False,
+                "preflight_continue": False,
+            },
+        }
+    )
+    return {
+        "name": f"src-{src['id']}",
+        "url": src["upstream_url"],
+        # strip_path: the gateway prefix (e.g. /dot) is removed so the upstream receives
+        # its own native path (e.g. /api/Bridge).
+        "routes": [{"name": f"route-{src['id']}", "paths": [src["base_path"]], "strip_path": True}],
+        "plugins": plugins,
+    }
+
+
+def _build_merged_config(sources: list[dict]) -> dict:
+    if not BASE_KONG.exists():
+        raise HTTPException(503, f"base Kong config {BASE_KONG} not found yet")
+    config = yaml.safe_load(BASE_KONG.read_text(encoding="utf-8"))
+    config.setdefault("services", [])
+    existing = {s.get("name") for s in config["services"]}
+    for src in sources:
+        svc = _kong_route_for(src)
+        if svc["name"] not in existing:
+            config["services"].append(svc)
+    return config
+
+
+def _reload_kong(config: dict) -> None:
+    # DB-less hot reload: POST the full declarative config to the admin /config endpoint.
+    resp = httpx.post(
+        f"{KONG_ADMIN}/config",
+        params={"check_hash": "1"},
+        headers={"Content-Type": "application/json"},
+        content=json.dumps(config),
+        timeout=30,
+    )
+    if resp.status_code not in (200, 201):
+        raise HTTPException(502, f"Kong reload failed: {resp.status_code} {resp.text[:400]}")
+
+
+def _apply(sources: list[dict]) -> None:
+    _reload_kong(_build_merged_config(sources))
+
+
+@app.on_event("startup")
+def _startup():
+    sources = _load_sources()
+    if sources:
+        try:
+            _apply(sources)
+            log.info("re-applied %s registered source(s) to Kong", len(sources))
+        except Exception as exc:  # noqa: BLE001 — degrade gracefully on boot
+            log.warning("could not re-apply sources on startup: %s", exc)
+
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
+@app.get("/sources")
+def list_sources():
+    return {"sources": _load_sources()}
+
+
+@app.post("/sources")
+def add_source(spec: SourceSpec):
+    sources = _load_sources()
+    if any(s["id"] == spec.id for s in sources):
+        raise HTTPException(409, f"source '{spec.id}' already registered")
+    src = spec.model_dump()
+    sources.append(src)
+    _apply(sources)  # hot-reload Kong first; only persist if it succeeds
+    _save_sources(sources)
+    log.info("registered source %s -> %s at %s", spec.id, spec.upstream_url, spec.base_path)
+    return {"status": "registered", "source": src, "gateway_path": spec.base_path}
+
+
+@app.delete("/sources/{source_id}")
+def remove_source(source_id: str):
+    sources = _load_sources()
+    remaining = [s for s in sources if s["id"] != source_id]
+    if len(remaining) == len(sources):
+        raise HTTPException(404, f"source '{source_id}' not found")
+    _apply(remaining)
+    _save_sources(remaining)
+    return {"status": "removed", "id": source_id}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=PORT)

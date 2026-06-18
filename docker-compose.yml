@@ -77,6 +77,21 @@ services:
       start_period: 20s
     profiles: [core]
 
+  # ── second source: a DOT-flavored DAB-style API (stands in for an existing API) ─
+  # Internal-only, like the SoR — reachable solely through Kong once the wizard adds it.
+  transportation:
+    build:
+      context: .
+      dockerfile: services/transportation/Dockerfile
+    restart: unless-stopped
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8200/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    profiles: [core]
+
   # ── identity (RS256 JWT issuer + JWKS; renders the gateway's public key) ────────
   identity:
     build:
@@ -143,14 +158,46 @@ services:
       CATALOG_PORT: "8080"
       KONG_PUBLIC_URL: ${KONG_PUBLIC_URL:-http://localhost:8000}
       KONG_INTERNAL_URL: http://kong:8000
+      SOURCES_FILE: /shared/sources.json
     networks: [edge]
     depends_on:
       kong:
         condition: service_healthy
+    volumes:
+      - kong-config:/shared:ro   # read /shared/sources.json to list dynamic sources
     ports:
       - "${CATALOG_PORT:-8080}:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    profiles: [core]
+
+  # ── registry / control-plane (powers the "add a source" onboarding wizard) ──────
+  registry:
+    build:
+      context: .
+      dockerfile: services/registry/Dockerfile
+    restart: unless-stopped
+    environment:
+      REGISTRY_PORT: "8095"
+      KONG_ADMIN_INTERNAL_URL: http://kong:8001
+      KONG_RENDERED: /shared/kong.yml
+      SOURCES_FILE: /shared/sources.json
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-60}
+    networks: [edge]
+    depends_on:
+      kong:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+    volumes:
+      - kong-config:/shared   # read base kong.yml, write sources.json
+    ports:
+      - "${REGISTRY_PORT:-8095}:8095"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8095/healthz >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
