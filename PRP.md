@@ -5,17 +5,17 @@
 > implement, document, and validate a runnable proof-of-concept that demonstrates
 > the Microsoft → NASA OCIO **API-first, zero-move, multi-model data marketplace**
 > pattern end to end. It assumes NO prior conversation. Build it exactly as
-> written; where it says "faithful to the white paper," it means the local
-> component is the open-source/portable analogue of the Azure-Government service the
-> companion white papers specify, so the same architecture deploys to Azure Gov
-> later with only the gateway/catalog/identity swapped to their managed equivalents.
+> written; where it says "faithful," it means the local component is the
+> open-source/portable analogue of the Azure-Government service, so the same
+> architecture deploys to Azure Gov later with only the gateway/catalog/identity
+> swapped to their managed equivalents.
 
 ---
 
 ## 1. Mission & success criteria
 
 Build **`nasa-api-first-poc`** — a fully local, `docker compose up` demonstration of
-the API-first data marketplace the white papers describe, proven on a **synthetic
+the API-first data marketplace pattern, proven on a **synthetic
 Artemis supply-chain (SAP procurement)** dataset. The demo must show, live, that:
 
 1. **Zero data movement** — the "system of record" data never leaves its database;
@@ -63,13 +63,12 @@ Microsoft's role is the secure interoperability/orchestration/governance layer �
 "the connective tissue, not the one AI."
 
 This POC is the **runnable worked example** behind that story. The authored
-white-paper set (carry copies into `docs/`, see §11) is the narrative; this repo is
-the proof.
+narrative lives in `docs/` (see §11); this repo is the proof.
 
 **Azure → OSS/local mapping (the POC builds the right-hand column; the docs explain
 the left):**
 
-| White-paper component (Azure Gov target) | POC local analogue (build this) | Why faithful |
+| Azure-Gov target component | POC local analogue (build this) | Why faithful |
 |---|---|---|
 | System of record (SAP procurement) | **PostgreSQL** seeded with synthetic SAP-shaped tables | Relational SoR that stays put; data never copied out |
 | Expose data as an API without writing one | **Microsoft Data API Builder (DAB)** container over Postgres | DAB is the actual MS product, MIT-licensed, runs in Docker; auto REST+GraphQL+OpenAPI |
@@ -135,13 +134,7 @@ nasa-api-first-poc/
 │   ├── ZERO-MOVE.md               # how zero-move is proven in this POC
 │   ├── AZURE-DEPLOYMENT.md        # mapping to APIM/Dataverse/Entra/ADLS on Azure Gov
 │   ├── SECURITY.md                # JWT/OAuth2 flow, OWASP API Top 10 at the gateway
-│   ├── architecture.png           # rendered reference-architecture diagram
-│   └── whitepapers/               # COPY the 5 authored deliverables here (see §11)
-│       ├── 01-executive-concept-paper.md
-│       ├── 02-technical-api-first-companion.md
-│       ├── 03-artemis-worked-example.md
-│       ├── 04-resourcing-framework.md
-│       └── 05-june24-pre-read.md
+│   └── architecture.png           # rendered reference-architecture diagram
 ├── data/
 │   ├── synthetic_data.py          # seeded SAP-shaped Artemis generator (port from §5)
 │   ├── classification.yml         # per-table/field sensitivity labels (classify-first)
@@ -221,7 +214,7 @@ REAL NASA PROCUREMENT"** banner and documents every SAP field.
 `purchase_orders.NETPR → Confidential`, `materials.MAKTX → Routine`,
 `vendors.SOLE_SOURCE → Sensitive`). The seeder applies these as Postgres
 `COMMENT ON COLUMN` + emits them into the catalog entry — **classification happens
-before exposure** (the white paper's core data-quality discipline).
+before exposure** (the core data-quality discipline).
 
 ---
 
@@ -302,8 +295,7 @@ answer; the MCP tool returns the same data when invoked.
 (per-consumer call count + p50/p95 latency). **AC:** dashboard shows traffic after a
 demo run (manual verification documented in DEMO-SCRIPT.md).
 
-**Phase 7 — Docs + Azure path + diagram.** All `docs/`, the copied white papers
-(§11), `gen-architecture-diagram.py` → `docs/architecture.png`, `tools/azure_pricing.py`
+**Phase 7 — Docs + Azure path + diagram.** All `docs/`, `gen-architecture-diagram.py` → `docs/architecture.png`, `tools/azure_pricing.py`
 with a live dated table, and `infra/azure/` Bicep + AZURE-DEPLOYMENT.md. **AC:** all
 docs present + accurate; `azure_pricing.py` prints live prices with the exact dated
 source note (§9); `test_no_fabric.py` passes.
@@ -380,19 +372,17 @@ source note (§9); `test_no_fabric.py` passes.
 
 ---
 
-## 11. Documentation to carry into the repo
+## 11. Documentation
 
-**Already provided.** The six authored deliverable narratives are pre-copied into
-`docs/whitepapers/` (`01_executive_concept_paper.md` … `06_administrator_leave_behind.md`),
-with the render-only placeholders already stripped (the diagram placeholder is a
-caption pointing at `docs/architecture.png`; the pricing placeholder points at
-`tools/azure_pricing.py`). They are the program narrative — the running code is the
-proof. `docs/ARCHITECTURE.md` must include the Azure↔OSS mapping
-table (§2) so a reader sees exactly how the local POC maps to the Azure-Gov target.
-The repo `README.md` opens with the one-sentence frame ("one platform for data,
-APIs, and code; Microsoft as the interoperability layer, not the one AI"), a 60-second
-quickstart (`cp .env.example .env && make demo`), the architecture diagram, and the
-demo narrative.
+This is a **standalone sample/demo** — there is no customer-deliverable / whitepaper
+content. All documentation lives in `docs/` (ARCHITECTURE, DEMO-DAY, DEMO-SCRIPT,
+ZERO-MOVE, SECURITY, ADD-A-SOURCE, GRAPHQL, AZURE-*, APIM-*, DATABRICKS, POWERBI,
+DISCLAIMER) and `README.md`. `docs/ARCHITECTURE.md` includes the Azure↔OSS mapping
+table (§2) so a reader sees how the local POC maps to the Azure-Gov target. The
+`README.md` opens with the one-sentence frame ("one platform for data, APIs, and code;
+Microsoft as the interoperability layer, not the one AI"), a 60-second quickstart
+(`cp .env.example .env && make demo`), the architecture diagram, and the demo narrative.
+All data is synthetic — see `docs/DISCLAIMER.md`.
 
 ---
 
@@ -431,8 +421,8 @@ subscription; these are reference IaC + docs.
 - [ ] `tools/azure_pricing.py` prints live Azure-Gov prices with the exact dated
       source note; no staffing dollars anywhere.
 - [ ] `test_no_fabric.py` passes (no Fabric/OneLake as a component).
-- [ ] All five white papers present in `docs/whitepapers/`; ARCHITECTURE/DEMO-SCRIPT/
-      ZERO-MOVE/SECURITY/AZURE-DEPLOYMENT docs complete; `docs/architecture.png` rendered.
+- [ ] All `docs/` complete (ARCHITECTURE/DEMO-SCRIPT/ZERO-MOVE/SECURITY/AZURE-DEPLOYMENT);
+      `docs/architecture.png` rendered.
 - [ ] `infra/azure/` Bicep + AZURE-DEPLOYMENT.md present.
 - [ ] `ruff` clean; `pytest` green; CI (lint + tests + compose smoke) green.
 - [ ] README quickstart works from a clean clone on a machine with only Docker.
@@ -470,12 +460,11 @@ quoting in docs. (Kong + Delta/Unity are their projects' official docs.)
 2. Build the OSS/local stack (§3, §6). Use the exact Azure↔OSS mapping (§2) so the
    architecture is faithful and the Azure path (§12) is a clean swap.
 3. Honor every hard constraint (§9); wire the CI checks (§10).
-4. Carry the five white papers into `docs/whitepapers/` (§11) and write the repo
-   docs so a reader understands both the story and the running proof.
+4. Write the repo docs (§11) so a reader understands both the story and the running proof.
 5. Finish only when every box in §13 is checked. Then write a short
    `docs/DEMO-SCRIPT.md` a presenter can follow live in ~10 minutes.
 
-> This POC is the runnable evidence behind the NASA API-first white-paper set:
+> This POC is a runnable sample of the API-first pattern:
 > data stays in its system of record, an OSS gateway governs a auto-generated API in
 > front of it, the data product is discoverable in a catalog, and an agent answers a
 > real Artemis supply-chain question through the gateway — with a documented,

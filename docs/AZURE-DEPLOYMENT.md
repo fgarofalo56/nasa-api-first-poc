@@ -81,8 +81,7 @@ has accepted for Databricks). The full *managed* platform is available there.
 
 Both global Azure and Azure Government hold FedRAMP High authorization; the practical
 difference is data residency and personnel-access controls (ITAR/EAR), not the FedRAMP
-level. See the Technical Companion (`docs/whitepapers/02_technical_api_first_companion.md`)
-for the full FedRAMP High / Azure Government / GCC discussion.
+level.
 
 ## 📦 Reference Bicep (`infra/azure/`)
 

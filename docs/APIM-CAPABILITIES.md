@@ -2,7 +2,7 @@
 
 > [!NOTE]
 > **Framing (per repo constraints):** **Kong OSS is the path we *built*** in this POC; **Azure
-> API Management (APIM) is the managed Azure equivalent** the whitepapers point to. This
+> API Management (APIM) is the managed Azure equivalent**. This
 > doc is the "what does the managed gateway add?" answer for a customer conversation — no
 > third-party competitors are compared.
 

@@ -30,8 +30,8 @@ Azure-deployment path.
 - **The synthetic data is already provided** at `data/synthetic_data.py`
   (`generate_artemis_procurement(out_dir, seed=42)`) — the seeder calls it; don't
   rewrite it.
-- **The program narrative is in `docs/whitepapers/`** — the running code is the proof
-  of that narrative; keep them consistent.
+- This repo is a **self-contained sample/demo** — no customer-deliverable content. All
+  data is synthetic (see `docs/DISCLAIMER.md`).
 - Finish only when every box in PRP.md §13 (Definition of Done) is checked, then write
   `docs/DEMO-SCRIPT.md` a presenter can follow live in ~10 minutes.
 

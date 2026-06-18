@@ -69,7 +69,7 @@ data for any client is **through Kong**. That is the zero-move proof (see
 
 ## 🌐 Azure ↔ OSS/local mapping
 
-| White-paper component (Azure target) | POC local analogue (built here) | Why faithful |
+| Azure-Gov target component | POC local analogue (built here) | Why faithful |
 |---|---|---|
 | System of record (SAP procurement) | **PostgreSQL** seeded with synthetic SAP-shaped tables | Relational SoR that stays put; data never copied out |
 | Expose data as an API without writing one | **Microsoft Data API Builder (DAB)** over Postgres | DAB is the actual MS product (MIT); auto REST+GraphQL+OpenAPI |

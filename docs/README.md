@@ -39,16 +39,4 @@ marketplace** — and the runnable proof in this repo.
 | [`DATABRICKS-WALKTHROUGH.md`](DATABRICKS-WALKTHROUGH.md) | Zero-move medallion → Unity Catalog → Databricks SQL |
 | [`POWERBI-GUIDE.md`](POWERBI-GUIDE.md) | Connect Power BI to the Gold mart + report spec |
 
-## 📝 Program narrative (illustrative whitepapers)
-
-Generic, de-identified papers framing the use case — **not** an official NASA deliverable;
-all scenarios use synthetic data. See [`whitepapers/`](whitepapers/):
-
-1. [Executive Concept Paper](whitepapers/01_executive_concept_paper.md) — one platform for data, APIs, and code
-2. [Technical Companion](whitepapers/02_technical_api_first_companion.md) — APIM, Dataverse, Azure AI as connective tissue
-3. [Artemis Worked Example](whitepapers/03_artemis_worked_example.md) — synthetic SAP procurement → governed API
-4. [Resourcing Framework](whitepapers/04_resourcing_framework.md) — capability/staffing-pattern model
-5. [Pre-Read Brief](whitepapers/05_preread.md) — short framing brief
-6. [Administrator Brief](whitepapers/06_administrator_leave_behind.md) — one-page summary
-
 ![Architecture](architecture.png)

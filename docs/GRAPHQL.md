@@ -3,7 +3,7 @@
 > [!NOTE]
 > **TL;DR** — Data API Builder auto-generates a **GraphQL** endpoint alongside REST, and
 > Kong governs it on the same `/graphql` route (JWT + rate-limit + correlation id). This
-> is the "multi-model" claim from the whitepapers, shown live — one auto-API, queried as
+> is the "multi-model" story, shown live — one auto-API, queried as
 > REST *or* GraphQL, both governed by the gateway.
 
 > ⚠️ Synthetic data only — see [`DISCLAIMER.md`](DISCLAIMER.md).

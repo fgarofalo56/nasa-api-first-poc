@@ -5,16 +5,15 @@
 > the API-first, **zero-move** data-marketplace pattern, proven on a synthetic
 > **Artemis supply-chain (SAP procurement)** dataset.
 
-This repo is the runnable evidence behind the Microsoft → NASA OCIO API-first
-white-paper set: mission data stays in its system of record, an open-source gateway
-governs an auto-generated API in front of it, the data product is discoverable in a
-catalog, and an agent answers a real supply-chain question **through the gateway** —
-with a documented, one-swap path to the Azure-Government managed equivalents.
+A self-contained **sample/demo** of the API-first, zero-move pattern: mission data stays
+in its system of record, an open-source gateway governs an auto-generated API in front of
+it, the data product is discoverable in a catalog, and an agent answers a real
+supply-chain question **through the gateway** — with a documented, one-swap path to the
+Azure-Government managed equivalents. All data is synthetic (see `docs/DISCLAIMER.md`).
 
 > **Status: implemented + runnable.** `cp .env.example .env && make demo` brings the
 > whole stack up healthy and prints the Artemis-3 supply-risk answer sourced through the
-> gateway (with a correlation id). The complete build spec is in `PRP.md`; the program
-> narrative is in `docs/whitepapers/`.
+> gateway (with a correlation id). The complete build spec is in `PRP.md`.
 
 ![Architecture](docs/architecture.png)
 
@@ -150,7 +149,7 @@ PRP.md                  # the complete build spec — read this first
 CLAUDE.md               # project rules for the Claude Code build session
 .claude/                # Claude Code config (settings, skills)
 data/                   # synthetic Artemis generator + classification manifest
-docs/                   # ARCHITECTURE / DEMO-SCRIPT / ZERO-MOVE / SECURITY / ADD-A-SOURCE / AZURE-DEPLOYMENT + whitepapers/
+docs/                   # ARCHITECTURE / DEMO-DAY / DEMO-SCRIPT / ZERO-MOVE / SECURITY / ADD-A-SOURCE / GRAPHQL / AZURE-* / APIM-* / DATABRICKS / POWERBI / DISCLAIMER
 services/               # seeder · dab · gateway(kong) · identity · catalog · mcp · transportation · registry
 frontend/               # NASA-themed marketplace UI + onboarding wizard (Vite/React)
 databricks/             # zero-move medallion notebook + Databricks SQL (Unity Catalog → Power BI)

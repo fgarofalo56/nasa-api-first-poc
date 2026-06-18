@@ -4,7 +4,7 @@ The NASA customer call asked for a worked Artemis supply-chain example but no
 public Artemis procurement data exists, so deliverables must be grounded in
 *synthetic* data. This generates a realistic, **clearly-synthetic** SAP-style
 procurement dataset as CSVs (SAP field names: EBELN/EBELP/MATNR/LIFNR/…) so the
-white paper / demo can show real federated-query and supply-risk scenarios
+demo can show real federated-query and supply-risk scenarios
 without touching any controlled data.
 
 Deterministic (seeded) → reproducible and content-verifiable. Pure stdlib (csv

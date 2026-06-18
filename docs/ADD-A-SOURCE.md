@@ -23,7 +23,7 @@ it through the same Kong gateway with the same governance (JWT, rate-limit, corr
 - [Option A — the onboarding wizard (UI)](#-option-a--the-onboarding-wizard-ui)
 - [Option B — the API (scriptable, same result)](#-option-b--the-api-scriptable-same-result)
 - [Federating the real published DOT DAB demo](#-federating-the-real-published-dot-dab-demo)
-- [Why this matters (whitepaper alignment)](#-why-this-matters-whitepaper-alignment)
+- [Why this matters](#-why-this-matters)
 
 ---
 
@@ -146,7 +146,7 @@ the live Azure DAB API through Kong — the same governance, no change to the re
 
 ---
 
-## ✨ Why this matters (whitepaper alignment)
+## ✨ Why this matters
 
 - **API-first, not data-copy:** the new source is exposed *as an API*; its data stays put.
 - **Govern at the edge uniformly:** every source — built-in or added — gets the same JWT,

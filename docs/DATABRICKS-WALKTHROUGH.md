@@ -34,7 +34,7 @@ Artifacts in this repo:
 - `infra/azure/modules/databricks.bicep` — reference IaC (workspace + ADLS + access connector).
 - `docs/POWERBI-GUIDE.md` — connect Power BI + the sample report spec.
 
-> **Posture (whitepapers):** the managed platform — Azure Databricks with **managed Unity
+> **Posture:** the managed platform — Azure Databricks with **managed Unity
 > Catalog + Databricks SQL + Delta Lake + Delta Sharing on ADLS Gen2** — runs in
 > **commercial Azure at FedRAMP High**. The managed-UC/Databricks-SQL gap applies **only**
 > to Azure Government (ITAR/strict-CUI), where OSS Unity Catalog or Microsoft Purview is
