@@ -8,6 +8,12 @@ const CFG = window.APP_CONFIG || {
 
 export const ENDPOINTS = CFG;
 
+// Live "add/remove a source" needs the registry's shared base-config volume + Kong's
+// admin port — both present locally but NOT in the Azure Container Apps deploy (one
+// ingress port per app, no shared volume), where sources are pre-registered. The deploy
+// sets `liveOnboarding: false` so the UI hides those controls instead of erroring.
+export const LIVE_ONBOARDING = CFG.liveOnboarding !== false;
+
 export async function getToken(consumer = "analyst") {
   const r = await fetch(`${CFG.identity}/token`, {
     method: "POST",

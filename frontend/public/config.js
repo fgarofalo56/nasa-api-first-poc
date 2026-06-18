@@ -6,4 +6,7 @@ window.APP_CONFIG = {
   identity: "http://localhost:8081",
   catalog: "http://localhost:8080",
   registry: "http://localhost:8095",
+  // Local dev has the registry's shared base config + Kong's admin port, so the live
+  // "add/remove a source" wizard works. The Azure deploy sets this false (pre-registered).
+  liveOnboarding: true,
 };

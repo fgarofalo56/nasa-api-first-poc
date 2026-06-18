@@ -66,6 +66,10 @@ a { color: var(--cyan); }
   box-shadow: 0 6px 22px rgba(252, 61, 33, .35);
 }
 .cta:hover { filter: brightness(1.07); }
+.cta-note {
+  align-self: center; padding: 8px 14px; border-radius: 9px; font-size: 12.5px; font-weight: 600;
+  color: var(--muted); background: rgba(255, 255, 255, .04); border: 1px dashed rgba(255, 255, 255, .18);
+}
 
 .banner {
   margin: 18px 0; padding: 9px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 600;
