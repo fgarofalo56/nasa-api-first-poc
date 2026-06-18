@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
     "type": "Report",
-    "displayName": "ArtemisSupplyRisk"
+    "displayName": "Artemis Supply-Chain Risk"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "266f2e83-bf4a-53d8-b92b-aa3cdc179eed"
+    "logicalId": "00000000-0000-0000-0000-000000000000"
   }
 }
