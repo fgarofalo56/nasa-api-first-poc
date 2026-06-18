@@ -603,7 +603,7 @@ Analytics), and **purges the soft-deleted Key Vault** so a same-name redeploy is
 > [!NOTE]
 > Teardown does **not** touch the Databricks lakehouse notebook artifacts — those live in your
 > `dbw-btfabric-dev` workspace. Drop them separately with
-> `DROP SCHEMA adb_eastus2_sandbox.bronze CASCADE;` (and silver/gold). See
+> `DROP SCHEMA dbw_btfabric_dev.bronze CASCADE;` (and silver/gold). See
 > [`DATABRICKS-WALKTHROUGH.md`](DATABRICKS-WALKTHROUGH.md).
 
 ---

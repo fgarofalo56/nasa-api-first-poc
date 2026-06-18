@@ -216,14 +216,28 @@ https://adb-7405607213468698.18.azuredatabricks.net
 ...
 Name                  Comment
 --------------------  -------
-adb_eastus2_sandbox
 artemis
+dbw_btfabric_dev
 main
 ```
 
-Pick a catalog you can **write** to (or create one if you hold the `CREATE CATALOG`
-privilege) and use its name as the `catalog` widget below. The notebook defaults to
-`artemis`; the reference workspace uses `adb_eastus2_sandbox`.
+Pick a catalog you can **write** to and use its name as the `catalog` widget below. The
+notebook defaults to **`dbw_btfabric_dev`** (the workspace's own catalog) because that is
+the catalog the medallion run was validated against on **2026-06-18**.
+
+> [!WARNING]
+> **Pick a catalog you can write *data* to — not merely one that exists.** `CREATE SCHEMA`
+> is metadata-only and will succeed even when your identity/compute can't write Delta files
+> to the catalog's managed storage. In the reference workspace the **`artemis`** catalog's
+> managed storage (`alzdatalakeraw…`) returns a **403 `AuthorizationFailure`
+> (SQLSTATE 42501)** on the first Bronze write, while **`dbw_btfabric_dev`** writes fine.
+> The notebook now runs a tiny **write-probe** right after creating the schemas, so this
+> fails fast with a clear message instead of deep inside Bronze.
+
+> [!TIP]
+> **Stale "Waiting" in the notebook editor.** The web editor sometimes shows a cell stuck
+> on "Waiting" after the backend has already finished (especially after a widget change or
+> an interrupt). **Reload the page** to see the true committed cell state and outputs.
 
 > [!TIP]
 > The reference IaC to stand up a brand-new workspace lives in
@@ -316,7 +330,7 @@ az login
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'   # postgres mode only
 python databricks/run_notebook.py \
   --host adb-7405607213468698.18.azuredatabricks.net \
-  --catalog adb_eastus2_sandbox --source-mode postgres \
+  --catalog dbw_btfabric_dev --source-mode postgres \
   --pg-host artemis-pg-n1.postgres.database.azure.com
 ```
 
@@ -331,9 +345,14 @@ submitting run (spark=15.4.x-scala2.12, node=Standard_DS3_v2)...
 run 12345678: RunResultState.SUCCESS —
 run page: https://adb-7405607213468698.18.azuredatabricks.net/#job/12345678
 
-notebook summary: {"catalog": "adb_eastus2_sandbox", "gold_table": "adb_eastus2_sandbox.gold.artemis_supply_risk", "gold_rows": 600, "headline_rows": 6, "headline_material": "..."}
-  -> adb_eastus2_sandbox.gold.artemis_supply_risk: 600 rows; headline=6 (...)
+notebook summary: {"catalog": "dbw_btfabric_dev", "gold_table": "dbw_btfabric_dev.gold.artemis_supply_risk", "gold_rows": 600, "headline_rows": 6, "headline_material": "Turbopump impeller"}
+  -> dbw_btfabric_dev.gold.artemis_supply_risk: 600 rows; headline=6 (Turbopump impeller)
 ```
+
+> [!NOTE]
+> The values above are the **actual gateway-mode result validated on 2026-06-18** in
+> `dbw-btfabric-dev` (Serverless compute, `catalog=dbw_btfabric_dev`): `gold_rows=600`,
+> `headline_rows=6`, headline material **Turbopump impeller** — matching the marketplace UI.
 
 **What each line told you:** the runner authenticated as you, stored the Postgres password as
 a secret, imported the notebook into your workspace, then spun up a single-node cluster
@@ -350,7 +369,7 @@ For **gateway mode**, the runner mints a bearer token from the issuer for you (n
 ```bash
 python databricks/run_notebook.py \
   --host adb-7405607213468698.18.azuredatabricks.net \
-  --catalog adb_eastus2_sandbox --source-mode gateway \
+  --catalog dbw_btfabric_dev --source-mode gateway \
   --gateway-url https://kong.<aca-domain> \
   --identity-url https://identity.<aca-domain>
 ```

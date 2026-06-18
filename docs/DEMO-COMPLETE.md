@@ -188,7 +188,7 @@ contracts (OpenAPI, OAuth2/JWT, OData, MCP), only the implementations swap.
 | APIM gateway | `https://artemis-apim-n1.azure-api.net` | API Management |
 | APIM Developer Portal | `https://artemis-apim-n1.developer.azure-api.net` | API Management |
 | Databricks workspace | `https://adb-7405607213468698.18.azuredatabricks.net` | Azure Databricks |
-| Unity Catalog / warehouse | catalog `adb_eastus2_sandbox` · Serverless SQL Warehouse | Databricks SQL |
+| Unity Catalog / warehouse | catalog `dbw_btfabric_dev` · Serverless SQL Warehouse | Databricks SQL |
 
 ---
 
@@ -554,14 +554,14 @@ az login                                            # tenant: limitlessdata
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'
 python databricks/run_notebook.py \
   --host adb-7405607213468698.18.azuredatabricks.net \
-  --catalog adb_eastus2_sandbox --source-mode postgres \
+  --catalog dbw_btfabric_dev --source-mode postgres \
   --pg-host artemis-pg-n1.postgres.database.azure.com
 
 # gateway mode — a governed read THROUGH Kong; the runner mints + stores a token automatically:
 D=icyocean-479340e8.centralus.azurecontainerapps.io
 python databricks/run_notebook.py \
   --host adb-7405607213468698.18.azuredatabricks.net \
-  --catalog adb_eastus2_sandbox --source-mode gateway \
+  --catalog dbw_btfabric_dev --source-mode gateway \
   --gateway-url https://kong.$D --identity-url https://identity.$D --consumer artemis-agent
 ```
 
@@ -573,7 +573,7 @@ fed *through the governed surface*, not around it.
 ### ✅ Verify in Databricks SQL
 
 ```sql
-USE CATALOG adb_eastus2_sandbox;
+USE CATALOG dbw_btfabric_dev;
 SHOW TABLES IN gold;                                 -- artemis_supply_risk, delay_trend
 
 -- The same headline answer, now from Delta in Unity Catalog:
@@ -610,7 +610,7 @@ full walkthrough in [`DATABRICKS-WALKTHROUGH.md`](DATABRICKS-WALKTHROUGH.md).
    - Server hostname `adb-7405607213468698.18.azuredatabricks.net`
    - HTTP path `/sql/1.0/warehouses/973dba4787484119`
    - **Authentication: Microsoft Entra ID** · **DirectQuery**
-2. Navigator → catalog **`adb_eastus2_sandbox`** → `gold` → **`artemis_supply_risk`** (+ `delay_trend`).
+2. Navigator → catalog **`dbw_btfabric_dev`** → `gold` → **`artemis_supply_risk`** (+ `delay_trend`).
 3. Add the DAX measures (*High Risk Materials*, *Sole-Source Exposure $*, *Critical Slips
    >30d*, *Pad Anomalies*) and build the one-page **"Artemis Supply-Chain Risk"** report —
    KPI cards, a program slicer (default Artemis-3), a risk-tier stacked bar, the ranked
@@ -709,9 +709,9 @@ Databricks (a **pre-existing** workspace — do **not** delete its resource grou
 the schemas this demo created):
 
 ```sql
-DROP SCHEMA IF EXISTS adb_eastus2_sandbox.bronze CASCADE;
-DROP SCHEMA IF EXISTS adb_eastus2_sandbox.silver CASCADE;
-DROP SCHEMA IF EXISTS adb_eastus2_sandbox.gold   CASCADE;
+DROP SCHEMA IF EXISTS dbw_btfabric_dev.bronze CASCADE;
+DROP SCHEMA IF EXISTS dbw_btfabric_dev.silver CASCADE;
+DROP SCHEMA IF EXISTS dbw_btfabric_dev.gold   CASCADE;
 DROP SHARE   IF EXISTS artemis_supply_risk_share;
 DROP RECIPIENT IF EXISTS artemis_external_recipient;
 ```
