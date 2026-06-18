@@ -97,7 +97,7 @@ shows its OpenAPI paths + classification, and runs the supply-risk query through
 from the browser — displaying the gateway correlation id with each answer.
 
 > **Port note:** the demo publishes Kong on `:8000`, identity on `:8081`, catalog on
-> `:8080`, MCP on `:8090`, Grafana on `:3000`. If any collide on your machine, override
+> `:8080`, MCP on `:8090`, Kong Manager on `:8002`, Grafana on `:3000`. If any collide on your machine, override
 > in `.env` (e.g. `KONG_PROXY_PORT=18000`).
 
 ## Repo layout

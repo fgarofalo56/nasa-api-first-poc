@@ -92,14 +92,29 @@ services:
           credentials: false
           preflight_continue: false
 
-# Per-consumer metering + latency, exposed on the Kong status/admin /metrics endpoint.
+# Global plugins (apply to every route/service).
 plugins:
+  # Per-consumer metering + latency, exposed on the Kong status/admin /metrics endpoint.
   - name: prometheus
     config:
       per_consumer: true
       status_code_metrics: true
       latency_metrics: true
       bandwidth_metrics: true
+  # OWASP API4: cap request body size (block oversized payloads at the edge).
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10   # MB
+      size_unit: megabytes
+  # Cache GET responses briefly to cut load on the system of record (perf/cost).
+  - name: proxy-cache
+    config:
+      strategy: memory
+      cache_ttl: 30
+      request_method: ["GET"]
+      response_code: [200]
+      content_type: ["application/json", "application/json; charset=utf-8"]
+      vary_headers: ["Authorization"]   # don't share cached data across consumers
 
 # Two consumers so per-consumer metering is visible. Both trust the single issuer key;
 # Kong tells them apart by the token's client_id claim (key_claim_name above).

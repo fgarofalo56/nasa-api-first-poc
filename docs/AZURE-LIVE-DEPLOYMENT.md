@@ -1,51 +1,59 @@
 # Azure live deployment (limitlessdata tenant)
 
-A **functional** deployment of the auto-API over a managed system of record, **locked to
-the tenant** with Microsoft Entra built-in authentication — the same pattern as the
-`azure-dab-fullstack-demo` (DOT) app. Reproduce with `scripts/azure-deploy.sh`
-(`PG_ADMIN_PASSWORD` from the environment; no secrets in the repo).
+The **full stack** deployed to **Azure Container Apps** in `limitlessdata` / *FedCiv ATU FFL
+— Main* (Central US): the NASA-themed UI, the Kong gateway, identity, catalog, registry,
+the DOT transportation source, and the DAB auto-API over a managed Postgres — with the
+**front end tenant-locked by Microsoft Entra**. Reproduce with
+`scripts/azure-deploy-fullstack.sh` (`PG_ADMIN_PASSWORD` from the env; no secrets committed).
+
+> Sample/synthetic data only — see [`DISCLAIMER.md`](DISCLAIMER.md).
 
 ## What is deployed
 
 | Resource | Name | Notes |
 |---|---|---|
 | Resource group | `artemis-poc-rg` (Central US) | org policy requires an `owner` tag |
-| PostgreSQL Flexible Server | `artemis-pg-n1` | v16, `procurement` db, seeded 26/60/240/59 |
-| Container Registry | `artemispocacrn1` | holds `dab:latest` (config baked in) |
+| PostgreSQL Flexible Server | `artemis-pg-n1` | v16, `procurement` db, seeded ~10k rows |
+| Container Registry | `artemispocacrn1` | per-service images |
 | Container Apps env | `artemis-cae` | |
-| DAB Container App | `artemis-dab` | auto REST+GraphQL+OpenAPI over the SoR |
-| Entra app registration | `artemis-dab-easyauth` | single-tenant (AzureADMyOrg) |
+| **Front end (NASA UI)** | `frontend` | **tenant-locked (Entra EasyAuth)** |
+| Gateway (Kong OSS) | `kong` | baked DB-less config, both sources pre-registered |
+| Identity (RS256 issuer) | `identity` | fixed demo key (matches the baked gateway config) |
+| Catalog | `catalog` | lists both sources |
+| Registry | `registry` | control-plane (live add is a local feature — see below) |
+| DOT transportation | `transportation` | the federated 2nd source |
+| DAB auto-API | `artemis-dab` | REST+GraphQL+OpenAPI over the SoR |
+| Entra app registrations | `artemis-ui-easyauth`, `artemis-dab-easyauth` | single-tenant |
 
 **Region note:** `eastus`/`eastus2` are policy-restricted for these resources in this
-subscription; **Central US** is used.
+subscription; **Central US** is used. The subscription also enforces an `owner` tag.
 
-## Access (tenant-locked)
+## Access
 
-```
-https://artemis-dab.icyocean-479340e8.centralus.azurecontainerapps.io/api/openapi
-```
+- **NASA UI (tenant-locked):**
+  `https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`
+  → redirects to Entra sign-in; sign in with a **limitlessdata-tenant** account to use it.
+- Gateway `https://kong.…`, Identity `https://identity.…`, Catalog `https://catalog.…`,
+  Registry `https://registry.…`, DAB `https://artemis-dab.…`, Transport `https://transportation.…`
+  (same `icyocean-479340e8.centralus.azurecontainerapps.io` domain).
 
-- **Before EasyAuth:** the endpoint returned data (HTTP 200) — verified the headline
-  Artemis-3 row (`NSN-7209-452737`, risk 99) live in Azure.
-- **After EasyAuth:** an unauthenticated request now gets **HTTP 401 / redirect to the
-  Entra sign-in** — you must sign in with a **limitlessdata-tenant** account. This is the
-  "must be in the tenant to use it" lock, identical in spirit to the DOT demo.
+Verified live: the gateway returns the rich Artemis headline rows and the federated `/dot`
+bridge inventory (both governed by JWT + rate-limit + correlation id), and the UI is 401
+until tenant sign-in.
 
-Open the URL in a browser while signed in to the tenant to reach the Swagger/OpenAPI and
-the REST entities (`/api/Material`, `/api/SupplyRisk`, …).
+## Honest deltas vs. the local stack
 
-## How this maps to the local POC
-
-This is the **DAB + identity** slice of the local stack, deployed managed: Container Apps
-hosts DAB; Entra (not the local RS256 issuer) provides the tenant auth. The full
-gateway/catalog/registry layer maps to **Azure API Management / API Center** (see
-`AZURE-DEPLOYMENT.md` and the Bicep under `infra/azure/`). Production hardening (private
-networking so the SoR has no public path, APIM in front, managed identity to ACR) is the
-documented next step.
+- **Live "add a source" wizard** needs Kong's admin port, which ACA doesn't cleanly expose,
+  so both sources are **pre-registered**; the one-click wizard stays the local showpiece
+  (`make ui`). Kong Manager (GUI) + Prometheus/Grafana likewise use the admin/metrics port —
+  run them locally, or use **Azure Monitor** (managed) / **APIM Developer Portal**.
+- **Network isolation:** in this functional deploy the apps use public ingress (the gateway
+  governs every data call). True zero-move in Azure = VNet + private endpoints so the SoR has
+  no public path — the production-hardening step (reference Bicep in `infra/azure/`).
 
 ## Teardown (stop billing)
 
 ```bash
-az group delete -n artemis-poc-rg --yes --no-wait
-az ad app delete --id <artemis-dab-easyauth appId>
+./scripts/azure-teardown.sh            # deletes the RG + EasyAuth app regs (prompts)
+./scripts/azure-teardown.sh --yes      # no prompt
 ```

@@ -127,6 +127,10 @@ services:
       KONG_PROXY_LISTEN: 0.0.0.0:8000
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
       KONG_STATUS_LISTEN: 0.0.0.0:8100
+      # Kong Manager Open Source — the bundled admin GUI (read-only in DB-less mode).
+      KONG_ADMIN_GUI_LISTEN: 0.0.0.0:8002
+      KONG_ADMIN_GUI_URL: http://localhost:${KONG_MANAGER_PORT:-8002}
+      KONG_ADMIN_GUI_API_URL: http://localhost:${KONG_ADMIN_PORT:-8001}
       KONG_PLUGINS: bundled
       KONG_NGINX_WORKER_PROCESSES: "1"
     networks: [internal, edge]
@@ -140,6 +144,7 @@ services:
     ports:
       - "${KONG_PROXY_PORT:-8000}:8000"
       - "${KONG_ADMIN_PORT:-8001}:8001"
+      - "${KONG_MANAGER_PORT:-8002}:8002"   # Kong Manager GUI
     healthcheck:
       test: ["CMD-SHELL", "kong health || exit 1"]
       interval: 10s
