@@ -179,15 +179,15 @@ contracts (OpenAPI, OAuth2/JWT, OData, MCP), only the implementations swap.
 
 | Surface | URL | Azure service behind it |
 |---|---|---|
-| NASA marketplace UI (public landing → Entra sign-in) | `https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps + EasyAuth (AllowAnonymous) |
-| Grounded mission agent (chat over MCP) | `https://agent.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps (MCP host) |
-| Kong gateway | `https://kong.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps |
-| Identity (token issuer) | `https://identity.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps (stands in for Entra ID) |
-| Catalog | `https://catalog.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps |
-| Registry (source control-plane) | `https://registry.icyocean-479340e8.centralus.azurecontainerapps.io` | Container Apps |
-| APIM gateway | `https://artemis-apim-n1.azure-api.net` | API Management |
-| APIM Developer Portal | `https://artemis-apim-n1.developer.azure-api.net` | API Management |
-| Databricks workspace | `https://adb-7405607213468698.18.azuredatabricks.net` | Azure Databricks |
+| NASA marketplace UI (public landing → Entra sign-in) | `https://frontend.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps + EasyAuth (AllowAnonymous) |
+| Grounded mission agent (chat over MCP) | `https://agent.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps (MCP host) |
+| Kong gateway | `https://kong.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps |
+| Identity (token issuer) | `https://identity.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps (stands in for Entra ID) |
+| Catalog | `https://catalog.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps |
+| Registry (source control-plane) | `https://registry.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps |
+| APIM gateway | `https://artemis-apim.azure-api.net` | API Management |
+| APIM Developer Portal | `https://artemis-apim.developer.azure-api.net` | API Management |
+| Databricks workspace | `https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` | Azure Databricks |
 | Unity Catalog / warehouse | catalog `dbw_btfabric_dev` · Serverless SQL Warehouse | Databricks SQL |
 
 ---
@@ -282,7 +282,7 @@ possible." Same architecture, real cloud, real identity.
 
 ### 🚪 1. The public landing page + deferred Microsoft sign-in
 
-Open **`https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`**.
+Open **`https://frontend.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io`**.
 
 - A visitor lands on a **public landing page** — the real **NASA logo**, the zero-move value
   prop, and four highlight tiles (zero data movement, governed-at-the-edge, drill-down,
@@ -330,7 +330,7 @@ drill-down you show next.
 ### 🔗 3. Federation + redaction (from a terminal, against Azure)
 
 ```bash
-D=icyocean-479340e8.centralus.azurecontainerapps.io
+D=xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io
 TOK=$(curl -s -X POST https://identity.$D/token -H 'Content-Type: application/json' \
   -d '{"consumer":"analyst"}' | python -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
 
@@ -373,7 +373,7 @@ curl -s -H "Authorization: Bearer $TOK" "https://kong.$D/api/Material?\$first=1"
 ## ✨ Part B-bonus — The four showpiece moments (landing, drill-down, agent, live onboarding) (7 min)
 
 These are the segments that land in a live room. All four run **in the same browser UI in
-Azure** (`https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`) and every data
+Azure** (`https://frontend.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io`) and every data
 call still goes **through Kong** — nothing here is a side-channel.
 
 ```mermaid
@@ -491,7 +491,7 @@ instead of Kong. Showing B and C back to back is the literal demonstration of th
 ### 🚪 1. The gateway (subscription-key gated)
 
 ```bash
-GW=https://artemis-apim-n1.azure-api.net
+GW=https://artemis-apim.azure-api.net
 curl -s -o /dev/null -w "no-key %{http_code}\n" "$GW/api/SupplyRisk?\$first=1"                        # 401 (no key)
 # With a subscription key (Azure portal → APIM → Subscriptions, or the Developer Portal):
 curl -s -H "Ocp-Apim-Subscription-Key: <KEY>" "$GW/api/SupplyRisk?\$first=1" | python -m json.tool    # 200
@@ -505,7 +505,7 @@ curl -s -H "Ocp-Apim-Subscription-Key: <KEY>" "$GW/api/SupplyRisk?\$first=1" | p
 
 ### 🧑‍💻 2. The Developer Portal — the self-service story
 
-Open **`https://artemis-apim-n1.developer.azure-api.net`**:
+Open **`https://artemis-apim.developer.azure-api.net`**:
 
 - **Browse APIs** → **Artemis Supply-Chain Risk API** with all **8 operations** (Material /
   PurchaseOrder / SupplyRisk / Vendor — each as *list* and *by-key*) plus a downloadable
@@ -553,14 +553,14 @@ az login                                            # tenant: limitlessdata
 # postgres mode — the full-fidelity mart, what Power BI reads:
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'
 python databricks/run_notebook.py \
-  --host adb-7405607213468698.18.azuredatabricks.net \
+  --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
   --catalog dbw_btfabric_dev --source-mode postgres \
-  --pg-host artemis-pg-n1.postgres.database.azure.com
+  --pg-host artemis-pg.postgres.database.azure.com
 
 # gateway mode — a governed read THROUGH Kong; the runner mints + stores a token automatically:
-D=icyocean-479340e8.centralus.azurecontainerapps.io
+D=xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io
 python databricks/run_notebook.py \
-  --host adb-7405607213468698.18.azuredatabricks.net \
+  --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
   --catalog dbw_btfabric_dev --source-mode gateway \
   --gateway-url https://kong.$D --identity-url https://identity.$D --consumer artemis-agent
 ```
@@ -607,7 +607,7 @@ full walkthrough in [`DATABRICKS-WALKTHROUGH.md`](DATABRICKS-WALKTHROUGH.md).
 > Catalog, the queries — is live and validated. Full spec: [`POWERBI-GUIDE.md`](POWERBI-GUIDE.md).
 
 1. **Get Data → Azure Databricks** →
-   - Server hostname `adb-7405607213468698.18.azuredatabricks.net`
+   - Server hostname `adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net`
    - HTTP path `/sql/1.0/warehouses/973dba4787484119`
    - **Authentication: Microsoft Entra ID** · **DirectQuery**
 2. Navigator → catalog **`dbw_btfabric_dev`** → `gold` → **`artemis_supply_risk`** (+ `delay_trend`).

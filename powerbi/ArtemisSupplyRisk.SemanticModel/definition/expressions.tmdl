@@ -1,4 +1,4 @@
-expression DatabricksServerHostname = "adb-7405607213468698.18.azuredatabricks.net" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression DatabricksServerHostname = "adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 0bc05993-06c7-57cf-8329-8d42463c6931
 
 	annotation PBI_ResultType = Text

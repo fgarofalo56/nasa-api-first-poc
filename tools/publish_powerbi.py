@@ -27,8 +27,8 @@ from pathlib import Path
 from azure.identity import AzureCliCredential
 from fabric_cicd import FabricWorkspace, publish_all_items
 
-# Default: the "csa-loom" workspace in the Limitless Data tenant.
-WORKSPACE_ID = os.environ.get("WORKSPACE_ID", "46c42501-e97a-4295-8cdb-b1c7000cce1f")
+# Set WORKSPACE_ID to your Power BI / Fabric workspace GUID (the placeholder won't resolve).
+WORKSPACE_ID = os.environ.get("WORKSPACE_ID", "00000000-0000-0000-0000-000000000000")
 PBIP_DIR = str(Path(__file__).resolve().parent.parent / "powerbi")
 
 

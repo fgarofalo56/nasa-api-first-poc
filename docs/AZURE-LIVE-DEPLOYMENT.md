@@ -15,7 +15,7 @@
 > Azure (the registry is the source of truth), and the telemetry flows into **Log Analytics +
 > Microsoft Sentinel**. One script reproduces all of it:
 > [`scripts/azure-deploy-fullstack.sh`](../scripts/azure-deploy-fullstack.sh). The live demo:
-> **<https://agent.icyocean-479340e8.centralus.azurecontainerapps.io>**.
+> **<https://agent.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io>**.
 
 > [!WARNING]
 > **Illustrative reference · sample/synthetic data only · not an official NASA document.**
@@ -109,7 +109,7 @@ flowchart TD
     Kong --> Reg["🗂️ Registry (control-plane)<br/>source of truth · single replica"]
     Kong --> DAB["🔌 DAB auto-API<br/>REST + GraphQL + OpenAPI"]
     Kong --> DOT["🌉 DOT transportation<br/>(federated · pre-seeded + removable)"]
-    DAB -->|conn string from Key Vault| PG[("🗄️ PostgreSQL Flexible Server<br/>artemis-pg-n1 · procurement db")]
+    DAB -->|conn string from Key Vault| PG[("🗄️ PostgreSQL Flexible Server<br/>artemis-pg · procurement db")]
     DAB -. managed identity .-> KV[["🔐 Key Vault<br/>artemis-kv-n1 · dab-conn"]]
     Kong -. logs .-> LA[["📈 Log Analytics<br/>artemis-logs"]]
     LA -. SIEM .-> SENT["🛡️ Microsoft Sentinel"]
@@ -127,7 +127,7 @@ will see in the Azure portal under resource group `artemis-poc-rg`.
 | Resource | Name | What it is / why it's here |
 |---|---|---|
 | Resource group | `artemis-poc-rg` (Central US) | The blast-radius container for everything below; org policy requires an `owner` tag |
-| PostgreSQL Flexible Server | `artemis-pg-n1` | The **system of record** — managed Postgres 16, `procurement` db, seeded with ~10k synthetic rows. **Never** reachable directly by clients. |
+| PostgreSQL Flexible Server | `artemis-pg` | The **system of record** — managed Postgres 16, `procurement` db, seeded with ~10k synthetic rows. **Never** reachable directly by clients. |
 | Container Registry (ACR) | `artemispocacrn1` | Holds the per-service images the script builds with `az acr build` |
 | Container Apps environment | `artemis-cae` | The shared, managed compute fabric all the apps run in |
 | **Front end (NASA UI)** | `frontend` | The demo UI; opens on a **public landing page** with a **deferred** *Sign in with Microsoft (Entra)* button — the human entry point. Auth is **AllowAnonymous** (no auto-redirect on load). |
@@ -160,11 +160,11 @@ will see in the Azure portal under resource group `artemis-poc-rg`.
 ## 🌐 Access and verification (with worked examples)
 
 All apps share the Container Apps environment domain
-`icyocean-479340e8.centralus.azurecontainerapps.io`. Each service is reachable at
+`xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io`. Each service is reachable at
 `https://<app-name>.<that-domain>`.
 
 > [!NOTE]
-> The domain prefix (`icyocean-479340e8`) is generated per Container Apps environment, so if you
+> The domain prefix (`xxxxxxxx-xxxxxxxx`) is generated per Container Apps environment, so if you
 > redeploy into a fresh environment your FQDNs will differ. The deploy script **prints the real
 > URLs** at the end (the `FULL STACK DEPLOYED` banner) — copy them from there rather than from
 > this page.
@@ -172,12 +172,12 @@ All apps share the Container Apps environment domain
 ### The human path: the public landing page → the NASA UI
 
 - **NASA UI (public landing):**
-  `https://frontend.icyocean-479340e8.centralus.azurecontainerapps.io`
+  `https://frontend.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io`
   → opens a **public landing page** (real NASA logo, value prop). From there you can either
   **Sign in with Microsoft** (Entra, `limitlessdata` tenant) or **Explore the demo** — auth no
   longer auto-redirects on load (the deferred, *AllowAnonymous* pattern).
 - **Mission agent (grounded chat):**
-  `https://agent.icyocean-479340e8.centralus.azurecontainerapps.io` — the live demo entry point.
+  `https://agent.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` — the live demo entry point.
 - Supporting services (each on the same domain): Gateway `https://kong.…`, Identity
   `https://identity.…`, Catalog `https://catalog.…`, Registry `https://registry.…`, DAB
   `https://artemis-dab.…`, Transport `https://transportation.…`, MCP `https://mcp.…`, Agent

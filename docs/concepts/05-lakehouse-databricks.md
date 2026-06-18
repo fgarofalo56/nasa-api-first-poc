@@ -141,7 +141,7 @@ have to provision one to learn:
 | Property | Value (reference workspace) |
 |---|---|
 | Workspace | `dbw-btfabric-dev` (premium / Unity Catalog) |
-| URL | `https://adb-7405607213468698.18.azuredatabricks.net` |
+| URL | `https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` |
 | Reference catalog | `dbw_btfabric_dev` |
 
 The reference infrastructure-as-code to stand up a *new* one
@@ -486,9 +486,9 @@ notebook or a widget. The notebook reads the password with
 az login
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'
 python databricks/run_notebook.py \
-  --host adb-7405607213468698.18.azuredatabricks.net \
+  --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
   --catalog dbw_btfabric_dev --source-mode postgres \
-  --pg-host artemis-pg-n1.postgres.database.azure.com
+  --pg-host artemis-pg.postgres.database.azure.com
 ```
 
 **What this did and why:** [`run_notebook.py`](../../databricks/run_notebook.py)
@@ -532,7 +532,7 @@ will connect to.
 
 ```bash
 python databricks/run_notebook.py \
-  --host adb-7405607213468698.18.azuredatabricks.net \
+  --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
   --catalog dbw_btfabric_dev --source-mode gateway \
   --gateway-url https://kong.<aca-domain> \
   --identity-url https://identity.<aca-domain>

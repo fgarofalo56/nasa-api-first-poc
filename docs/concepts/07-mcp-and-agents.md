@@ -97,7 +97,7 @@ stands in for. The agent path maps cleanly onto Azure's first-party AI surface:
 > Copilot Studio does not change the data path, the governance, or the contract. You swap
 > the host, not the architecture. The deployed reference agent runs on Azure Container
 > Apps at
-> `https://agent.icyocean-479340e8.centralus.azurecontainerapps.io`.
+> `https://agent.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io`.
 
 ---
 

@@ -189,12 +189,12 @@ deployed (so APIM has an upstream + OpenAPI to import — run
 az login --tenant <tenant>
 
 # Provision APIM (async — returns quickly, but the instance keeps building ~30-45 min)
-az apim create -g artemis-poc-rg -n artemis-apim-n1 -l centralus \
+az apim create -g artemis-poc-rg -n artemis-apim -l centralus \
   --publisher-email you@org.gov --publisher-name "NASA OCIO Data Platform (synthetic POC)" \
   --sku-name Developer --tags owner=you project=nasa-api-first-poc
 ```
 
-**What this did:** created an APIM instance named `artemis-apim-n1` in resource group
+**What this did:** created an APIM instance named `artemis-apim` in resource group
 `artemis-poc-rg`, region Central US, on the **Developer** SKU. The `--publisher-*` values
 brand the Developer Portal. The command returns in seconds, but the gateway is **not
 ready** yet — the next step blocks until it is.
@@ -238,8 +238,8 @@ re-run. In order, it:
    no key -> HTTP 401   |   with key -> HTTP 200  (expect 401 / 200)
 
 ================ APIM EDITION CONFIGURED ================
-  Gateway:          https://artemis-apim-n1.azure-api.net/api/SupplyRisk   (header: Ocp-Apim-Subscription-Key)
-  Developer Portal: https://artemis-apim-n1.developer.azure-api.net   (publish it once from the portal Azure UI on first run)
+  Gateway:          https://artemis-apim.azure-api.net/api/SupplyRisk   (header: Ocp-Apim-Subscription-Key)
+  Developer Portal: https://artemis-apim.developer.azure-api.net   (publish it once from the portal Azure UI on first run)
   Policy: subscription-key + per-caller rate-limit + correlation id
           (Entra validate-azure-ad-token is the documented tenant-lock upgrade)
 ```
@@ -298,7 +298,7 @@ admin to consent. Username/password sign-in remains available regardless.
 This is the highest-impact visual in the entire demo — the managed twin of our local
 catalog + "add a source" wizard.
 
-1. Open `https://artemis-apim-n1.developer.azure-api.net` — the published portal lists the
+1. Open `https://artemis-apim.developer.azure-api.net` — the published portal lists the
    **Artemis Supply-Chain Risk API** (and the sample Echo API) to anonymous visitors.
 2. Open the Artemis API → all eight operations
    ([Material](GLOSSARY.md#odata) / PurchaseOrder / SupplyRisk / Vendor, each as *list* and
