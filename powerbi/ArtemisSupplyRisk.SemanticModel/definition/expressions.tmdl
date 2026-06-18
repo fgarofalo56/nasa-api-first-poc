@@ -1,0 +1,14 @@
+expression DatabricksServerHostname = "adb-7405607213468698.18.azuredatabricks.net" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 0bc05993-06c7-57cf-8329-8d42463c6931
+
+	annotation PBI_ResultType = Text
+
+expression DatabricksHttpPath = "/sql/1.0/warehouses/REPLACE_WITH_WAREHOUSE_ID" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: c7de2867-96c4-58c9-aade-5d2fc57a52a5
+
+	annotation PBI_ResultType = Text
+
+expression CatalogName = "dbw_btfabric_dev" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: c82bcf3d-0643-58dd-b1a3-5059a71cd301
+
+	annotation PBI_ResultType = Text

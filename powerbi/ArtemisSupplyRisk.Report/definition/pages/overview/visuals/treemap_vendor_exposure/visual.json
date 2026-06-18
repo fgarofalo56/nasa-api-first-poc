@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "treemap_vendor_exposure",
+  "position": {
+    "x": 620,
+    "y": 152,
+    "width": 298,
+    "height": 264,
+    "z": 6,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "treemap",
+    "query": {
+      "queryState": {
+        "Group": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "vendor_name"
+                }
+              },
+              "queryRef": "artemis_supply_risk.vendor_name",
+              "nativeQueryRef": "vendor_name"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "Sole-Source Exposure ($)"
+                }
+              },
+              "queryRef": "artemis_supply_risk.Sole-Source Exposure ($)",
+              "nativeQueryRef": "Sole-Source Exposure ($)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

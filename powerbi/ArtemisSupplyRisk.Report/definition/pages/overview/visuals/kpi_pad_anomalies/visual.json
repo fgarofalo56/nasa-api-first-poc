@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "kpi_pad_anomalies",
+  "position": {
+    "x": 934,
+    "y": 16,
+    "width": 290,
+    "height": 120,
+    "z": 3,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "artemis_supply_risk"
+                    }
+                  },
+                  "Property": "Pad Anomalies"
+                }
+              },
+              "queryRef": "artemis_supply_risk.Pad Anomalies",
+              "nativeQueryRef": "Pad Anomalies"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
