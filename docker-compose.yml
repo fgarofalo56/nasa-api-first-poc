@@ -22,8 +22,10 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata:
-  kong-config:   # identity renders the live RS256 public key into kong.yml here
+  pgdata:           # system-of-record data (survives restart; removed on `down -v`)
+  kong-config:      # rendered Kong config + RSA keys + registered-sources state
+  prometheus-data:  # scraped metrics persist across restart
+  grafana-data:     # Grafana state (provisioned dashboards re-apply regardless)
 
 services:
   # ── system of record (data never leaves here) ──────────────────────────────────
@@ -241,6 +243,7 @@ services:
     networks: [edge]
     volumes:
       - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
     profiles: [observability]
@@ -274,6 +277,7 @@ services:
     volumes:
       - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
     ports:
       - "${GRAFANA_PORT:-3000}:3000"
     profiles: [observability]

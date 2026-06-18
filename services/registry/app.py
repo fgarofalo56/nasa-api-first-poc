@@ -31,7 +31,10 @@ log = logging.getLogger("registry")
 
 PORT = int(os.environ.get("REGISTRY_PORT", "8095"))
 KONG_ADMIN = os.environ.get("KONG_ADMIN_INTERNAL_URL", "http://kong:8001").rstrip("/")
-BASE_KONG = Path(os.environ.get("KONG_RENDERED", "/shared/kong.yml"))
+# Read the base (identity-rendered), write the merged effective config Kong loads — so
+# registry-added sources survive a Kong restart, and a delete rebuilds cleanly from base.
+BASE_KONG = Path(os.environ.get("KONG_BASE", "/shared/kong.base.yml"))
+KONG_RENDERED = Path(os.environ.get("KONG_RENDERED", "/shared/kong.yml"))
 SOURCES_FILE = Path(os.environ.get("SOURCES_FILE", "/shared/sources.json"))
 RATE_LIMIT = os.environ.get("RATE_LIMIT_PER_MINUTE", "60")
 
@@ -147,18 +150,26 @@ def _reload_kong(config: dict) -> None:
 
 
 def _apply(sources: list[dict]) -> None:
-    _reload_kong(_build_merged_config(sources))
+    config = _build_merged_config(sources)
+    _reload_kong(config)
+    # Persist the merged config to the file Kong loads, so a Kong restart keeps the
+    # registered sources (no dependency on the registry restarting too).
+    try:
+        KONG_RENDERED.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    except OSError as exc:
+        log.warning("could not persist merged config to %s: %s", KONG_RENDERED, exc)
 
 
 @app.on_event("startup")
 def _startup():
-    sources = _load_sources()
-    if sources:
-        try:
-            _apply(sources)
-            log.info("re-applied %s registered source(s) to Kong", len(sources))
-        except Exception as exc:  # noqa: BLE001 — degrade gracefully on boot
-            log.warning("could not re-apply sources on startup: %s", exc)
+    # Rebuild the merged config from base + persisted sources so Kong's effective config
+    # is consistent on boot (and registered sources are re-applied).
+    try:
+        sources = _load_sources()
+        _apply(sources)
+        log.info("applied %s registered source(s) to Kong on startup", len(sources))
+    except Exception as exc:  # noqa: BLE001 — degrade gracefully on boot
+        log.warning("could not apply sources on startup: %s", exc)
 
 
 @app.get("/healthz")

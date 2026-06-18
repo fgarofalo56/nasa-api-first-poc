@@ -9,7 +9,9 @@
 #   az apim create -g artemis-poc-rg -n artemis-apim-n1 -l centralus \
 #     --publisher-email you@org --publisher-name "..." --sku-name Developer
 set -euo pipefail
-export MSYS_NO_PATHCONV=1
+# MSYS_NO_PATHCONV: keep '/...' args from being mangled to Windows paths on Git Bash.
+# PYTHONIOENCODING/UTF8: az on Windows otherwise crashes printing the policy PUT's BOM.
+export MSYS_NO_PATHCONV=1 PYTHONIOENCODING=utf-8 PYTHONUTF8=1
 
 RG="${RG:-artemis-poc-rg}"; APIM="${APIM:-artemis-apim-n1}"
 DOMAIN="${ACA_DOMAIN:-icyocean-479340e8.centralus.azurecontainerapps.io}"
@@ -30,17 +32,18 @@ az apim api import -g "$RG" --service-name "$APIM" \
   --service-url "$DAB/api" --protocols https
 
 echo "==> apply the gateway policy (mirrors the Kong plugins)"
-python - "$TENANT" > temp/apim-policy.json <<'PY'
-import json, sys
-tenant = sys.argv[1]
-xml = f"""<policies>
+mkdir -p temp
+python - > temp/apim-policy.json <<'PY'
+import json
+# Demoable gate = APIM subscription key (works in the Developer Portal "Try it"), plus
+# per-caller rate-limit + correlation id. To tenant-lock with Entra instead, add inside
+# <inbound> (after <base/>):
+#   <validate-azure-ad-token tenant-id="<tenant>" failed-validation-httpcode="401">
+#     <audiences><audience>api://artemis-api</audience></audiences>
+#   </validate-azure-ad-token>
+xml = """<policies>
   <inbound>
     <base />
-    <!-- Tenant-grade identity: validate an Entra token (managed equivalent of Kong jwt). -->
-    <validate-azure-ad-token tenant-id="{tenant}" failed-validation-httpcode="401">
-      <audiences><audience>api://artemis-api</audience></audiences>
-    </validate-azure-ad-token>
-    <!-- Per-caller quota (managed equivalent of Kong rate-limiting). -->
     <rate-limit-by-key calls="60" renewal-period="60"
       counter-key="@(context.Subscription?.Id ?? context.Request.IpAddress)" />
     <set-header name="X-Correlation-ID" exists-action="skip">
@@ -53,20 +56,29 @@ xml = f"""<policies>
 </policies>"""
 print(json.dumps({"properties": {"format": "xml", "value": xml}}))
 PY
+# az on Windows can crash printing the policy PUT response (BOM) — the PUT still succeeds,
+# so suppress output and don't let the print-crash fail the script.
 az rest --method put \
   --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/apis/artemis-procurement/policies/policy?api-version=2022-08-01" \
-  --body @temp/apim-policy.json -o none
+  --body @temp/apim-policy.json -o none 2>/dev/null || true
 
-echo "==> publish a Product and add the API"
+echo "==> publish a Product (subscription-key gated) and add the API"
 az apim product create -g "$RG" --service-name "$APIM" --product-id artemis \
   --product-name "Artemis Data Products" --state published --subscription-required true \
-  --approval-required false 2>/dev/null || true
-az apim product api add -g "$RG" --service-name "$APIM" --product-id artemis --api-id artemis-procurement
+  --approval-required false -o none 2>/dev/null || true
+az apim product api add -g "$RG" --service-name "$APIM" --product-id artemis --api-id artemis-procurement -o none
 
+echo "==> validate a call through APIM"
 GW="$(az apim show -g "$RG" -n "$APIM" --query gatewayUrl -o tsv)"
+KEY="$(az rest --method post --uri "https://management.azure.com/subscriptions/$SUBID/resourceGroups/$RG/providers/Microsoft.ApiManagement/service/$APIM/subscriptions/master/listSecrets?api-version=2022-08-01" --query primaryKey -o tsv 2>/dev/null)"
+NOKEY="$(curl -s -o /dev/null -w '%{http_code}' "$GW/api/SupplyRisk?\$first=1" || true)"
+WITHKEY="$(curl -s -o /dev/null -w '%{http_code}' -H "Ocp-Apim-Subscription-Key: $KEY" "$GW/api/SupplyRisk?\$first=1" || true)"
+echo "   no key -> HTTP $NOKEY   |   with key -> HTTP $WITHKEY  (expect 401 / 200)"
+
 PORTAL="https://$APIM.developer.azure-api.net"
 echo
 echo "================ APIM EDITION CONFIGURED ================"
-echo "  Gateway:          $GW/api/SupplyRisk"
-echo "  Developer Portal: $PORTAL   (publish it once in the portal Azure UI if first run)"
-echo "  Policy: Entra JWT validation + per-caller rate-limit + correlation id"
+echo "  Gateway:          $GW/api/SupplyRisk   (header: Ocp-Apim-Subscription-Key)"
+echo "  Developer Portal: $PORTAL   (publish it once from the portal Azure UI on first run)"
+echo "  Policy: subscription-key + per-caller rate-limit + correlation id"
+echo "          (Entra validate-azure-ad-token is the documented tenant-lock upgrade)"

@@ -39,6 +39,9 @@ RATE_LIMIT = os.environ.get("RATE_LIMIT_PER_MINUTE", "60")
 KEY_DIR = Path(os.environ.get("KEY_DIR", "/shared/keys"))
 KONG_TEMPLATE = Path(os.environ.get("KONG_TEMPLATE", "/app/kong.yml.tmpl"))
 KONG_RENDERED = Path(os.environ.get("KONG_RENDERED", "/shared/kong.yml"))
+# Base config (no dynamic sources) — the registry reads this and writes the merged
+# KONG_RENDERED, so registry-added sources survive a Kong restart (Kong reloads the file).
+KONG_BASE = Path(os.environ.get("KONG_BASE", "/shared/kong.base.yml"))
 KID = "artemis-local-key-1"
 TOKEN_TTL = int(os.environ.get("TOKEN_TTL_SECONDS", "3600"))
 
@@ -100,9 +103,17 @@ def _render_kong(public_pem: str) -> None:
         .replace("__RATE_LIMIT__", str(RATE_LIMIT))
     )
     KONG_RENDERED.parent.mkdir(parents=True, exist_ok=True)
-    KONG_RENDERED.write_text(rendered, encoding="utf-8")
+    # Write the canonical base (for the registry to merge sources into) and an initial
+    # effective config (so Kong has a valid config before the registry runs). The registry
+    # overwrites KONG_RENDERED with base+sources on each change and on its own startup.
+    KONG_BASE.write_text(rendered, encoding="utf-8")
+    if not KONG_RENDERED.exists():
+        KONG_RENDERED.write_text(rendered, encoding="utf-8")
     log.info(
-        "rendered Kong declarative config -> %s (rate-limit=%s/min)", KONG_RENDERED, RATE_LIMIT
+        "rendered Kong base -> %s (+ initial %s, rate-limit=%s/min)",
+        KONG_BASE,
+        KONG_RENDERED,
+        RATE_LIMIT,
     )
 
 
