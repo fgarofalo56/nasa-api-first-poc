@@ -156,6 +156,7 @@ from the browser — displaying the gateway correlation id with each answer.
 PRP.md                  # the complete build spec — read this first
 CLAUDE.md               # project rules for the Claude Code build session
 .claude/                # Claude Code config (settings, skills)
+.githooks/              # pre-push guard (block force-push/delete of main) — see note below
 data/                   # synthetic Artemis generator + classification manifest
 docs/                   # ARCHITECTURE / DEMO-DAY / DEMO-SCRIPT / ZERO-MOVE / SECURITY / ADD-A-SOURCE / GRAPHQL / AZURE-* / APIM-* / DATABRICKS / POWERBI / DISCLAIMER
 services/               # seeder · dab · gateway(kong) · identity · catalog · mcp · transportation · registry
@@ -190,6 +191,23 @@ is `docs/DEMO-SCRIPT.md`.
 - Azure prices are pulled **live** from the Azure Retail Prices API with a dated
   source note — never hardcoded or invented. No staffing/services dollar figures.
 - All data is **synthetic** and clearly flagged. ITAR/CUI-safe.
+
+---
+
+## 🛡️ Local branch protection
+
+GitHub server-side branch protection needs GitHub Pro on a private repo, so this repo
+ships a **client-side pre-push guard** that refuses to **force-push** or **delete**
+`main`. Enable it once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+> [!NOTE]
+> Client-side only (guards pushes from your machine). Bypass deliberately with
+> `git -c core.hooksPath= push`. For server-enforced protection, upgrade to GitHub Pro
+> or make the repo public, then apply a ruleset.
 
 ---
 

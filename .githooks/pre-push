@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Pre-push guard — a client-side stand-in for server-side branch protection.
+#
+# GitHub requires GitHub Pro to enable branch protection / rulesets on a PRIVATE
+# repo, so this hook enforces the essentials locally: it refuses to FORCE-PUSH
+# (non-fast-forward) or DELETE a protected branch (main/master).
+#
+# Enable it (once per clone):   git config core.hooksPath .githooks
+# Bypass intentionally (rare):  git -c core.hooksPath= push ...   (or `--no-verify`)
+#
+# Limitation: client-side only — it guards pushes from THIS machine, not the server.
+set -euo pipefail
+
+protected_re='^refs/heads/(main|master)$'
+zero='0000000000000000000000000000000000000000'
+status=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [[ "$remote_ref" =~ $protected_re ]] || continue
+  branch="${remote_ref#refs/heads/}"
+
+  # Deletion: the local sha is all-zero.
+  if [ "$local_sha" = "$zero" ]; then
+    echo "pre-push: BLOCKED — refusing to delete protected branch '$branch'." >&2
+    status=1
+    continue
+  fi
+
+  # Non-fast-forward (force) push: the remote tip is not an ancestor of what we push.
+  if [ "$remote_sha" != "$zero" ] && ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+    echo "pre-push: BLOCKED — refusing non-fast-forward (force) push to '$branch'." >&2
+    echo "          Open a PR, or bypass deliberately with: git -c core.hooksPath= push" >&2
+    status=1
+  fi
+done
+
+exit "$status"
