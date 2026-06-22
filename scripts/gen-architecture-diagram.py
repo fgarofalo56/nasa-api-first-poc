@@ -1,243 +1,174 @@
-"""Render docs/architecture.png — the zero-move, multi-source reference architecture.
+"""Rebuild docs/architecture.excalidraw — the zero-move, multi-source reference
+architecture — from a small declarative spec, using the Excalidraw diagram-compiler.
 
-Pure matplotlib (no external services). Run: python scripts/gen-architecture-diagram.py
+The committed **docs/architecture.png** is the rendered image used in the docs; it is
+exported from **docs/architecture.excalidraw** (the editable source of truth). To edit
+the diagram, either open the `.excalidraw` file at https://excalidraw.com and re-export
+PNG, or change the spec below and re-run this script to regenerate the scene.
+
+This script depends on the local Excalidraw diagram compiler under
+``~/.claude/skills/excalidraw``. If that tooling isn't present, it prints a note and
+exits 0 (fail-safe) — the committed ``.excalidraw`` + ``.png`` stay authoritative.
+
+Run: python scripts/gen-architecture-diagram.py
 """
 
 from __future__ import annotations
 
+import json
+import sys
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.patches as mpatches  # noqa: E402
-import matplotlib.pyplot as plt  # noqa: E402
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
-OUT = REPO_ROOT / "docs" / "architecture.png"
-
-EDGE = "#1f6feb"
-INTERNAL = "#cf222e"
-CONTROL = "#8957e5"
-BOX = "#0d1117"
-FILL_EDGE = "#dbeafe"
-FILL_INT = "#ffe3e3"
-FILL_GW = "#fff4ce"
-FILL_CTL = "#efe3ff"
+OUT = REPO_ROOT / "docs" / "architecture.excalidraw"
+SKILL = Path.home() / ".claude" / "skills" / "excalidraw"
 
 
-def box(ax, x, y, w, h, label, fill, edge=BOX, fontsize=9):
-    ax.add_patch(
-        mpatches.FancyBboxPatch(
-            (x, y),
-            w,
-            h,
-            boxstyle="round,pad=0.02,rounding_size=0.08",
-            linewidth=1.6,
-            edgecolor=edge,
-            facecolor=fill,
-            zorder=3,
-        )
-    )
-    ax.text(x + w / 2, y + h / 2, label, ha="center", va="center", fontsize=fontsize, zorder=4)
-
-
-def arrow(ax, x1, y1, x2, y2, label="", color="#444", style="-|>", lx=None, ly=None):
-    ax.annotate(
-        "",
-        xy=(x2, y2),
-        xytext=(x1, y1),
-        arrowprops={"arrowstyle": style, "color": color, "lw": 1.6, "shrinkA": 2, "shrinkB": 2},
-        zorder=2,
-    )
-    if label:
-        ax.text(
-            lx if lx is not None else (x1 + x2) / 2,
-            ly if ly is not None else (y1 + y2) / 2 + 0.12,
-            label,
-            ha="center",
-            va="center",
-            fontsize=7.3,
-            color=color,
-            zorder=6,
-            bbox={
-                "boxstyle": "round,pad=0.18",
-                "facecolor": "white",
-                "edgecolor": "none",
-                "alpha": 0.9,
+def build_spec(libs: Path) -> dict:
+    kong = str(libs / "azure" / "logos.excalidrawlib")
+    fabric = str(libs / "azure" / "microsoft-fabric-architecture-icons.excalidrawlib")
+    general = str(libs / "azure" / "azure-general.excalidrawlib")
+    return {
+        "title": "NASA API-first · zero-move · multi-source data marketplace",
+        "subtitle": "Data stays in its source — every call is brokered, authenticated, "
+        "rate-limited and metered by the gateway (local OSS analogue).",
+        "theme": "dark",
+        "services": {
+            "registry": {
+                "title": "Registry",
+                "desc": "Control-plane\nonboarding wizard",
+                "icon": "Azure Policy",
+                "kind": "security",
+                "layer": 0,
+                "lane": 1,
             },
-        )
+            "consumers": {
+                "title": "Consumers",
+                "desc": "Python CLI · MCP agent\nNASA-themed UI",
+                "icon": "User",
+                "icon_lib": fabric,
+                "kind": "compute",
+                "layer": 0,
+                "lane": 2,
+            },
+            "catalog": {
+                "title": "Catalog",
+                "desc": "Products · owner\nclassification",
+                "icon": "Microsoft Purview",
+                "kind": "data",
+                "layer": 0,
+                "lane": 4,
+            },
+            "identity": {
+                "title": "Identity issuer",
+                "desc": "RS256 JWT + JWKS",
+                "icon": "Key Vault",
+                "kind": "security",
+                "layer": 1,
+                "lane": 0,
+            },
+            "kong": {
+                "title": "Kong Gateway (OSS)",
+                "desc": "JWT · rate-limit · meter\ncorrelation-id · OWASP",
+                "icon": "Kong",
+                "icon_lib": kong,
+                "kind": "network",
+                "layer": 1,
+                "lane": 2,
+            },
+            "dot": {
+                "title": "DOT Transportation API",
+                "desc": "2nd source\nadded via wizard",
+                "icon": "App Service",
+                "kind": "api",
+                "layer": 2,
+                "lane": 1,
+            },
+            "dab": {
+                "title": "Data API Builder",
+                "desc": "auto REST · GraphQL\nOpenAPI",
+                "icon": "Function App",
+                "kind": "compute",
+                "layer": 2,
+                "lane": 3,
+            },
+            "prometheus": {
+                "title": "Prometheus + Grafana",
+                "desc": "per-consumer metrics",
+                "icon": "Dashboard",
+                "icon_lib": general,
+                "kind": "compute",
+                "layer": 2,
+                "lane": 4,
+            },
+            "postgres": {
+                "title": "PostgreSQL 16",
+                "desc": "Artemis SAP procurement\n(system of record)",
+                "icon": "Postgres",
+                "kind": "storage",
+                "layer": 3,
+                "lane": 3,
+                "shape": "ellipse",
+            },
+        },
+        "edges": [
+            {"from": "consumers", "to": "kong", "label": "bearer token · REST"},
+            {
+                "from": "identity",
+                "to": "kong",
+                "label": "JWKS · RS256",
+                "style": "dashed",
+                "color": "#fb7185",
+            },
+            {
+                "from": "registry",
+                "to": "kong",
+                "label": "hot-reload /config",
+                "style": "dashed",
+                "color": "#a78bfa",
+            },
+            {"from": "kong", "to": "dab", "label": "REST / OData"},
+            {"from": "kong", "to": "dot", "label": "federated route"},
+            {"from": "dab", "to": "postgres", "label": "SQL (stays put)"},
+            {"from": "kong", "to": "catalog", "label": "publishes contract"},
+            {"from": "kong", "to": "prometheus", "label": "scrape /metrics"},
+        ],
+        "notes": [
+            {
+                "text": "Zero-move\n\nPostgres + DAB sit on an\ninternal Docker network with\n"
+                "no host ports. The only path\nto data is through Kong.",
+                "near": "postgres",
+                "side": "right",
+            },
+            {
+                "text": "Federation\n\nDOT is a 2nd source added\nlive via the registry\n"
+                "control-plane — no restart.",
+                "near": "dot",
+                "side": "left",
+            },
+        ],
+    }
 
 
 def main() -> int:
-    fig, ax = plt.subplots(figsize=(13, 8))
-    ax.set_xlim(0, 13)
-    ax.set_ylim(0, 8)
-    ax.axis("off")
-    ax.set_title(
-        "NASA API-first, zero-move, multi-source data marketplace (local OSS analogue)",
-        fontsize=13,
-        fontweight="bold",
-        pad=14,
-    )
-
-    # --- network bands (edge below, internal above; Kong is the only bridge) ---
-    ax.add_patch(
-        mpatches.Rectangle(
-            (0.2, 0.35), 12.6, 3.55, facecolor="#f0f6ff", edgecolor=EDGE, lw=1.2, ls="--", zorder=0
+    compiler = SKILL / "scripts" / "diagram_compiler.py"
+    if not compiler.exists():
+        print(
+            f"Excalidraw diagram compiler not found at {compiler}.\n"
+            "The committed docs/architecture.excalidraw and docs/architecture.png remain "
+            "the source of truth; skipping regeneration."
         )
-    )
-    ax.text(
-        0.45,
-        3.62,
-        "edge network  ·  host-exposed  (consumers · UI · catalog · metrics · registry)",
-        color=EDGE,
-        fontsize=8.5,
-        fontweight="bold",
-        zorder=1,
-    )
-    ax.add_patch(
-        mpatches.Rectangle(
-            (0.2, 4.35),
-            12.6,
-            2.95,
-            facecolor="#fff5f5",
-            edgecolor=INTERNAL,
-            lw=1.2,
-            ls="--",
-            zorder=0,
-        )
-    )
-    ax.text(
-        0.45,
-        7.02,
-        "internal network  ·  no host ports  (sources reachable only via Kong)",
-        color=INTERNAL,
-        fontsize=8.5,
-        fontweight="bold",
-        zorder=1,
-    )
+        return 0
 
-    # --- internal sources: one aligned row (DOT | DAB above Kong | Postgres) ---
-    SRC_Y, SRC_H = 4.95, 1.15
-    box(
-        ax,
-        0.7,
-        SRC_Y,
-        2.7,
-        SRC_H,
-        "DOT Transportation API\n2nd source · added via wizard",
-        FILL_INT,
-        fontsize=8.3,
-    )
-    box(
-        ax,
-        5.15,
-        SRC_Y,
-        2.7,
-        SRC_H,
-        "Data API Builder\nauto REST · GraphQL · OpenAPI",
-        FILL_INT,
-        fontsize=8.3,
-    )
-    box(
-        ax,
-        9.0,
-        SRC_Y,
-        3.0,
-        SRC_H,
-        "PostgreSQL 16\nArtemis SAP procurement\n(system of record)",
-        FILL_INT,
-        fontsize=8.3,
-    )
+    sys.path.insert(0, str(SKILL / "scripts"))
+    from diagram_compiler import compile_diagram, print_violations, validate_layout
 
-    # --- edge boxes: left (consumers/identity) · center (Kong + registry) · right (catalog/metrics) ---
-    box(
-        ax,
-        0.7,
-        2.0,
-        2.7,
-        1.1,
-        "Consumers\nPython CLI · MCP agent\nNASA-themed UI",
-        FILL_EDGE,
-        fontsize=8.5,
-    )
-    box(ax, 0.7, 0.5, 2.7, 1.0, "Identity issuer\nRS256 JWT + JWKS", FILL_EDGE, fontsize=8.5)
-    box(
-        ax,
-        9.0,
-        2.0,
-        3.0,
-        1.1,
-        "Catalog\nproducts · owner · classification",
-        FILL_EDGE,
-        fontsize=8.3,
-    )
-    box(
-        ax,
-        9.0,
-        0.5,
-        3.0,
-        1.0,
-        "Prometheus + Grafana\nper-consumer metrics",
-        FILL_EDGE,
-        fontsize=8.3,
-    )
-
-    box(
-        ax,
-        5.15,
-        1.85,
-        2.7,
-        1.25,
-        "Kong Gateway (OSS)\nJWT · rate-limit · meter\ncorrelation-id · OWASP\nthe ONLY path to data",
-        FILL_GW,
-        edge=EDGE,
-        fontsize=8.5,
-    )
-    box(
-        ax,
-        4.6,
-        0.5,
-        3.8,
-        0.95,
-        "Registry / control-plane  ·  onboarding wizard",
-        FILL_CTL,
-        edge=CONTROL,
-        fontsize=8.3,
-    )
-
-    # --- arrows ---
-    # consumers -> kong (governed call)
-    arrow(ax, 3.4, 2.55, 5.15, 2.55, "bearer token", EDGE)
-    # identity -> kong (key material)
-    arrow(ax, 3.4, 1.2, 5.15, 2.1, "JWKS · RS256 key", "#888", lx=4.05, ly=1.78)
-    # registry -> kong admin (hot reload)
-    arrow(ax, 6.5, 1.45, 6.5, 1.85, "hot-reload /config", CONTROL, lx=6.5, ly=1.65)
-    # kong <-> DAB <-> postgres (the zero-move data path)
-    arrow(ax, 6.5, 3.1, 6.5, 4.95, "REST / OData", INTERNAL, style="<|-|>", lx=6.5, ly=4.02)
-    arrow(ax, 7.85, 5.525, 9.0, 5.525, "SQL (stays put)", INTERNAL, style="<|-|>")
-    # kong <-> DOT (federated 2nd source)
-    arrow(ax, 5.15, 2.9, 3.4, 4.95, "federated route", INTERNAL, style="<|-|>", lx=3.7, ly=3.95)
-    # kong -> catalog / metrics (publishes contract, exposes /metrics)
-    arrow(ax, 7.85, 2.7, 9.0, 2.7, "publishes contract", "#888")
-    arrow(ax, 7.85, 2.2, 9.0, 1.3, "scrape /metrics", "#888", lx=8.6, ly=1.95)
-
-    fig.text(
-        0.5,
-        0.025,
-        "Data never leaves its source — every call (Artemis or DOT) is brokered, "
-        "authenticated, rate-limited, and metered by the gateway. New sources are added "
-        "via a live config reload, no restart.",
-        ha="center",
-        fontsize=8.3,
-        style="italic",
-        color="#555",
-    )
-
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT, dpi=150, bbox_inches="tight")
-    print(f"wrote {OUT}")
+    spec = build_spec(SKILL / "libraries")
+    scene = compile_diagram(spec)
+    print_violations(validate_layout(scene))
+    OUT.write_text(json.dumps(scene), encoding="utf-8")
+    print(f"wrote {OUT} ({len(scene.get('elements', []))} elements)")
+    print("Export docs/architecture.png from this scene in Excalidraw (Export image → PNG).")
     return 0
 
 

@@ -41,7 +41,7 @@ lint: ## Ruff format-check + lint
 	ruff format --check .
 	ruff check .
 
-diagram: ## Render docs/architecture.png
+diagram: ## Rebuild docs/architecture.excalidraw (export the PNG from Excalidraw)
 	$(PY) scripts/gen-architecture-diagram.py
 
 pricing: ## Print live, dated Azure infrastructure prices (Azure Retail Prices API)
