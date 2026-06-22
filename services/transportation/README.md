@@ -381,7 +381,7 @@ A couple of design choices worth calling out for learners:
 - **Best-effort parsing, never crash.** `_apply_filter` silently skips clauses it cannot
   parse. A stand-in source that 500s on a slightly-off query would distract from the
   federation story. The repo's coding convention is *fail-safe: services degrade
-  gracefully* (see [`CLAUDE.md`](../../CLAUDE.md)).
+  gracefully* — never crash on a malformed query.
 - **The order of operations matters.** Filtering happens *before* `$first`, so `$first=5`
   means "the first 5 *matching* rows," and `$select` runs last so column projection never
   affects filtering or sorting.

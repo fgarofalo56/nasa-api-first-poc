@@ -1,6 +1,6 @@
 """MCP server — exposes the governed supply-risk query as an agent tool.
 
-One tool, `query_supply_risk`, lets an MCP host (Claude Desktop, Copilot, Foundry, …)
+One tool, `query_supply_risk`, lets an MCP host (GitHub Copilot, Azure AI Foundry, …)
 answer the Artemis supply-chain question by reaching the *governed gateway surface* —
 it fetches a bearer token from the local issuer and calls Kong, never the database.
 

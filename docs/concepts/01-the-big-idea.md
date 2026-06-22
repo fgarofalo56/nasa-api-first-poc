@@ -249,8 +249,8 @@ Read the steps as a story:
    proving the answer came *through Kong*, not from a side door.
 
 The same query is exposed to an AI agent through an [MCP](#-mini-glossary) server (the
-Model Context Protocol — a standard way for AI assistants to call tools), so a Copilot-
-or Claude-style agent reaches the *exact same governed surface* a human does. The agent
+Model Context Protocol — a standard way for AI assistants to call tools), so a
+Copilot-style agent reaches the *exact same governed surface* a human does. The agent
 never gets a database password; it gets the clerk's window.
 
 ### Classify before you expose

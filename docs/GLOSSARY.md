@@ -211,8 +211,8 @@ gateway. Like the SoR, it is internal-only. *Where it appears:*
 ### MCP — Model Context Protocol
 
 **MCP (Model Context Protocol)** is an open standard for giving AI assistants **tools**
-they can call. An **MCP server** advertises tools; an **MCP host** (e.g. Claude Desktop,
-Microsoft Copilot, Azure AI Foundry) calls them. This repo's MCP server
+they can call. An **MCP server** advertises tools; an **MCP host** (e.g. Microsoft
+Copilot, Azure AI Foundry) calls them. This repo's MCP server
 (`services/mcp`) exposes one tool, `query_supply_risk`, that answers the supply-chain
 question **through the gateway** — so an AI agent gets the *same governed answer* a human
 does, and never touches the database. *Where it appears:*
@@ -427,8 +427,8 @@ forcing the Government-region fallback. *Where it appears:*
 data lake. They are **deliberately excluded** from this project because they are **not
 available in Azure Government / GCC**. They appear only as a documented "excluded, and why"
 note — a CI test (`tests/test_no_fabric.py`) enforces that the repo never recommends them.
-*Where it appears:* [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md), `CLAUDE.md` hard
-constraints.
+*Where it appears:* [`AZURE-DEPLOYMENT.md`](AZURE-DEPLOYMENT.md), [`PRP.md`](../PRP.md) §9
+hard constraints.
 
 ### GCC (Government Community Cloud)
 
@@ -447,8 +447,8 @@ in the context of why Fabric/OneLake are excluded (not available there). *Where 
 
 **OAuth2** is the open standard for **authorization** — how a client obtains a token that
 grants it scoped access to an API. This POC uses an OAuth2-style "get a token, present it on
-each call" flow. *Where it appears:* [`SECURITY.md`](SECURITY.md), `CLAUDE.md` open-standards
-constraint.
+each call" flow. *Where it appears:* [`SECURITY.md`](SECURITY.md), [`PRP.md`](../PRP.md) §9
+open-standards constraint.
 
 ### OIDC — OpenID Connect
 
@@ -808,19 +808,19 @@ stack up healthy and prints the supply-risk answer; `make test` runs the test su
 
 **PRP (here, the build spec — `PRP.md`)** is the self-contained specification the coding
 agent follows: mission, architecture, phased plan, per-file contracts, hard constraints, and
-Definition of Done. *Where it appears:* [`PRP.md`](../PRP.md), `CLAUDE.md`.
+Definition of Done. *Where it appears:* [`PRP.md`](../PRP.md).
 
 ### Definition of Done (DoD)
 
 The **Definition of Done** is the explicit checklist that says the POC is complete (stack up,
 401/200/429 behaviours, zero-move proven, catalog + MCP working, live pricing, all docs,
-CI green). *Where it appears:* `PRP.md` §13, `CLAUDE.md`.
+CI green). *Where it appears:* `PRP.md` §13.
 
 ### CI — Continuous Integration
 
 **CI (Continuous Integration)** automatically runs lint and tests on every change (here via
 **GitHub Actions** in `.github/workflows/`). "CI green" means all checks pass. *Where it
-appears:* `.github/`, `CLAUDE.md`.
+appears:* `.github/`, [`PRP.md`](../PRP.md) §13.
 
 ### ruff
 
@@ -858,7 +858,7 @@ essential demo stack; the optional `frontend` profile adds the UI. *Where it app
 The **Azure Retail Prices API** (`https://prices.azure.com/api/retail/prices`, public, no
 auth) returns current list prices. `tools/azure_pricing.py` calls it so every quoted figure
 is **live and dated** — never invented — and carries a source/date stamp. *Where it appears:*
-`tools/azure_pricing.py`, `CLAUDE.md` hard constraints.
+`tools/azure_pricing.py`, [`PRP.md`](../PRP.md) §9 hard constraints.
 
 ### Synthetic data
 

@@ -8,7 +8,7 @@
 
 > [!NOTE]
 > **TL;DR** — This service exposes a single MCP tool, `query_supply_risk`, that lets an
-> MCP host (Claude Desktop, Copilot, Foundry, …) answer the Artemis supply-chain
+> MCP host (GitHub Copilot, Azure AI Foundry, …) answer the Artemis supply-chain
 > question by reaching the **governed gateway surface**: it fetches a bearer token from
 > the local identity issuer and calls **Kong**, never the database. The same governed
 > answer a human gets is the answer the agent gets. All data is **synthetic** — see
@@ -49,7 +49,7 @@ consumer sees.
 
 ```mermaid
 flowchart LR
-    host["MCP host<br/>(Claude Desktop / Copilot / Foundry)"] -->|"query_supply_risk()"| mcp["mcp server<br/>FastMCP"]
+    host["MCP host<br/>(Copilot / Foundry / any host)"] -->|"query_supply_risk()"| mcp["mcp server<br/>FastMCP"]
     mcp -->|"POST /token"| id["identity<br/>(RS256 JWT issuer)"]
     mcp -->|"GET /api/SupplyRisk<br/>Bearer token"| kong["Kong Gateway<br/>(JWT · rate-limit · metering)"]
     kong -->|"OData REST"| dab["Data API Builder"]
@@ -118,7 +118,7 @@ Read from environment variables (defaults shown match `docker-compose.yml`):
 
 ## 🔌 Pointing an MCP host at it
 
-For a desktop MCP host (e.g. Claude Desktop) that launches servers over **stdio**, run
+For a desktop MCP host that launches servers over **stdio**, run
 the server with `MCP_TRANSPORT=stdio` and point the host's config at the command. A host
 config entry looks like:
 

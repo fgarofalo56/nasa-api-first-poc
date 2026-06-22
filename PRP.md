@@ -1,6 +1,6 @@
 # PRP — NASA API-First Data Marketplace: Demo / POC Repository
 
-> **Self-contained build spec.** Hand this entire file to a fresh Claude coding
+> **Self-contained build spec.** Hand this entire file to a fresh coding
 > agent in a brand-new, empty git repository. It is everything needed to scaffold,
 > implement, document, and validate a runnable proof-of-concept that demonstrates
 > the Microsoft → NASA OCIO **API-first, zero-move, multi-model data marketplace**
@@ -244,7 +244,7 @@ left-to-right flow. Implement each station:
 4. **Consume (governed clients).** `client/query_supply_risk.py` obtains a bearer
    token from the identity issuer, then calls **through Kong** to answer the mission
    question. The **MCP server** exposes the same query as a tool `query_supply_risk`
-   so an agent (Claude/Copilot/etc.) reaches the governed surface over MCP — never
+   so an agent (Copilot/Foundry/etc.) reaches the governed surface over MCP — never
    the DB. Token usage is metered per consumer at the gateway.
 
 **The headline query (must work end to end):**
@@ -330,7 +330,7 @@ source note (§9); `test_no_fabric.py` passes.
   sample_query}`; reads `catalog.json` + merges `data/classification.yml`.
 - **`services/mcp/server.py`** — one MCP tool `query_supply_risk(program, min_delay)`
   that fetches a token from identity, calls Kong, returns rows. Document how to point
-  Claude Desktop / an MCP host at it.
+  an MCP host at it.
 - **`client/query_supply_risk.py`** — `argparse` (`--program Artemis-3
   --min-delay 30`), bearer flow, calls Kong, pretty-prints the ranked answer + the
   gateway correlation id (proves it went through the gateway).

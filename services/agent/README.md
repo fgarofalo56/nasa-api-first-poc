@@ -20,7 +20,7 @@
 
 This is the Microsoft pitch made tangible: **AI grounded on your governed data, over an
 open standard (MCP)** — not a model with a firehose to your database. The same MCP tools
-the agent calls could be called by **Copilot, Foundry, or Claude**; the gateway still
+the agent calls could be called by **GitHub Copilot or Azure AI Foundry**; the gateway still
 authenticates, rate-limits, meters, and **redacts** every call. The agent can't leak what
 the gateway won't serve, and it can't answer what it wasn't grounded for.
 

@@ -26,7 +26,7 @@ frontend/dist/
 frontend/.vite/
 *.log
 
-# --- Temp working dir (Claude sessions) ---
+# --- Temp working dir (local agent sessions) ---
 temp/
 
 # --- Browser E2E artifacts (Playwright/Chrome screenshots) ---
@@ -52,17 +52,12 @@ Thumbs.db
 .vscode/
 *.swp
 
-# --- Claude Code (keep settings.json + CLAUDE.md; ignore local/runtime) ---
-.claude/settings.local.json
-.claude/projects/
-.claude/todos/
-.claude/shell-snapshots/
+# --- Local agent tooling (kept out of the published repo) ---
+.claude/
+CLAUDE.md
 
 # Bicep build output (reference IaC; compile on demand)
 infra/azure/*.json
-
-# Subagent scratch memory
-.claude/agent-memory/
 
 # Root-level screenshot artifacts (Playwright/Chrome captures)
 /*.png

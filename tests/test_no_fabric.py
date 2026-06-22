@@ -7,8 +7,8 @@ docs is allowed — those mentions must sit next to an exclusion marker
 
 We match only the *product* terms ("microsoft fabric", "onelake") so the ordinary
 English word "fabric" ("fabricated data", "integration fabric") is not a false hit.
-The constraint-defining meta files (PRP.md, CLAUDE.md, this test) are not scanned —
-they specify the rule rather than build a component.
+The constraint-defining meta files (PRP.md, this test) are not scanned — they specify
+the rule rather than build a component.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ _SKIP_DIRS = {
     "temp",
 }
 # Meta files that *specify* the constraint rather than implement a component.
-_SKIP_FILES = {"PRP.md", "CLAUDE.md", "test_no_fabric.py"}
+_SKIP_FILES = {"PRP.md", "test_no_fabric.py"}
 
 _PRODUCT_TERMS = re.compile(r"microsoft fabric|onelake", re.IGNORECASE)
 _EXCLUSION_MARKERS = (

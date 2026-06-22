@@ -137,7 +137,7 @@ flowchart LR
 An agent needs a standard way to *discover* and *call* tools, no matter who wrote them.
 Before MCP, every AI platform invented its own plugin format, so a tool built for one host
 would not work in another. The **Model Context Protocol (MCP)** is the open standard — now
-adopted across Microsoft Copilot, Azure AI Foundry, Claude, and others — that fixes this.
+adopted across Microsoft Copilot, Azure AI Foundry, and others — that fixes this.
 It defines two roles:
 
 | Role | What it is | In this repo |
@@ -166,7 +166,7 @@ def query_supply_risk(
 
 > [!NOTE]
 > **Why MCP and not a bespoke REST call?** Because MCP is *portable*. The exact same
-> server can be plugged into Claude Desktop, Microsoft Copilot, Azure AI Foundry, or this
+> server can be plugged into Microsoft Copilot, Azure AI Foundry, or this
 > repo's own agent with **zero code changes** — the host discovers the tools at runtime.
 > That portability is the whole pitch: *you publish one governed tool; every AI host can
 > safely use it.* The server even supports a `stdio` transport (`MCP_TRANSPORT=stdio`) so a
@@ -434,7 +434,7 @@ traceable read of the governed data product.
   metered calls in Grafana by correlation id, and the redaction it inherits.
 - 💡 [`01 The Big Idea`](01-the-big-idea.md) — the zero-move pattern the agent never breaks.
 - 🔌 [`services/mcp`](../../services/mcp) — the MCP server source, the open-standard tools
-  any host (Copilot, Foundry, Claude) could call.
+  any host (Copilot, Foundry, …) could call.
 - ☁️ [`AZURE-LIVE-DEPLOYMENT.md`](../AZURE-LIVE-DEPLOYMENT.md) — the agent + MCP server on
   Azure Container Apps; the live reference agent.
 - ▶️ [`DEMO-SCRIPT.md`](../DEMO-SCRIPT.md) — the ~10-minute presenter walkthrough that runs
@@ -447,7 +447,7 @@ traceable read of the governed data product.
 | Term | Plain-language definition |
 |---|---|
 | **Agent** | A program that turns a natural-language goal into tool calls, then phrases the result back as language. |
-| **MCP (Model Context Protocol)** | An open standard for publishing and calling **tools** so any AI host can use them; spoken by Copilot, Foundry, Claude, and this repo's agent. |
+| **MCP (Model Context Protocol)** | An open standard for publishing and calling **tools** so any AI host can use them; spoken by Copilot, Foundry, and this repo's agent. |
 | **MCP server** | A process that publishes tools (typed functions with descriptions). Here: `services/mcp`. |
 | **MCP host (client)** | A process that connects to MCP servers and calls their tools on the agent's behalf. Here: `services/agent`. |
 | **Tool** | A named, typed function the agent may call — its *entire* universe of capability. |

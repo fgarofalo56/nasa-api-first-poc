@@ -299,7 +299,7 @@ ran — same correlation id discipline, same JWT, same rate limits. The agent ne
 the database; it calls a governed tool.
 
 > **In plain terms:** *MCP (Model Context Protocol)* is the open standard that lets an AI
-> host — Claude Desktop, Microsoft Copilot, Azure AI Foundry — discover and call tools.
+> host — Microsoft Copilot, Azure AI Foundry, or any MCP host — discover and call tools.
 > Here the "tool" is the governed supply-risk query, so an agent answers the mission
 > question without any special data access.
 

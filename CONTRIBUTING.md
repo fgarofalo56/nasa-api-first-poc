@@ -23,7 +23,7 @@
 >
 > Then branch, make a **conventional commit**, open a PR. **CI** runs, **Copilot**
 > reviews, and once CI is green the PR **auto-merges** (unless you label it `hold`).
-> Any Markdown you touch must go through the **`doc-beautifier`** skill first.
+> Any Markdown you touch must ship polished — visually consistent with the rest of the docs.
 
 ---
 
@@ -36,7 +36,7 @@
 - [The pre-push hook (local branch protection)](#-the-pre-push-hook-local-branch-protection)
 - [Conventional commits](#-conventional-commits)
 - [The PR → CI → auto-merge → Copilot flow](#-the-pr--ci--auto-merge--copilot-flow)
-- [The mandatory doc-beautifier rule](#-the-mandatory-doc-beautifier-rule)
+- [Documentation style](#-documentation-style)
 - [Gotchas and troubleshooting](#-gotchas-and-troubleshooting)
 - [Where to next](#-where-to-next)
 
@@ -311,7 +311,7 @@ a short, structured prefix that says *what kind* of change this is. The format i
 <type>(<optional scope>): <short imperative summary>
 ```
 
-**Why:** machine-readable commit history. The CLAUDE.md build rules call for committing
+**Why:** machine-readable commit history. The project's build process commits
 *per phase* with these prefixes, [Dependabot](.github/dependabot.yml) already raises its
 PRs with `chore(deps)` / `chore(ci)` prefixes, and a consistent history makes changelogs
 and `git log` skimming trivial.
@@ -419,17 +419,15 @@ pre-wired Azure OIDC secrets. You will not touch it for a normal contribution.
 
 ---
 
-## 📐 The mandatory doc-beautifier rule
+## 📐 Documentation style
 
 > [!WARNING]
-> **Every Markdown change in this repo must be run through the `doc-beautifier` skill
-> before it ships.** This is a hard project rule
-> ([`.claude/rules/documentation.md`](.claude/rules/documentation.md)) — not a suggestion.
+> **Every Markdown change in this repo must ship polished and visually consistent with
+> the rest of the docs.** This is a hard project rule — not a suggestion.
 
 Whenever you create or substantially edit *any* Markdown file — `README.md`, anything
-under `docs/`, `data/README.md`, a service `README.md`, this file, etc. — run it through
-the **`doc-beautifier`** skill so the docs stay visually consistent across the repo. That
-means:
+under `docs/`, `data/README.md`, a service `README.md`, this file, etc. — format it so the
+docs stay visually consistent across the repo. That means:
 
 - icon / emoji section markers and badges where useful;
 - **mermaid** diagrams for flows, architecture, and sequences;
@@ -447,7 +445,7 @@ Two non-negotiables beyond formatting:
 2. **The synthetic-data disclaimer** must stay present where relevant (see
    [`docs/DISCLAIMER.md`](docs/DISCLAIMER.md)). Never imply the data is real.
 
-> **In plain terms:** if your diff includes a `.md` file and you did not beautify it,
+> **In plain terms:** if your diff includes a `.md` file and you did not polish it,
 > the change is not ready. A reviewer (human or Copilot) will send it back.
 
 ---
@@ -464,7 +462,7 @@ Two non-negotiables beyond formatting:
 | PR went green but did **not** merge | It is a draft, or has a `hold`/`do-not-merge` label | Mark it ready / remove the label. |
 | Copilot review never appeared | Copilot not enabled for the repo (best-effort step) | Request manually: *PR → Reviewers → Copilot*. |
 | `pip install -e ".[dev]"` can't find a package | Wrong Python or no virtualenv active | Use Python 3.11+, activate `.venv`, retry. |
-| A reviewer flagged your `.md` as "not beautified" | Skipped the doc-beautifier rule | Run the `doc-beautifier` skill on the file, re-push. |
+| A reviewer flagged your `.md` as "not polished" | Skipped the documentation-style rule | Polish the file to match the rest of the docs, re-push. |
 
 ---
 
