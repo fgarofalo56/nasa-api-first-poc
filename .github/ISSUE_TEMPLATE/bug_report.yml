@@ -1,0 +1,43 @@
+name: 🐞 Bug report
+description: Something in the demo doesn't behave as documented (non-security).
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! For **security** issues, stop here and use private
+        vulnerability reporting instead (see SECURITY.md) — do not file a public issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+      placeholder: "`make demo` came up, but the client returned 0 rows instead of the Artemis-3 answer…"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands you ran.
+      render: shell
+      placeholder: |
+        cp .env.example .env
+        make demo
+        python client/query_supply_risk.py --program Artemis-3 --min-delay 30
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit SHA
+      description: Output of `git rev-parse HEAD`.
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Docker version, and whether you remapped any `*_PORT` vars.
+    validations:
+      required: false

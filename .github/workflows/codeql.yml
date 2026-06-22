@@ -1,0 +1,52 @@
+# CodeQL — GitHub's first-party SAST. Findings surface in Security → Code scanning,
+# and Copilot Autofix (once enabled in repo settings) proposes one-click fixes for them.
+# Free on public repos; requires GitHub Advanced Security on private repos.
+#
+# Runners: matches the repo convention (self-hosted). Swap to `ubuntu-latest` for
+# GitHub-hosted runners. Action versions are kept current by the github-actions
+# Dependabot updater (.github/dependabot.yml).
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "27 4 * * 1" # weekly, Monday 04:27 UTC — catches newly published queries
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: [self-hosted, linux, x64] # swap to ubuntu-latest for GitHub-hosted runners
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+      security-events: write # upload code-scanning SARIF
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: python
+            build-mode: none
+          - language: javascript-typescript # the Vite/React frontend
+            build-mode: none
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # security-extended adds higher-signal security queries beyond the default pack.
+          queries: security-extended
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

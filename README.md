@@ -12,6 +12,9 @@
 ![Dev loop](https://img.shields.io/badge/dev%20loop-docker%20compose-2496ED)
 ![Data](https://img.shields.io/badge/data-synthetic%20(seeded)-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![CodeQL](https://img.shields.io/badge/CodeQL-code%20scanning-2188ff?logo=github)
+![Supply chain](https://img.shields.io/badge/supply%20chain-SLSA%20provenance%20%2B%20SBOM-8957e5)
+![OpenSSF Scorecard](https://img.shields.io/badge/OpenSSF-Scorecard-3b5fc0)
 
 > [!IMPORTANT]
 > ### 👉 New here? **Start with the Teaching Manual → [`docs/README.md`](docs/README.md)**
@@ -59,6 +62,7 @@
 - [Where to go next (learning paths)](#-where-to-go-next-learning-paths)
 - [How it maps to Azure Government](#-how-it-maps-to-azure-government)
 - [Constraints](#️-constraints-enforced-see-prpmd-9)
+- [Software assurance](#️-software-assurance-github-native)
 - [Local branch protection](#️-local-branch-protection)
 - [License](#-license)
 
@@ -347,6 +351,29 @@ the full discussion (FedRAMP High, the Azure-Gov managed-Unity-Catalog caveat) i
 
 ---
 
+## 🛡️ Software assurance (GitHub-native)
+
+Beyond the *application* security model ([`SECURITY.md`](SECURITY.md)), the repo secures
+its **software supply chain** with GitHub's built-in stack and maps every control to
+**NIST SSDF · SLSA · EO 14028 · CISA Secure by Design**. Full detail —
+**[`docs/SOFTWARE-ASSURANCE.md`](docs/SOFTWARE-ASSURANCE.md)**.
+
+| Surface | Capability |
+|---|---|
+| **Code** | CodeQL SAST (`security-extended`) + Copilot Autofix |
+| **Dependencies** | Dependabot + Dependency Review PR gate |
+| **Build / artifacts** | Trivy (deps · IaC · secrets), SPDX **SBOM**, **SLSA** build provenance |
+| **Pipeline** | Least-privilege tokens, zizmor workflow SAST, OpenSSF Scorecard |
+| **Governance** | CODEOWNERS, signed-commit branch ruleset, PR security checklist, private vuln reporting |
+
+All findings surface in the repository's **Security** tab. A one-time
+[enablement checklist](docs/SOFTWARE-ASSURANCE.md#-one-time-enablement-checklist) covers
+the settings-based pieces (secret scanning, push protection, Copilot Autofix). For a
+file-by-file tour and a 5-minute demo script, see
+**[`docs/GITHUB-FEATURES.md`](docs/GITHUB-FEATURES.md)**.
+
+---
+
 ## 🛡️ Local branch protection
 
 GitHub server-side branch protection needs GitHub Pro on a private repo, so this repo
@@ -359,8 +386,9 @@ git config core.hooksPath .githooks
 
 > [!NOTE]
 > Client-side only (guards pushes from your machine). Bypass deliberately with
-> `git -c core.hooksPath= push`. For server-enforced protection, upgrade to GitHub Pro
-> or make the repo public, then apply a ruleset.
+> `git -c core.hooksPath= push`. For server-enforced protection, import the ready-made
+> ruleset in [`.github/rulesets/`](.github/rulesets/) (PR-only, required checks, Code Owner
+> review, signed commits, linear history).
 
 ---
 

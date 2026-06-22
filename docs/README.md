@@ -322,6 +322,8 @@ know what you're looking for.
 |---|---|
 | [ZERO-MOVE.md](ZERO-MOVE.md) | How zero-move is *proven* (network isolation + automated test) |
 | [SECURITY.md](SECURITY.md) | JWT/OAuth2 token flow + OWASP API Top-10 controls at the gateway |
+| [SOFTWARE-ASSURANCE.md](SOFTWARE-ASSURANCE.md) | GitHub-native supply-chain assurance (CodeQL · SBOM · SLSA · Scorecard) mapped to NIST SSDF / EO 14028 |
+| [GITHUB-FEATURES.md](GITHUB-FEATURES.md) | Show-and-tell tour of every GitHub feature configured (file-by-file) + a 5-minute demo script |
 | [ADD-A-SOURCE.md](ADD-A-SOURCE.md) | Onboard a new source through the gateway live (UI wizard + API) |
 | [GRAPHQL.md](GRAPHQL.md) | Query the same auto-API as GraphQL through the gateway (multi-model) |
 

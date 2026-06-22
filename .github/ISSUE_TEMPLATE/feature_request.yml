@@ -1,0 +1,27 @@
+name: 💡 Feature / enhancement
+description: Suggest an addition to the demo (a source, a control, a doc, an Azure mapping).
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the gap?
+      description: What does the demo not yet show, and who is it for?
+      placeholder: "A reviewer asked how the pattern handles … and the demo has no answer for it."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What would you add or change? Keep it consistent with the zero-move, synthetic-data, vendor-neutral constraints (see PRP.md §9).
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraint check
+      options:
+        - label: Stays synthetic-data only (no real/controlled data)
+        - label: Preserves zero-move (data reachable only via the gateway)
+        - label: Keeps the gateway framing vendor-neutral and uses open standards
