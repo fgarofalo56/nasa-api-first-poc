@@ -168,8 +168,8 @@ repos; GitHub Advanced Security / Code Security on private repos):
 - [ ] Enable **Copilot Autofix** for code scanning + secret scanning
 - [ ] Enable **Dependency graph** + **Dependabot alerts** and **security updates**
 - [ ] Enable **Private vulnerability reporting** (Security → Advisories)
-- [ ] Import the **branch ruleset**: `gh api repos/OWNER/nasa-api-first-poc/rulesets --method POST --input .github/rulesets/main-protection.json`
-- [ ] Replace `@OWNER` in [`CODEOWNERS`](../.github/CODEOWNERS) with your handle/team
+- [ ] Import the **branch ruleset**: `gh api repos/fgarofalo56/nasa-api-first-poc/rulesets --method POST --input .github/rulesets/main-protection.json`
+- [ ] Adjust [`CODEOWNERS`](../.github/CODEOWNERS) to a team handle if the repo gains multiple maintainers
 - [ ] (Public repo) Confirm the **OpenSSF Scorecard** badge publishes after the first run
 
 ---
@@ -181,7 +181,7 @@ repos; GitHub Advanced Security / Code Security on private repos):
 #   open the repo → Security tab → Code scanning / Dependabot / Scorecard
 
 # Prove an image was built by this pipeline (after a provenance-enabled deploy):
-gh attestation verify oci://<registry>.azurecr.io/catalog@sha256:<digest> --owner OWNER
+gh attestation verify oci://<registry>.azurecr.io/catalog@sha256:<digest> --owner fgarofalo56
 
 # Inspect the SBOM produced by the supply-chain workflow:
 #   Actions → "Supply chain" run → Artifacts → sbom.spdx.json

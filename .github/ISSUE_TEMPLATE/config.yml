@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 🔐 Report a security vulnerability (private)
-    url: https://github.com/OWNER/nasa-api-first-poc/security/advisories/new
+    url: https://github.com/fgarofalo56/nasa-api-first-poc/security/advisories/new
     about: >-
       Do NOT open a public issue for a security problem. Use GitHub's private
       vulnerability reporting so the flaw stays confidential until a fix ships.
       See SECURITY.md for the coordinated-disclosure policy.
   - name: 📖 Documentation & concepts
-    url: https://github.com/OWNER/nasa-api-first-poc/tree/main/docs
+    url: https://github.com/fgarofalo56/nasa-api-first-poc/tree/main/docs
     about: The Teaching Manual — architecture, zero-move, security model, glossary.

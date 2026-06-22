@@ -237,9 +237,8 @@ public repos; GitHub Advanced Security / Code Security on private repos):
 - [ ] Enable **Copilot Autofix** for code scanning + secret scanning
 - [ ] Enable **Dependabot alerts** + **security updates**
 - [ ] Enable **Private vulnerability reporting** (Security → Advisories)
-- [ ] Import the ruleset: `gh api repos/OWNER/nasa-api-first-poc/rulesets --method POST --input .github/rulesets/main-protection.json`
-- [ ] Replace `@OWNER` in [`CODEOWNERS`](../.github/CODEOWNERS) with your handle/team
-- [ ] Replace `OWNER` in the issue-template links and the commands above with your org
+- [ ] Import the ruleset: `gh api repos/fgarofalo56/nasa-api-first-poc/rulesets --method POST --input .github/rulesets/main-protection.json`
+- [ ] Adjust [`CODEOWNERS`](../.github/CODEOWNERS) to a team handle if the repo gains multiple maintainers
 
 ---
 

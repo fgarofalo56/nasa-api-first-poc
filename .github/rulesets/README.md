@@ -16,7 +16,7 @@ server-side for everyone. It protects the default branch with:
 > Rulesets are a **repository setting**, not active just by living in the repo. Import once:
 >
 > ```bash
-> gh api repos/OWNER/nasa-api-first-poc/rulesets \
+> gh api repos/fgarofalo56/nasa-api-first-poc/rulesets \
 >   --method POST --input .github/rulesets/main-protection.json
 > ```
 >

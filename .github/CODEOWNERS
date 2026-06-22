@@ -3,23 +3,24 @@
 # that review a merge gate. This is the governance half of software assurance: nothing
 # security-sensitive merges without the right eyes on it.
 #
-# Replace @OWNER with your GitHub username or a team handle (e.g. @your-org/maintainers).
+# Owners are auto-requested for review. Swap @fgarofalo56 for a team handle
+# (e.g. @your-org/maintainers) if this repo gains multiple maintainers.
 
 # Default owner for everything not matched below.
-*                       @OWNER
+*                       @fgarofalo56
 
 # --- Security-sensitive surfaces (always reviewed by an owner) ---
-/.github/                @OWNER
-/.github/workflows/      @OWNER
-SECURITY.md              @OWNER
-/docs/SECURITY.md        @OWNER
-/docs/SOFTWARE-ASSURANCE.md  @OWNER
+/.github/                @fgarofalo56
+/.github/workflows/      @fgarofalo56
+SECURITY.md              @fgarofalo56
+/docs/SECURITY.md        @fgarofalo56
+/docs/SOFTWARE-ASSURANCE.md  @fgarofalo56
 
 # Identity, gateway, and data-classification config gate access to data.
-/services/identity/      @OWNER
-/services/gateway/       @OWNER
-/data/classification.yml @OWNER
+/services/identity/      @fgarofalo56
+/services/gateway/       @fgarofalo56
+/data/classification.yml @fgarofalo56
 
 # Infrastructure-as-code and deploy scripts.
-/infra/                  @OWNER
-/scripts/                @OWNER
+/infra/                  @fgarofalo56
+/scripts/                @fgarofalo56
