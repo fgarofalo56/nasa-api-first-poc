@@ -58,7 +58,7 @@
 - [Repo layout](#-repo-layout)
 - [Where to go next (learning paths)](#-where-to-go-next-learning-paths)
 - [How it maps to Azure Government](#-how-it-maps-to-azure-government)
-- [Constraints](#️-constraints-enforced-see-claudemd--prpmd-9)
+- [Constraints](#️-constraints-enforced-see-prpmd-9)
 - [Local branch protection](#️-local-branch-protection)
 - [License](#-license)
 
@@ -288,8 +288,6 @@ from the browser — displaying the gateway correlation id with each answer.
 
 ```text
 PRP.md                  # the complete build spec — read this first
-CLAUDE.md               # project rules for the Claude Code build session
-.claude/                # Claude Code config (settings, skills)
 .githooks/              # pre-push guard (block force-push/delete of main) — see note below
 data/                   # synthetic Artemis generator + classification manifest
 docs/                   # the Teaching Manual: README (learning paths) + concepts/ primers
@@ -339,7 +337,7 @@ the full discussion (FedRAMP High, the Azure-Gov managed-Unity-Catalog caveat) i
 
 ---
 
-## ⚠️ Constraints (enforced; see [`CLAUDE.md`](CLAUDE.md) + [`PRP.md`](PRP.md) §9)
+## ⚠️ Constraints (enforced; see [`PRP.md`](PRP.md) §9)
 
 - No Microsoft Fabric / OneLake as a component (not in Azure Gov/GCC).
 - Zero-move is real, not just claimed (Postgres/DAB network-isolated from clients).

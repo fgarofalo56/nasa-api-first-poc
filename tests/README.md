@@ -425,9 +425,8 @@ Two pieces of nuance make it robust rather than annoying:
 
 - It matches only the **product** terms, so the ordinary English word "fabric"
   ("fabricated data," "integration fabric") is never a false hit.
-- It **skips the meta files** that *define* the rule — `PRP.md`, `CLAUDE.md`, and
-  `test_no_fabric.py` itself — because those specify the constraint rather than build a
-  component.
+- It **skips the meta files** that *define* the rule — `PRP.md` and `test_no_fabric.py`
+  itself — because those specify the constraint rather than build a component.
 
 > **In plain terms:** you may *explain why you excluded* Fabric; you may not *use* it.
 > This test makes the docs honor that line automatically.

@@ -100,7 +100,7 @@ ever talks to the **gateway**; the gateway fans out to the backends; only DAB to
 flowchart TD
     User(["👤 Consumer<br/>(public landing · optional Entra sign-in)"]) -->|deferred sign-in / explore| UI["🚀 Front end (NASA UI)<br/>public landing · AllowAnonymous + Entra option"]
     UI -->|chat widget POSTs /ask| AG["💬 Mission agent<br/>(MCP host · grounded · cites source)"]
-    Ext(["🤖 External MCP host<br/>Copilot / Foundry / Claude"]) --> MCP["🧩 MCP server<br/>query_supply_risk · material_detail"]
+    Ext(["🤖 External MCP host<br/>Copilot / Foundry / any host"]) --> MCP["🧩 MCP server<br/>query_supply_risk · material_detail"]
     AG -->|calls MCP tools| MCP
     UI -->|JWT · every data call| Kong["🐙 Kong OSS gateway<br/>jwt · rate-limit · correlation-id · cors"]
     MCP -->|JWT from issuer| Kong
@@ -146,7 +146,7 @@ will see in the Azure portal under resource group `artemis-poc-rg`.
 > **In plain terms:** *DAB* (Data API Builder) is a Microsoft service that reads your database
 > schema and *automatically* serves it as a REST and GraphQL API — you point it at a table and
 > get an OData-style endpoint for free, no controller code. *MCP* (Model Context Protocol) is
-> the open standard that lets an AI agent (Claude, Copilot, Foundry) call a tool; here the tool
+> the open standard that lets an AI agent (Copilot, Foundry, any MCP host) call a tool; here the tool
 > answers the supply-chain question by going *through the gateway*. Both terms are defined in the
 > [Glossary](GLOSSARY.md).
 
@@ -278,7 +278,7 @@ UI does.
 
 ```mermaid
 sequenceDiagram
-    participant Host as 🤖 MCP host (Claude / Copilot / Foundry)
+    participant Host as 🤖 MCP host (Copilot / Foundry / any host)
     participant MCP as 🧩 mcp (ACA)
     participant ID as 🪪 identity issuer
     participant Kong as 🐙 Kong gateway

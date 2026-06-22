@@ -1,6 +1,6 @@
 # nasa-api-first-poc — developer targets
-# Most targets are scaffolding: the Claude Code build session (see CLAUDE.md / PRP.md)
-# implements the services these call. Targets are defined up front so the demo flow
+# Most targets are scaffolding: the build (see PRP.md) implements the services these
+# call. Targets are defined up front so the demo flow
 # and CI are stable as the implementation lands.
 
 COMPOSE ?= docker compose

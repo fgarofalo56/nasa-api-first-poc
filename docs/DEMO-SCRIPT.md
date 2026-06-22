@@ -383,7 +383,7 @@ classification drives field-level redaction at the data API (Confidential column
 python services/mcp/smoke_client.py
 ```
 
-> *"An MCP agent — Claude Desktop, GitHub Copilot, Azure AI Foundry — calls the **same
+> *"An MCP agent — GitHub Copilot, Azure AI Foundry, or any MCP host — calls the **same
 > governed surface** and gets the **same answer**, over the open **Model Context Protocol
 > (MCP)** standard, never touching the database."*
 
