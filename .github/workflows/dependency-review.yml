@@ -1,0 +1,28 @@
+# Dependency Review — blocks a pull request that introduces a dependency with a known
+# vulnerability or a disallowed licence, BEFORE it merges. Complements Dependabot
+# (which fixes what's already in main) by gating what's coming in.
+# Free on public repos; requires GitHub Advanced Security + the dependency graph on private repos.
+name: Dependency review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: [self-hosted, linux, x64] # swap to ubuntu-latest for GitHub-hosted runners
+    permissions:
+      contents: read
+      pull-requests: write # post the review summary as a PR comment
+    steps:
+      - uses: actions/checkout@v7
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+          # Deny copyleft/network licences that are incompatible with this sample's MIT licence.
+          deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0

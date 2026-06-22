@@ -16,8 +16,10 @@ on:
         options: [fullstack, apim]
 
 permissions:
-  id-token: write   # OIDC login to Azure
+  id-token: write       # OIDC login to Azure (passwordless)
   contents: read
+  attestations: write   # sign SLSA build provenance for the pushed images
+  packages: read
 
 jobs:
   deploy:
@@ -39,6 +41,20 @@ jobs:
           RG: ${{ vars.RG }}
           ACR: ${{ vars.ACR }}
         run: bash scripts/azure-deploy-fullstack.sh
+
+      # SLSA build provenance — uncomment once the deploy script captures each pushed
+      # image's registry digest (`docker inspect --format='{{index .RepoDigests 0}}' "$img"`).
+      # Signing the digest lets a verifier prove the image was built by this workflow:
+      #   gh attestation verify oci://<registry>/<image>@<digest> --owner <org>
+      # Add one step per image (or loop) with its name + digest. See docs/SOFTWARE-ASSURANCE.md.
+      # - name: Attest build provenance (SLSA)
+      #   if: ${{ inputs.what == 'fullstack' }}
+      #   uses: actions/attest-build-provenance@v2
+      #   with:
+      #     subject-name: ${{ vars.ACR }}.azurecr.io/catalog
+      #     subject-digest: ${{ steps.build.outputs.catalog_digest }}
+      #     push-to-registry: true
+
       - name: Configure APIM edition
         if: ${{ inputs.what == 'apim' }}
         env:

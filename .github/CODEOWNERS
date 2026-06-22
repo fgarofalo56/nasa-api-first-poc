@@ -1,0 +1,25 @@
+# Code owners — GitHub requests a review from the owner(s) when a PR touches a matching
+# path, and (with a branch ruleset that enables "Require review from Code Owners") makes
+# that review a merge gate. This is the governance half of software assurance: nothing
+# security-sensitive merges without the right eyes on it.
+#
+# Replace @OWNER with your GitHub username or a team handle (e.g. @your-org/maintainers).
+
+# Default owner for everything not matched below.
+*                       @OWNER
+
+# --- Security-sensitive surfaces (always reviewed by an owner) ---
+/.github/                @OWNER
+/.github/workflows/      @OWNER
+SECURITY.md              @OWNER
+/docs/SECURITY.md        @OWNER
+/docs/SOFTWARE-ASSURANCE.md  @OWNER
+
+# Identity, gateway, and data-classification config gate access to data.
+/services/identity/      @OWNER
+/services/gateway/       @OWNER
+/data/classification.yml @OWNER
+
+# Infrastructure-as-code and deploy scripts.
+/infra/                  @OWNER
+/scripts/                @OWNER
