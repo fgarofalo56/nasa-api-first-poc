@@ -16,7 +16,7 @@ permissions:
 jobs:
   analysis:
     name: Scorecard analysis
-    runs-on: [self-hosted, linux, x64] # swap to ubuntu-latest for GitHub-hosted runners
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write # upload SARIF to code scanning

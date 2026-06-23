@@ -18,7 +18,7 @@ permissions:
 jobs:
   scan:
     name: Trivy scan + SBOM
-    runs-on: [self-hosted, linux, x64] # swap to ubuntu-latest for GitHub-hosted runners
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read

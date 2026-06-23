@@ -2,8 +2,8 @@
 # and Copilot Autofix (once enabled in repo settings) proposes one-click fixes for them.
 # Free on public repos; requires GitHub Advanced Security on private repos.
 #
-# Runners: matches the repo convention (self-hosted). Swap to `ubuntu-latest` for
-# GitHub-hosted runners. Action versions are kept current by the github-actions
+# Runners: GitHub-hosted `ubuntu-latest` (safe for a public repo — fork PRs never run
+# on a self-hosted machine). Action versions are kept current by the github-actions
 # Dependabot updater (.github/dependabot.yml).
 name: CodeQL
 
@@ -21,7 +21,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: [self-hosted, linux, x64] # swap to ubuntu-latest for GitHub-hosted runners
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read

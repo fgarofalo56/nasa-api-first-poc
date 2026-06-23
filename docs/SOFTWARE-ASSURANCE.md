@@ -97,9 +97,11 @@ gate** is a control that blocks an untrustworthy change from reaching `main`.
 | **Private vulnerability reporting** ([`SECURITY.md`](../SECURITY.md)) | Coordinated disclosure via private advisories | Security → Advisories | Setting + doc |
 
 > [!TIP]
-> The workflows run on the repo's self-hosted runners by default (matching CI). Swap
-> `runs-on: [self-hosted, linux, x64]` for `ubuntu-latest` to use GitHub-hosted runners.
-> Action versions are kept current by the **github-actions Dependabot** updater.
+> The CI and security workflows run on GitHub-hosted `ubuntu-latest` runners — the safe
+> choice for a public repo, since fork pull requests never execute on a self-hosted
+> machine. Only [`deploy.yml`](../.github/workflows/deploy.yml) (manual `workflow_dispatch`
+> only) uses a self-hosted runner, because it needs network access to the Azure
+> environment. Action versions are kept current by the **github-actions Dependabot** updater.
 
 ---
 
