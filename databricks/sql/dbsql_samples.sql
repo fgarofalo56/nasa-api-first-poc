@@ -3,9 +3,9 @@
 -- they are also the basis for the Power BI report (docs/POWERBI-GUIDE.md).
 --
 -- Set the catalog to the one the notebook wrote to (run_notebook.py --catalog;
--- the reference workspace uses dbw_btfabric_dev). The queries below are then
+-- the reference workspace uses main). The queries below are then
 -- catalog-relative, so you only change this one line for your environment.
-USE CATALOG dbw_btfabric_dev;   -- <-- change to your Unity Catalog
+USE CATALOG main;   -- <-- change to your Unity Catalog
 
 -- 1) The headline mission question (the same answer the CLI/MCP/UI return, now in DBSQL):
 SELECT program, material_name, vendor_name, risk_tier, risk_score, avg_delay_days, total_committed_usd

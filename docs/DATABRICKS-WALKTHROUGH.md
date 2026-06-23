@@ -181,10 +181,10 @@ directly. The reference workspace this POC was validated against is:
 
 | Property | Value |
 |---|---|
-| Workspace | `dbw-btfabric-dev` (premium / Unity Catalog enabled) |
+| Workspace | `<your-databricks-workspace>` (premium / Unity Catalog enabled) |
 | URL | `https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` |
-| Resource group | `rg-btfabric-tut57-dev` |
-| Subscription | `363ef5d1-0e77-4594-a530-f51af23dbf8c` |
+| Resource group | `<your-resource-group>` |
+| Subscription | `<your-subscription-id>` |
 
 Resolve the workspace URL and authenticate the Databricks CLI through your Azure login (no
 personal access token required):
@@ -192,8 +192,8 @@ personal access token required):
 ```bash
 # Look up the workspace URL from Azure (so you never hardcode it):
 WS=$(az databricks workspace show \
-  --subscription 363ef5d1-0e77-4594-a530-f51af23dbf8c \
-  -g rg-btfabric-tut57-dev -n dbw-btfabric-dev --query workspaceUrl -o tsv)
+  --subscription <your-subscription-id> \
+  -g <your-resource-group> -n <your-databricks-workspace> --query workspaceUrl -o tsv)
 echo "https://$WS"
 
 # Install the CLI/SDK and log in via Entra OAuth (uses your tenant identity):
@@ -217,20 +217,22 @@ https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net
 Name                  Comment
 --------------------  -------
 artemis
-dbw_btfabric_dev
 main
+samples
 ```
 
 Pick a catalog you can **write** to and use its name as the `catalog` widget below. The
-notebook defaults to **`dbw_btfabric_dev`** (the workspace's own catalog) because that is
-the catalog the medallion run was validated against on **2026-06-18**.
+notebook defaults to **`main`** — the default Unity Catalog present in every metastore,
+which is writable in most workspaces. Substitute whichever catalog your identity and
+compute can write Delta files to.
 
 > [!WARNING]
 > **Pick a catalog you can write *data* to — not merely one that exists.** `CREATE SCHEMA`
 > is metadata-only and will succeed even when your identity/compute can't write Delta files
-> to the catalog's managed storage. In the reference workspace the **`artemis`** catalog's
-> managed storage (`alzdatalakeraw…`) returns a **403 `AuthorizationFailure`
-> (SQLSTATE 42501)** on the first Bronze write, while **`dbw_btfabric_dev`** writes fine.
+> to the catalog's managed storage. For example, a catalog whose managed storage your
+> identity lacks write access to returns a **403 `AuthorizationFailure`
+> (SQLSTATE 42501)** on the first Bronze write, while a writable catalog like **`main`**
+> works fine.
 > The notebook now runs a tiny **write-probe** right after creating the schemas, so this
 > fails fast with a clear message instead of deep inside Bronze.
 
@@ -281,7 +283,7 @@ flowchart TD
 ## 2. 🏬 SQL warehouse
 
 A **SQL warehouse** is the engine Power BI (and your ad-hoc SQL) will query. Use an existing
-warehouse in `dbw-btfabric-dev`, or create one (Serverless or Pro, size **2X-Small** is
+warehouse in `<your-databricks-workspace>`, or create one (Serverless or Pro, size **2X-Small** is
 plenty for this synthetic dataset). Note its **Server hostname** and **HTTP path** — you will
 paste both into Power BI in [§6](#6--connect-power-bi).
 
@@ -330,8 +332,8 @@ az login
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'   # postgres mode only
 python databricks/run_notebook.py \
   --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
-  --catalog dbw_btfabric_dev --source-mode postgres \
-  --pg-host artemis-pg.postgres.database.azure.com
+  --catalog main --source-mode postgres \
+  --pg-host <your-pg-server>.postgres.database.azure.com
 ```
 
 **Expected output (shape):**
@@ -345,13 +347,13 @@ submitting run (spark=15.4.x-scala2.12, node=Standard_DS3_v2)...
 run 12345678: RunResultState.SUCCESS —
 run page: https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net/#job/12345678
 
-notebook summary: {"catalog": "dbw_btfabric_dev", "gold_table": "dbw_btfabric_dev.gold.artemis_supply_risk", "gold_rows": 600, "headline_rows": 6, "headline_material": "Turbopump impeller"}
-  -> dbw_btfabric_dev.gold.artemis_supply_risk: 600 rows; headline=6 (Turbopump impeller)
+notebook summary: {"catalog": "main", "gold_table": "main.gold.artemis_supply_risk", "gold_rows": 600, "headline_rows": 6, "headline_material": "Turbopump impeller"}
+  -> main.gold.artemis_supply_risk: 600 rows; headline=6 (Turbopump impeller)
 ```
 
 > [!NOTE]
 > The values above are the **actual gateway-mode result validated on 2026-06-18** in
-> `dbw-btfabric-dev` (Serverless compute, `catalog=dbw_btfabric_dev`): `gold_rows=600`,
+> `<your-databricks-workspace>` (Serverless compute, `catalog=main`): `gold_rows=600`,
 > `headline_rows=6`, headline material **Turbopump impeller** — matching the marketplace UI.
 
 **What each line told you:** the runner authenticated as you, stored the Postgres password as
@@ -369,7 +371,7 @@ For **gateway mode**, the runner mints a bearer token from the issuer for you (n
 ```bash
 python databricks/run_notebook.py \
   --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
-  --catalog dbw_btfabric_dev --source-mode gateway \
+  --catalog main --source-mode gateway \
   --gateway-url https://kong.<aca-domain> \
   --identity-url https://identity.<aca-domain>
 ```
@@ -395,7 +397,7 @@ Open `/Workspace/Users/<you>/artemis/01_zero_move_medallion`, attach a UC-enable
 and click **Run all**:
 
 - **postgres mode:** `source_mode=postgres`,
-  `pg_host=artemis-pg.postgres.database.azure.com`, `pg_secret_scope=artemis`,
+  `pg_host=<your-pg-server>.postgres.database.azure.com`, `pg_secret_scope=artemis`,
   `pg_secret_key=pg_password`, `catalog=<your UC catalog>`.
 - **gateway mode:** `source_mode=gateway`, `gateway_url=https://<your-apim-or-app>`. Then
   either point the notebook at a pre-stored token (`token_secret_scope=artemis`,
@@ -426,7 +428,7 @@ the notebook. Here is every widget, what it does, its default, and which mode ne
 | `consumer` | text | `artemis-agent` | gateway (mint) | The consumer identity to mint a token for. Determines the rate-limit bucket and which fields are redacted. |
 | `token_secret_scope` | text | *(empty)* | gateway (pre-stored) | Secret scope holding a bearer token. If both this and `token_secret_key` are set, the notebook reads the token instead of minting one. |
 | `token_secret_key` | text | *(empty)* | gateway (pre-stored) | Secret key for the bearer token inside the scope above. |
-| `pg_host` | text | `artemis-pg.postgres.database.azure.com` | postgres | Hostname of the deployed Azure Postgres. Connected as `jdbc:postgresql://<host>:5432/procurement?sslmode=require`. |
+| `pg_host` | text | `<your-pg-server>.postgres.database.azure.com` | postgres | Hostname of the deployed Azure Postgres. Connected as `jdbc:postgresql://<host>:5432/procurement?sslmode=require`. |
 | `pg_secret_scope` | text | `artemis` | postgres | Secret scope holding the Postgres password. |
 | `pg_secret_key` | text | `pg_password` | postgres | Secret key for the Postgres password inside that scope. |
 
@@ -544,8 +546,8 @@ ALTER SHARE artemis_supply_risk_share ADD TABLE <catalog>.gold.artemis_supply_ri
 
 ## 8. 🧹 Teardown (stop billing)
 
-The notebook runs in a **pre-existing** workspace (`dbw-btfabric-dev` in
-`rg-btfabric-tut57-dev`), so **do not delete that resource group** — you would destroy shared
+The notebook runs in a **pre-existing** workspace (`<your-databricks-workspace>` in
+`<your-resource-group>`), so **do not delete that resource group** — you would destroy shared
 infrastructure. Remove only what the notebook created:
 
 ```sql

@@ -10,8 +10,8 @@ Usage:
   export PG_ADMIN_PASSWORD='<the deployed Postgres password>'   # for source_mode=postgres
   python databricks/run_notebook.py \
       --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
-      --catalog dbw_btfabric_dev --source-mode postgres \
-      --pg-host artemis-pg.postgres.database.azure.com
+      --catalog main --source-mode postgres \
+      --pg-host <your-pg-server>.postgres.database.azure.com
 """
 
 from __future__ import annotations
@@ -33,9 +33,9 @@ PG_DRIVER = "org.postgresql:postgresql:42.7.4"
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--host", required=True, help="workspace host, e.g. adb-xxxx.azuredatabricks.net")
-    ap.add_argument("--catalog", default="dbw_btfabric_dev")  # a UC catalog you can WRITE to
+    ap.add_argument("--catalog", default="main")  # a UC catalog you can WRITE to
     ap.add_argument("--source-mode", default="postgres", choices=["postgres", "gateway"])
-    ap.add_argument("--pg-host", default="artemis-pg.postgres.database.azure.com")
+    ap.add_argument("--pg-host", default="<your-pg-server>.postgres.database.azure.com")
     ap.add_argument("--gateway-url", default="", help="gateway base URL, e.g. https://kong.<aca-domain>")
     ap.add_argument("--identity-url", default="", help="issuer URL for gateway mode, e.g. https://identity.<aca-domain>")
     ap.add_argument("--consumer", default="artemis-agent", help="consumer id minted by the issuer")

@@ -37,5 +37,5 @@ if az keyvault list-deleted --query "[?name=='$KV']" -o tsv 2>/dev/null | grep -
 fi
 
 echo "Done. Resources are being deleted; billing stops as they are removed."
-echo "Note: the Databricks notebook artifacts live in your dbw-btfabric-dev workspace —"
-echo "drop them with: DROP SCHEMA dbw_btfabric_dev.bronze CASCADE; (silver/gold too)."
+echo "Note: the Databricks notebook artifacts live in your <your-databricks-workspace> workspace —"
+echo "drop them with: DROP SCHEMA main.bronze CASCADE; (silver/gold too)."

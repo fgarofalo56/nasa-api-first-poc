@@ -7,7 +7,7 @@ semantic model automatically.
 
 After publishing, the report shows a connection error until you (one-time, in the Service):
   1. Semantic model -> Settings -> Parameters: set DatabricksServerHostname,
-     DatabricksHttpPath (the SQL warehouse HTTP path), CatalogName (dbw_btfabric_dev).
+     DatabricksHttpPath (the SQL warehouse HTTP path), CatalogName (main).
   2. Semantic model -> Settings -> Data source credentials: sign in to the Azure
      Databricks source with your Entra ID (DirectQuery — zero copy).
 See powerbi/README.md.

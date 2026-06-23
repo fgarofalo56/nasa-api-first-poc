@@ -608,7 +608,7 @@ order. On success it prints the **outputs**:
 ```text
 apimGatewayUrl : https://artemis-apim.azure-api.net
 dabUrl         : https://artemis-dab.<region>.azurecontainerapps.io   (internal — not callable from your laptop)
-postgresFqdn   : artemis-pg.postgres.database.azure.com               (public access disabled)
+postgresFqdn   : <your-pg-server>.postgres.database.azure.com               (public access disabled)
 ```
 
 The `apimGatewayUrl` is the **only** endpoint a client should ever use — the same role the
