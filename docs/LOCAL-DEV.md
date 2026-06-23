@@ -213,7 +213,7 @@ list from the source of truth.
 | `make obs` | `compose --profile observability up -d` | Start Prometheus + Grafana to watch per-consumer traffic |
 | `make ui` | `compose --profile frontend up -d --build` | Start the browser catalog UI + "add a source" wizard |
 | `make pricing` | `python tools/azure_pricing.py` | Print **live, dated** Azure Retail prices for the managed targets |
-| `make diagram` | `python scripts/gen-architecture-diagram.py` | Re-render `docs/architecture.png` after an architecture change |
+| `make diagram` | `python scripts/gen-architecture-diagram.py` | Rebuild the `docs/architecture.excalidraw` source (export the PNG from Excalidraw) |
 | `make logs` | `compose logs -f` | Tail every service's logs while debugging |
 | `make down` | `compose down -v` | Stop everything **and remove volumes** (fresh slate) |
 | `make clean` | `rm -rf data/out output` | Remove generated runtime artifacts on the host |
