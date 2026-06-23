@@ -32,7 +32,7 @@ jobs:
       - name: Prepare env + host deps
         run: |
           cp .env.example .env
-          pip install -e .
+          pip install -e ".[dev]"  # dev extra provides pytest for the integration step
       - name: Compose up (core) + wait healthy
         run: |
           docker compose --profile core up -d --build
