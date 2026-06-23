@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   dependency-review:
-    runs-on: [self-hosted, linux, x64] # swap to ubuntu-latest for GitHub-hosted runners
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write # post the review summary as a PR comment
