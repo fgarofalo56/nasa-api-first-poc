@@ -185,8 +185,8 @@ contracts (OpenAPI, OAuth2/JWT, OData, MCP), only the implementations swap.
 | Identity (token issuer) | `https://identity.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps (stands in for Entra ID) |
 | Catalog | `https://catalog.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps |
 | Registry (source control-plane) | `https://registry.xxxxxxxx-xxxxxxxx.centralus.azurecontainerapps.io` | Container Apps |
-| APIM gateway | `https://artemis-apim.azure-api.net` | API Management |
-| APIM Developer Portal | `https://artemis-apim.developer.azure-api.net` | API Management |
+| APIM gateway | `https://<your-apim>.azure-api.net` | API Management |
+| APIM Developer Portal | `https://<your-apim>.developer.azure-api.net` | API Management |
 | Databricks workspace | `https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` | Azure Databricks |
 | Unity Catalog / warehouse | catalog `main` · Serverless SQL Warehouse | Databricks SQL |
 
@@ -491,7 +491,7 @@ instead of Kong. Showing B and C back to back is the literal demonstration of th
 ### 🚪 1. The gateway (subscription-key gated)
 
 ```bash
-GW=https://artemis-apim.azure-api.net
+GW=https://<your-apim>.azure-api.net
 curl -s -o /dev/null -w "no-key %{http_code}\n" "$GW/api/SupplyRisk?\$first=1"                        # 401 (no key)
 # With a subscription key (Azure portal → APIM → Subscriptions, or the Developer Portal):
 curl -s -H "Ocp-Apim-Subscription-Key: <KEY>" "$GW/api/SupplyRisk?\$first=1" | python -m json.tool    # 200
@@ -505,7 +505,7 @@ curl -s -H "Ocp-Apim-Subscription-Key: <KEY>" "$GW/api/SupplyRisk?\$first=1" | p
 
 ### 🧑‍💻 2. The Developer Portal — the self-service story
 
-Open **`https://artemis-apim.developer.azure-api.net`**:
+Open **`https://<your-apim>.developer.azure-api.net`**:
 
 - **Browse APIs** → **Artemis Supply-Chain Risk API** with all **8 operations** (Material /
   PurchaseOrder / SupplyRisk / Vendor — each as *list* and *by-key*) plus a downloadable

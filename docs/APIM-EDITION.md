@@ -238,8 +238,8 @@ re-run. In order, it:
    no key -> HTTP 401   |   with key -> HTTP 200  (expect 401 / 200)
 
 ================ APIM EDITION CONFIGURED ================
-  Gateway:          https://artemis-apim.azure-api.net/api/SupplyRisk   (header: Ocp-Apim-Subscription-Key)
-  Developer Portal: https://artemis-apim.developer.azure-api.net   (publish it once from the portal Azure UI on first run)
+  Gateway:          https://<your-apim>.azure-api.net/api/SupplyRisk   (header: Ocp-Apim-Subscription-Key)
+  Developer Portal: https://<your-apim>.developer.azure-api.net   (publish it once from the portal Azure UI on first run)
   Policy: subscription-key + per-caller rate-limit + correlation id
           (Entra validate-azure-ad-token is the documented tenant-lock upgrade)
 ```
@@ -298,7 +298,7 @@ admin to consent. Username/password sign-in remains available regardless.
 This is the highest-impact visual in the entire demo — the managed twin of our local
 catalog + "add a source" wizard.
 
-1. Open `https://artemis-apim.developer.azure-api.net` — the published portal lists the
+1. Open `https://<your-apim>.developer.azure-api.net` — the published portal lists the
    **Artemis Supply-Chain Risk API** (and the sample Echo API) to anonymous visitors.
 2. Open the Artemis API → all eight operations
    ([Material](GLOSSARY.md#odata) / PurchaseOrder / SupplyRisk / Vendor, each as *list* and
