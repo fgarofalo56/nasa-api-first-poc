@@ -606,7 +606,7 @@ Postgres parameter. Azure then provisions monitor → postgres → dab → apim 
 order. On success it prints the **outputs**:
 
 ```text
-apimGatewayUrl : https://artemis-apim.azure-api.net
+apimGatewayUrl : https://<your-apim>.azure-api.net
 dabUrl         : https://artemis-dab.<region>.azurecontainerapps.io   (internal — not callable from your laptop)
 postgresFqdn   : <your-pg-server>.postgres.database.azure.com               (public access disabled)
 ```
