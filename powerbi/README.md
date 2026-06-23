@@ -120,7 +120,7 @@ Set these in **Transform data → Edit parameters**. They feed the DirectQuery M
 |---|---|---|
 | `DatabricksServerHostname` | The warehouse **Server hostname** (SQL warehouse → *Connection details*) | `adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` |
 | `DatabricksHttpPath` | The warehouse **HTTP path** | `/sql/1.0/warehouses/<warehouse-id>` |
-| `CatalogName` | The Unity Catalog the notebook wrote to | `dbw_btfabric_dev` |
+| `CatalogName` | The Unity Catalog the notebook wrote to | `main` |
 
 ---
 
@@ -185,7 +185,7 @@ Deployed to the **`csa-loom`** workspace (Limitless Data tenant):
 > **One-time connection setup in the Service** (the publish carries the *definition*, not
 > credentials). On the **ArtemisSupplyRisk** semantic model → **Settings**:
 > 1. **Parameters** → set `DatabricksServerHostname`, `DatabricksHttpPath` (your SQL
->    warehouse's HTTP path), `CatalogName` = `dbw_btfabric_dev`.
+>    warehouse's HTTP path), `CatalogName` = `main`.
 > 2. **Data source credentials** → sign in to the **Azure Databricks** source with your
 >    **Entra ID** (DirectQuery — zero copy). The report renders once this is bound.
 

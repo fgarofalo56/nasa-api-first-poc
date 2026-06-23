@@ -8,7 +8,7 @@ expression DatabricksHttpPath = "/sql/1.0/warehouses/REPLACE_WITH_WAREHOUSE_ID" 
 
 	annotation PBI_ResultType = Text
 
-expression CatalogName = "dbw_btfabric_dev" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression CatalogName = "main" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: c82bcf3d-0643-58dd-b1a3-5059a71cd301
 
 	annotation PBI_ResultType = Text

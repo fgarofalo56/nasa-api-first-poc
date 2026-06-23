@@ -140,9 +140,9 @@ have to provision one to learn:
 
 | Property | Value (reference workspace) |
 |---|---|
-| Workspace | `dbw-btfabric-dev` (premium / Unity Catalog) |
+| Workspace | `<your-databricks-workspace>` (premium / Unity Catalog) |
 | URL | `https://adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net` |
-| Reference catalog | `dbw_btfabric_dev` |
+| Reference catalog | `main` |
 
 The reference infrastructure-as-code to stand up a *new* one
 ([`infra/azure/modules/databricks.bicep`](../../infra/azure/modules/databricks.bicep))
@@ -274,11 +274,11 @@ UC organizes everything in a **three-level namespace**:
 catalog . schema . table
    │         │        └── e.g. artemis_supply_risk
    │         └────────────  e.g. gold  (also: bronze, silver)
-   └──────────────────────  e.g. dbw_btfabric_dev
+   └──────────────────────  e.g. main
 ```
 
 That is why every table reference in this POC is three parts, like
-`dbw_btfabric_dev.gold.artemis_supply_risk`. The notebook creates the
+`main.gold.artemis_supply_risk`. The notebook creates the
 **schemas** (the medallion tiers) inside an existing catalog:
 
 ```python
@@ -330,7 +330,7 @@ SQL by anyone with access:
 
 ```sql
 -- databricks/sql/dbsql_samples.sql — the headline mission question, in Databricks SQL
-USE CATALOG dbw_btfabric_dev;   -- change to your Unity Catalog
+USE CATALOG main;   -- change to your Unity Catalog
 
 SELECT program, material_name, vendor_name, risk_tier, risk_score,
        avg_delay_days, total_committed_usd
@@ -457,8 +457,8 @@ medallion + Power BI mart without standing up anything new.
 
 ```bash
 WS=$(az databricks workspace show \
-  --subscription 363ef5d1-0e77-4594-a530-f51af23dbf8c \
-  -g rg-btfabric-tut57-dev -n dbw-btfabric-dev --query workspaceUrl -o tsv)
+  --subscription <your-subscription-id> \
+  -g <your-resource-group> -n <your-databricks-workspace> --query workspaceUrl -o tsv)
 
 pip install databricks-sdk databricks-cli
 databricks auth login --host "https://$WS"   # Entra OAuth — no PAT needed
@@ -487,22 +487,22 @@ az login
 export PG_ADMIN_PASSWORD='<deployed Postgres password>'
 python databricks/run_notebook.py \
   --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
-  --catalog dbw_btfabric_dev --source-mode postgres \
-  --pg-host artemis-pg.postgres.database.azure.com
+  --catalog main --source-mode postgres \
+  --pg-host <your-pg-server>.postgres.database.azure.com
 ```
 
 **What this did and why:** [`run_notebook.py`](../../databricks/run_notebook.py)
 imports the notebook into your workspace, sets the secret, runs it on a single-node
 Unity-Catalog cluster, and prints a validation query. It creates the
 `bronze`/`silver`/`gold` schemas, lands Bronze Delta, refines to Silver, and
-builds `dbw_btfabric_dev.gold.artemis_supply_risk` and `gold.delay_trend`.
+builds `main.gold.artemis_supply_risk` and `gold.delay_trend`.
 
 **Expected output** (the notebook's `dbutils.notebook.exit(...)` summary):
 
 ```json
 {
-  "catalog": "dbw_btfabric_dev",
-  "gold_table": "dbw_btfabric_dev.gold.artemis_supply_risk",
+  "catalog": "main",
+  "gold_table": "main.gold.artemis_supply_risk",
   "gold_rows": 600,
   "headline_rows": 6,
   "headline_material": "<a synthetic material name>"
@@ -516,9 +516,9 @@ the CLI and AI agent return**, now sitting in Delta in Unity Catalog.
 ### Step 4 — verify in Databricks SQL
 
 ```sql
-SHOW TABLES IN dbw_btfabric_dev.gold;
+SHOW TABLES IN main.gold;
 
-SELECT * FROM dbw_btfabric_dev.gold.artemis_supply_risk
+SELECT * FROM main.gold.artemis_supply_risk
 WHERE program='Artemis-3' AND criticality='Critical'
   AND sole_source=true AND avg_delay_days>30
 ORDER BY risk_score DESC;
@@ -533,7 +533,7 @@ will connect to.
 ```bash
 python databricks/run_notebook.py \
   --host adb-XXXXXXXXXXXXXXXX.18.azuredatabricks.net \
-  --catalog dbw_btfabric_dev --source-mode gateway \
+  --catalog main --source-mode gateway \
   --gateway-url https://kong.<aca-domain> \
   --identity-url https://identity.<aca-domain>
 ```
@@ -550,7 +550,7 @@ difference is governance, proven.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `Cannot write Delta into '<catalog>' managed storage (permission/403?)` | The catalog exists but your identity/compute can't write *data* to its managed storage — the notebook's **write-probe** caught it. (`CREATE SCHEMA` is metadata-only and would have passed.) | Run `databricks unity-catalog catalogs list` and pass a catalog whose managed storage you can write to — e.g. your workspace catalog `dbw_btfabric_dev`. In the reference workspace, `artemis` 403s but `dbw_btfabric_dev` works. |
+| `Cannot write Delta into '<catalog>' managed storage (permission/403?)` | The catalog exists but your identity/compute can't write *data* to its managed storage — the notebook's **write-probe** caught it. (`CREATE SCHEMA` is metadata-only and would have passed.) | Run `databricks unity-catalog catalogs list` and pass a catalog whose managed storage you can write to — e.g. your workspace catalog `main`. In the reference workspace, `artemis` 403s but `main` works. |
 | Catalog creation fails | Catalog creation depends on the metastore's storage; the notebook intentionally creates **schemas**, not catalogs | Use an existing catalog; do not try to create one in the notebook |
 | Cell stuck on **"Waiting"** in the notebook editor | A stale front-end state (common after a widget change or interrupt); the backend has usually already finished | **Reload the page** to see the true committed cell state and outputs |
 | `total_committed_usd` is all `$0` | You ran `gateway` mode — `netwr`/`netpr` are redacted at the gateway by design | Use `postgres` mode for full-fidelity dollar measures |
@@ -560,7 +560,7 @@ difference is governance, proven.
 
 > [!WARNING]
 > **Do not delete the reference workspace's resource group.** The notebook uses a
-> *pre-existing* workspace (`dbw-btfabric-dev` in `rg-btfabric-tut57-dev`). To
+> *pre-existing* workspace (`<your-databricks-workspace>` in `<your-resource-group>`). To
 > clean up, drop only what the notebook created (`DROP SCHEMA ... bronze/silver/gold
 > CASCADE`) — never the resource group. Serverless SQL warehouses auto-stop when
 > idle. See the teardown section of [`DATABRICKS-WALKTHROUGH.md`](../DATABRICKS-WALKTHROUGH.md#8--teardown-stop-billing).

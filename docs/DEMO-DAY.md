@@ -446,11 +446,11 @@ flowchart LR
 
 > [!NOTE]
 > **Two run modes in the notebook** (`databricks/notebooks/01_zero_move_medallion.ipynb`,
-> reference workspace `dbw-btfabric-dev`): `postgres` mode reads the DB directly (fast to
+> reference workspace `<your-databricks-workspace>`): `postgres` mode reads the DB directly (fast to
 > demo today), and `gateway` mode reads *through* the gateway (the true zero-move path).
 > Lead with `gateway` mode for the zero-move story. The Power BI report targets
 > `<catalog>.gold.artemis_supply_risk`; the reference workspace catalog is
-> `dbw_btfabric_dev` (also the notebook's default `catalog` widget).
+> `main` (also the notebook's default `catalog` widget).
 
 > **Why this matters (platform posture):** the managed analytics platform — **Azure
 > Databricks + managed Unity Catalog + Databricks SQL + Delta Lake + Delta Sharing on ADLS

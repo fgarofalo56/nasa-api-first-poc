@@ -13,7 +13,7 @@
 > table `<catalog>.gold.artemis_supply_risk`. That table (and a companion trend
 > table, `gold.delay_trend`) is built by
 > [`databricks/notebooks/01_zero_move_medallion.ipynb`](../databricks/notebooks/01_zero_move_medallion.ipynb).
-> The reference workspace uses catalog **`dbw_btfabric_dev`**, which is also the
+> The reference workspace uses catalog **`main`**, which is also the
 > notebook's default `catalog` widget.
 >
 > **Two ways to get the report:** (1) **as code** — open the ready-made
@@ -204,8 +204,8 @@ reference **Serverless Starter Warehouse**.
 
 Then in the **Navigator** that appears:
 
-1. Expand your **catalog** (reference: **`dbw_btfabric_dev`**; or whatever you
-   passed to the notebook's `catalog` widget — the default is `dbw_btfabric_dev`).
+1. Expand your **catalog** (reference: **`main`**; or whatever you
+   passed to the notebook's `catalog` widget — the default is `main`).
 2. Expand the **`gold`** schema.
 3. Tick **`artemis_supply_risk`** → **Load**.
 
@@ -413,7 +413,7 @@ workspace in the same tenant. After publishing:
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | **Authentication fails / "AADSTS" error** | Signed in with the wrong account, or not in the demo tenant | Use the same **Entra ID** tenant account as the rest of the demo; the warehouse is tenant-locked |
-| **Navigator doesn't show the `gold` schema** | You expanded the wrong catalog | Expand the catalog you passed to the notebook's `catalog` widget (reference + default: `dbw_btfabric_dev`) |
+| **Navigator doesn't show the `gold` schema** | You expanded the wrong catalog | Expand the catalog you passed to the notebook's `catalog` widget (reference + default: `main`) |
 | **`gold.artemis_supply_risk` is missing entirely** | The medallion notebook hasn't been run against this catalog | Run [`01_zero_move_medallion.ipynb`](../databricks/notebooks/01_zero_move_medallion.ipynb); then re-verify with query #1 in `dbsql_samples.sql` |
 | **Measures error "cannot find table"** | Table renamed on load; the DAX still says `'artemis_supply_risk'` | Match the single-quoted name in each measure to the table's name in your model |
 | **Line chart empty** | `gold.delay_trend` not loaded | Re-open Get Data and tick it ([section 2](#2--connect-power-bi-to-the-warehouse)) |

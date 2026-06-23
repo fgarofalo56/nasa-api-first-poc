@@ -19,7 +19,7 @@ cd "$(dirname "$0")/.."
 
 RG="${RG:-artemis-poc-rg}"; LOC="${LOC:-centralus}"
 ACR="${ACR:-artemispocacrn1}"; CAE="${CAE:-artemis-cae}"
-PG_FQDN="${PG_FQDN:-artemis-pg.postgres.database.azure.com}"
+PG_FQDN="${PG_FQDN:-<your-pg-server>.postgres.database.azure.com}"
 : "${PG_ADMIN_PASSWORD:?set PG_ADMIN_PASSWORD}"
 export PYTHONIOENCODING=utf-8 PYTHONUTF8=1 MSYS_NO_PATHCONV=1
 TENANT="$(az account show --query tenantId -o tsv)"
